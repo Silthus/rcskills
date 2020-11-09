@@ -10,13 +10,15 @@ plugins {
     id 'kr.entree.spigradle' version '2.2.3'
     id 'java'
     id 'jacoco'
+    id "io.freefair.lombok" version "5.3.0"
+    id 'io.ebean' version '12.5.1'
 }
 
 apply from: "$rootDir/gradle/jacoco.gradle"
 apply from: "$rootDir/gradle/publish.gradle"
 
-sourceCompatibility = 8
-targetCompatibility = 8
+sourceCompatibility = 11
+targetCompatibility = 11
 
 ext {
     mcVersion = project.property("mcVersion")
@@ -42,23 +44,11 @@ compileJava {
 archivesBaseName = project.property("pluginName")
 
 repositories {
+    mavenLocal()
     mavenCentral()
     jcenter()
-
+    jitpack()
     spigot()
-//    bungeecord()
-//    paper()
-//    protocolLib()
-//    enginehub()
-
-    maven {
-        name = 'github'
-        url = 'https://maven.pkg.github.com/Silthus'
-        credentials {
-            username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
-            password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
-        }
-    }
 }
 
 dependencies {

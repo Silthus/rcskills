@@ -1,4 +1,4 @@
-package net.silthus.template;
+package net.silthus.skills;
 
 import kr.entree.spigradle.annotations.PluginMain;
 import org.bukkit.event.EventHandler;
@@ -11,11 +11,11 @@ import org.bukkit.plugin.java.JavaPluginLoader;
 import java.io.File;
 
 @PluginMain
-public class TemplatePlugin extends JavaPlugin implements Listener {
+public class SkillsPlugin extends JavaPlugin implements Listener {
 
-  public TemplatePlugin() {}
+  public SkillsPlugin() {}
 
-  public TemplatePlugin(
+  public SkillsPlugin(
       JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file) {
     super(loader, description, dataFolder, file);
   }

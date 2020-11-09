@@ -1,4 +1,4 @@
-package net.silthus.template;
+package net.silthus.skills;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
@@ -11,14 +11,14 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TemplatePluginTests {
+public class SkillsPluginTests {
 
   private ServerMock server;
 
   @Before
   public void setUp() {
     server = MockBukkit.mock();
-    MockBukkit.loadWith(TemplatePlugin.class, new File("build/tmp/spigotPluginYaml/plugin.yml"));
+    MockBukkit.loadWith(SkillsPlugin.class, new File("build/tmp/spigotPluginYaml/plugin.yml"));
   }
 
   @Test
