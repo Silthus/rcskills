@@ -1,7 +1,8 @@
-package net.silthus.skills.bukkit;
+package net.silthus.skills;
 
 import io.ebean.Database;
 import kr.entree.spigradle.annotations.PluginMain;
+import lombok.Getter;
 import net.silthus.ebean.Config;
 import net.silthus.ebean.Driver;
 import net.silthus.ebean.EbeanWrapper;
@@ -15,19 +16,25 @@ import java.io.File;
 @PluginMain
 public class SkillsPlugin extends JavaPlugin {
 
-    private Database database;
+    @Getter
+    private static SkillsPlugin instance;
 
-    public SkillsPlugin() {}
+    private SkillManager skillManager;
+
+    public SkillsPlugin() {
+        instance = this;
+    }
 
     public SkillsPlugin(
             JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file) {
         super(loader, description, dataFolder, file);
+        instance = this;
     }
 
     @Override
     public void onEnable() {
 
-        this.database = connectToDatabase();
+        this.skillManager = new SkillManager(connectToDatabase());
     }
 
     private Database connectToDatabase() {

@@ -1,0 +1,5 @@
+requirements:
+  skill:
+    name: 'Required Skill'
+    description: 'Requires the %1$s skill to unlock this skill.'
+    error: 'You require the %1$s skill to unlock this skill.'

@@ -1,0 +1,6 @@
+lang: en
+database:
+  driver: 'h2'
+  url: 'jdbc:h2:~/skills.db'
+  username: sa
+  password: sa
