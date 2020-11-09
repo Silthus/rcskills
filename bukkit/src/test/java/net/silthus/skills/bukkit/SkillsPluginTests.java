@@ -1,4 +1,4 @@
-package net.silthus.skills;
+package net.silthus.skills.bukkit;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;

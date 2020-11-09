@@ -1,4 +1,4 @@
-package net.silthus.skills;
+package net.silthus.skills.bukkit;
 
 import io.ebean.Database;
 import kr.entree.spigradle.annotations.PluginMain;
@@ -6,7 +6,6 @@ import net.silthus.ebean.Config;
 import net.silthus.ebean.Driver;
 import net.silthus.ebean.EbeanWrapper;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
@@ -14,7 +13,9 @@ import org.bukkit.plugin.java.JavaPluginLoader;
 import java.io.File;
 
 @PluginMain
-public class SkillsPlugin extends JavaPlugin implements Listener {
+public class SkillsPlugin extends JavaPlugin {
+
+    private Database database;
 
     public SkillsPlugin() {}
 
@@ -26,7 +27,7 @@ public class SkillsPlugin extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
 
-        getServer().getPluginManager().registerEvents(this, this);
+        this.database = connectToDatabase();
     }
 
     private Database connectToDatabase() {
@@ -40,7 +41,7 @@ public class SkillsPlugin extends JavaPlugin implements Listener {
                 .driverPath(new File("lib"))
                 .autoDownloadDriver(true)
                 .migrations(getClass())
-                .url(config.getString("database.url", "jdbc:h2:~/achievements.db"))
+                .url(config.getString("database.url", "jdbc:h2:~/skills.db"))
                 .username(config.getString("database.username", "sa"))
                 .password(config.getString("database.password", "sa"))
                 .driver(config.getString("database.driver", Driver.H2))

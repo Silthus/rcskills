@@ -6,95 +6,57 @@ buildscript {
 }
 
 plugins {
-    id 'com.github.johnrengelman.shadow' version '6.1.0'
-    id 'kr.entree.spigradle' version '2.2.3'
-    id 'java'
-    id 'jacoco'
-    id "io.freefair.lombok" version "5.3.0"
-    id 'io.ebean' version '12.5.1'
+    id 'io.freefair.lombok' version '5.3.0' apply false
+    id 'io.ebean' version '12.5.1' apply false
 }
 
-apply from: "$rootDir/gradle/jacoco.gradle"
-apply from: "$rootDir/gradle/publish.gradle"
+subprojects {
 
-sourceCompatibility = 11
-targetCompatibility = 11
+    apply plugin: 'java-library'
+    apply plugin: 'jacoco'
+    apply plugin: 'io.freefair.lombok'
 
-ext {
-    mcVersion = project.property("mcVersion")
-}
+    apply from: "$rootDir/gradle/jacoco.gradle"
+    apply from: "$rootDir/gradle/publish.gradle"
 
-group project.property("group")
+    sourceCompatibility = 11
+    targetCompatibility = 11
 
-spigot {
-    name = project.property("pluginName")
-    authors = [project.property("author")]
-    apiVersion = project.property("apiVersion")
-    load = STARTUP
-    //    depends = ['']
-}
+    group project.property("group")
 
-compileJava {
-    options.encoding = 'UTF-8'
-    options.compilerArgs += ["-parameters"]
-    options.fork = true
-    options.forkOptions.executable = 'javac'
-}
-
-archivesBaseName = project.property("pluginName")
-
-repositories {
-    mavenLocal()
-    mavenCentral()
-    jcenter()
-    jitpack()
-    spigot()
-}
-
-dependencies {
-    compileOnly spigot(mcVersion)
-
-    implementation 'net.silthus:ebean-wrapper:2.5.0'
-
-    //Test dependencies
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.+'
-    testImplementation "org.mockito:mockito-core:3.+"
-    testImplementation mockBukkit()
-    testImplementation 'org.assertj:assertj-core:3.+'
-
-    testImplementation 'io.ebean:ebean-test:12.5.1'
-
-    testImplementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
-    testImplementation group: 'com.h2database', name: 'h2', version: '1.4.200'
-    testImplementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.7.0'
-    testImplementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.22'
-    testImplementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.32.3.2'
-    testImplementation group: 'org.postgresql', name: 'postgresql', version: '42.2.18'
-}
-
-shadowJar {
-    classifier = ''
-//    dependencies {
-//        include(dependency('co.aikar:acf-paper:0.5.0-SNAPSHOT'))
-//    }
-//    relocate 'co.aikar.commands', "${packageName}.acf"
-//    relocate 'co.aikar.locales', "${packageName}.locales"
-}
-
-tasks.build.dependsOn(shadowJar)
-tasks.publish.dependsOn(shadowJar)
-
-test {
-    useJUnitPlatform()
-    testLogging {
-        events "passed", "skipped", "failed"
+    compileJava {
+        options.encoding = 'UTF-8'
+        options.compilerArgs += ["-parameters"]
+        options.fork = true
+        options.forkOptions.executable = 'javac'
     }
-    ignoreFailures = false
-}
 
-processResources {
-    project.properties.put("version", this.version)
-    expand project.properties
-}
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+        maven { url = 'https://jitpack.io' }
+    }
 
-defaultTasks 'build'
+    dependencies {
+        //Test dependencies
+        testImplementation 'org.junit.jupiter:junit-jupiter:5.+'
+        testImplementation "org.mockito:mockito-core:3.+"
+        testImplementation 'org.assertj:assertj-core:3.+'
+    }
+
+    test {
+        useJUnitPlatform()
+        testLogging {
+            events "passed", "skipped", "failed"
+        }
+        ignoreFailures = false
+    }
+
+    processResources {
+        project.properties.put("version", this.version)
+        expand project.properties
+    }
+
+    defaultTasks 'build'
+}

@@ -1,1 +1,3 @@
 rootProject.name = 'skills'
+include 'bukkit'
+include 'core'
