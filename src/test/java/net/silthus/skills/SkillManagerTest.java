@@ -22,6 +22,7 @@ import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.Mockito.mock;
 
 class SkillManagerTest {
 
@@ -32,7 +33,7 @@ class SkillManagerTest {
     void setUp(@TempDir Path temp) {
 
         this.server = MockBukkit.mock();
-        this.skillManager = new SkillManager(DB.getDefault(), new SkillPluginConfig(new File(temp.toFile(), "config.yml").toPath()));
+        this.skillManager = new SkillManager(mock(SkillsPlugin.class), DB.getDefault(), new SkillPluginConfig(new File(temp.toFile(), "config.yml").toPath()));
     }
 
     @AfterEach
@@ -148,6 +149,25 @@ class SkillManagerTest {
                     .contains("test", "foobar", "nested.minimal");
         }
     }
+
+    @Nested
+    @DisplayName("loadPlayerSkills(...)")
+    class loadPlayerSkills {
+
+        @BeforeEach
+        void setUp() {
+
+            skillManager.registerDefaults();
+        }
+
+        @Test
+        @DisplayName("should load and apply all player skills")
+        void shouldLoadAllPlayerSkillsFromTheDatabase() {
+
+
+        }
+    }
+
 
     @Nested
     @DisplayName("getPlayer(...)")

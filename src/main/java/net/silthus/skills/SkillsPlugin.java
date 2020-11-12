@@ -5,6 +5,8 @@ import kr.entree.spigradle.annotations.PluginMain;
 import lombok.Getter;
 import net.silthus.ebean.Config;
 import net.silthus.ebean.EbeanWrapper;
+import net.silthus.skills.listener.PlayerListener;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
@@ -15,20 +17,16 @@ import java.nio.file.Path;
 @PluginMain
 public class SkillsPlugin extends JavaPlugin {
 
-    @Getter
-    private static SkillsPlugin instance;
-
     private SkillManager skillManager;
     private SkillPluginConfig config;
+    private PlayerListener playerListener;
 
     public SkillsPlugin() {
-        instance = this;
     }
 
     public SkillsPlugin(
             JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file) {
         super(loader, description, dataFolder, file);
-        instance = this;
     }
 
     @Override
@@ -37,10 +35,13 @@ public class SkillsPlugin extends JavaPlugin {
         config = new SkillPluginConfig(Path.of("config.yml"));
         config.loadAndSave();
 
-        this.skillManager = new SkillManager(connectToDatabase(), config);
+        this.skillManager = new SkillManager(this, connectToDatabase(), config);
         skillManager.registerDefaults();
 
         skillManager.load();
+
+        this.playerListener = new PlayerListener(skillManager);
+        Bukkit.getPluginManager().registerEvents(playerListener, this);
     }
 
     private Database connectToDatabase() {

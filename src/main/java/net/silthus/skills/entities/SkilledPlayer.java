@@ -7,7 +7,6 @@ import lombok.experimental.Accessors;
 import net.silthus.ebean.BaseEntity;
 import net.silthus.skills.AddSkillResult;
 import net.silthus.skills.Skill;
-import net.silthus.skills.SkillManager;
 import net.silthus.skills.TestResult;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -15,7 +14,6 @@ import org.bukkit.entity.Player;
 
 import javax.persistence.*;
 import java.util.*;
-import java.util.stream.Stream;
 
 @Entity
 @Accessors(fluent = true)
@@ -28,33 +26,12 @@ public class SkilledPlayer extends BaseEntity implements net.silthus.skills.Skil
 
     private String name;
     @OneToMany(cascade = CascadeType.REMOVE)
-    private List<PlayerSkill> playerSkills = new ArrayList<>();
-    @Transient
-    private Set<Skill> skills = new HashSet<>();
+    private List<PlayerSkill> skills = new ArrayList<>();
 
     public SkilledPlayer(OfflinePlayer player) {
 
         id(player.getUniqueId());
         name(player.getName());
-    }
-
-    @Override
-    public List<Skill> skills() {
-        return null;
-    }
-
-    @Override
-    public void loadSkills() {
-
-        Player player = Bukkit.getPlayer(id());
-        if (player == null) return;
-        playerSkills().stream().filter(PlayerSkill::unlocked)
-                .map(playerSkill -> SkillManager.instance().getSkill(playerSkill.identifier()))
-                .flatMap(skill -> skill.stream().flatMap(Stream::of))
-                .forEach(skill -> {
-                    skill.apply(player);
-                    skills.add(skill);
-                });
     }
 
     @Override
@@ -74,7 +51,7 @@ public class SkilledPlayer extends BaseEntity implements net.silthus.skills.Skil
         TestResult testResult = skill.test(player);
 
         if (testResult.success() || bypassChecks) {
-            playerSkills.add(new PlayerSkill(this, skill.identifier()));
+            skills.add(new PlayerSkill(this, skill.identifier()));
             skill.apply(player);
             return new AddSkillResult(skill, this, testResult, true, bypassChecks);
         }
@@ -91,7 +68,7 @@ public class SkilledPlayer extends BaseEntity implements net.silthus.skills.Skil
     @Override
     public boolean hasSkill(String identifier) {
 
-        return playerSkills().stream()
+        return skills().stream()
                 .filter(PlayerSkill::unlocked)
                 .anyMatch(playerSkill -> playerSkill.identifier().equals(identifier));
     }

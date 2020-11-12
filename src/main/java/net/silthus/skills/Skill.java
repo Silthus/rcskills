@@ -18,6 +18,10 @@ public interface Skill {
 
     Collection<Requirement> requirements();
 
+    void addRequirement(Requirement requirement);
+
+    void addRequirements(Collection<Requirement> requirements);
+
     Skill load(ConfigurationSection config);
 
     default TestResult test(Player player) {

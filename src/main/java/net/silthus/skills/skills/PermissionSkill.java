@@ -17,13 +17,19 @@ import java.util.stream.Collectors;
 @SkillType("permission")
 public class PermissionSkill extends AbstractSkill {
 
-    private List<String> permissions = new ArrayList<>();
+    private final SkillsPlugin plugin;
+    private final List<String> permissions = new ArrayList<>();
     private final Map<UUID, List<PermissionAttachment>> attachments = new HashMap<>();
+
+    public PermissionSkill(SkillsPlugin plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public void loadSkill(ConfigurationSection config) {
 
-        this.permissions = config.getStringList("permissions");
+        this.permissions.clear();
+        this.permissions.addAll(config.getStringList("permissions"));
     }
 
     @Override
@@ -32,7 +38,7 @@ public class PermissionSkill extends AbstractSkill {
         List<PermissionAttachment> attachments = this.attachments.getOrDefault(player.getUniqueId(), new ArrayList<>());
         attachments
                 .addAll(permissions.stream()
-                .map(permission -> player.addAttachment(SkillsPlugin.getInstance(), permission, true))
+                .map(permission -> player.addAttachment(plugin, permission, true))
                 .collect(Collectors.toList()));
         this.attachments.put(player.getUniqueId(), attachments);
     }

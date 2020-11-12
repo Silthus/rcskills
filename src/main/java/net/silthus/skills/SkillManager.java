@@ -5,25 +5,24 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
 import lombok.extern.java.Log;
+import net.silthus.skills.entities.PlayerSkill;
 import net.silthus.skills.entities.SkilledPlayer;
 import net.silthus.skills.requirements.PermissionRequirement;
 import net.silthus.skills.requirements.SkillRequirement;
 import net.silthus.skills.skills.PermissionSkill;
 import net.silthus.skills.util.ConfigUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -33,21 +32,20 @@ import java.util.stream.Stream;
 @Accessors(fluent = true)
 public final class SkillManager {
 
-    @Getter
-    private static SkillManager instance;
-
     private final Map<String, Requirement.Registration<?>> requirements = new HashMap<>();
     private final Map<String, Skill.Registration<?>> skillTypes = new HashMap<>();
 
     private final Map<String, Skill> loadedSkills = new HashMap<>();
+    private final Map<UUID, List<Skill>> loadedPlayerSkills = new HashMap<>();
 
+    private final SkillsPlugin plugin;
     private final Database database;
     private final SkillPluginConfig config;
 
-    SkillManager(Database database, SkillPluginConfig config) {
+    SkillManager(SkillsPlugin plugin, Database database, SkillPluginConfig config) {
+        this.plugin = plugin;
         this.database = database;
         this.config = config;
-        instance = this;
     }
 
     /**
@@ -57,7 +55,7 @@ public final class SkillManager {
 
         registerRequirement(PermissionRequirement.class, PermissionRequirement::new);
         registerRequirement(SkillRequirement.class, () -> new SkillRequirement(this));
-        registerSkill(PermissionSkill.class, PermissionSkill::new);
+        registerSkill(PermissionSkill.class, () -> new PermissionSkill(plugin));
     }
 
     public void reload() {
@@ -68,7 +66,7 @@ public final class SkillManager {
 
     public void load() {
 
-        loadSkills(new File(SkillsPlugin.getInstance().getDataFolder(), config.getSkillsPath()).toPath());
+        loadSkills(new File(plugin.getDataFolder(), config.getSkillsPath()).toPath());
     }
 
     public void unload() {
@@ -245,6 +243,43 @@ public final class SkillManager {
     }
 
     /**
+     * Loads and applies all active skills to the given player.
+     * <p>Will do nothing if the player is already loaded.
+     *
+     * @param player the player that should be loaded
+     */
+    public void load(@NonNull Player player) {
+
+        if (loadedPlayerSkills.containsKey(player.getUniqueId())) {
+            return;
+        }
+
+        List<Skill> skills = new ArrayList<>();
+        getPlayer(player).skills().stream().filter(PlayerSkill::unlocked)
+                .map(playerSkill -> getSkill(playerSkill.identifier()))
+                .flatMap(skill -> skill.stream().flatMap(Stream::of))
+                .forEach(skill -> {
+                    skill.apply(player);
+                    skills.add(skill);
+                });
+        this.loadedPlayerSkills.put(player.getUniqueId(), skills);
+    }
+
+    /**
+     * Unloads the player and all of his skills.
+     * <p>Will do nothing if the player was never loaded.
+     *
+     * @param player the player to unload
+     */
+    public void unload(@NonNull Player player) {
+
+        List<Skill> skills = loadedPlayerSkills.remove(player.getUniqueId());
+        if (skills != null) {
+            skills.forEach(skill -> skill.remove(player));
+        }
+    }
+
+    /**
      * Loads and creates requirements from the provided configuration section.
      * <p>The method expects a section with unique keys and each section
      * must at least contain a valid {@code type: <requirement_type>}.
@@ -306,7 +341,10 @@ public final class SkillManager {
                 .map(Supplier::get)
                 .map(skill -> skill.load(config));
 
-        loadedSkill.ifPresent(skill -> this.loadedSkills.put(skill.identifier(), skill));
+        loadedSkill.ifPresent(skill -> {
+            skill.addRequirements(loadRequirements(config.getConfigurationSection("requirements")));
+            this.loadedSkills.put(skill.identifier(), skill);
+        });
 
         return loadedSkill;
     }

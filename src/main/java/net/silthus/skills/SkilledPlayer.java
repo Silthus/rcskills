@@ -1,5 +1,7 @@
 package net.silthus.skills;
 
+import net.silthus.skills.entities.PlayerSkill;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -9,9 +11,7 @@ public interface SkilledPlayer {
 
     String name();
 
-    List<Skill> skills();
-
-    void loadSkills();
+    List<PlayerSkill> skills();
 
     AddSkillResult addSkill(Skill skill);
 

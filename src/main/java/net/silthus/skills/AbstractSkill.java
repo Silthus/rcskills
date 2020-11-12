@@ -5,6 +5,7 @@ import lombok.experimental.Accessors;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Data
@@ -15,18 +16,25 @@ public abstract class AbstractSkill implements Skill {
     private String identifier = "undefined";
     private String name = identifier;
     private String[] description = new String[0];
-    private List<Requirement> requirements = new ArrayList<>();
-    private List<String> permissions = new ArrayList<>();
+    private final List<Requirement> requirements = new ArrayList<>();
 
     @Override
     public final Skill load(ConfigurationSection config) {
         this.identifier = config.getString("id", identifier);
         this.name = config.getString("name", identifier);
         this.description = config.getString("description", "").split("\\|");
-        this.permissions = config.getStringList("permissions");
-        this.requirements = SkillManager.instance().loadRequirements(config.getConfigurationSection("requirements"));
 
         return this;
+    }
+
+    @Override
+    public void addRequirement(@NonNull Requirement requirement) {
+        this.requirements.add(requirement);
+    }
+
+    @Override
+    public void addRequirements(Collection<Requirement> requirements) {
+        this.requirements.addAll(requirements);
     }
 
     protected abstract void loadSkill(ConfigurationSection config);
