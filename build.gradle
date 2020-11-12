@@ -79,9 +79,9 @@ test {
     ignoreFailures = false
 }
 
-processResources {
-    project.properties.put("version", this.version)
-    expand project.properties
-}
+//processResources {
+//    project.properties.put("version", this.version)
+//    expand project.properties
+//}
 
 defaultTasks 'build'

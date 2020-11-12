@@ -3,10 +3,12 @@ package net.silthus.skills;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
+import lombok.NonNull;
 import net.silthus.ebean.BaseEntity;
 import net.silthus.ebean.Config;
 import net.silthus.ebean.EbeanWrapper;
 import net.silthus.skills.entities.SkilledPlayer;
+import org.bukkit.entity.Player;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,11 +36,26 @@ class SkillManagerTest {
     }
 
     @Nested
+    @DisplayName("registerRequirement(...)")
+    class registerRequirement {
+
+        @Test
+        @DisplayName("should register custom requirement types")
+        void shouldAllowRegistrationOfCustomRequirements() {
+
+            skillManager.registerRequirement(CustomRequirement::new);
+
+            assertThat(skillManager.requirements()).extractingByKey("test")
+                    .isNotNull();
+        }
+    }
+
+    @Nested
     @DisplayName("getPlayer(...)")
     class getPlayer {
 
         @Test
-        @DisplayName("should always return a player regardless of it exists in the db")
+        @DisplayName("should always return a player regardless if it exists in the db")
         void shouldAlwaysReturnAPlayer() {
 
             PlayerMock player = server.addPlayer();
@@ -48,4 +65,19 @@ class SkillManagerTest {
                     .contains(player.getUniqueId(), player.getName());
         }
     }
+
+    static class CustomRequirement extends AbstractRequirement {
+
+        public CustomRequirement() {
+
+            super("test");
+        }
+
+        @Override
+        public TestResult test(@NonNull Player target) {
+
+            return TestResult.ofSuccess();
+        }
+    }
+
 }
