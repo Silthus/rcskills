@@ -35,6 +35,7 @@ public class SkillsPlugin extends JavaPlugin {
     public void onEnable() {
 
         this.skillManager = new SkillManager(connectToDatabase());
+        skillManager.registerDefaults();
     }
 
     private Database connectToDatabase() {

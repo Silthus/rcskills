@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 public interface Requirement {
 
-    String identifier();
+    String type();
 
     String name();
 
@@ -25,9 +25,9 @@ public interface Requirement {
 
     @Value
     @Accessors(fluent = true)
-    class Registration {
+    class Registration<TRequirement extends Requirement> {
         String identifier;
-        Class<? extends Requirement> requirementClass;
-        Supplier<Requirement> supplier;
+        Class<TRequirement> requirementClass;
+        Supplier<TRequirement> supplier;
     }
 }

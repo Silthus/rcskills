@@ -13,26 +13,24 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import javax.persistence.*;
+import java.util.*;
+import java.util.stream.Stream;
 
 @Entity
 @Accessors(fluent = true)
 @Getter
 @Setter
 @Table(name = "skills_players")
-public class SkilledPlayer extends BaseEntity {
+public class SkilledPlayer extends BaseEntity implements net.silthus.skills.SkilledPlayer {
 
     public static final Finder<UUID, SkilledPlayer> find = new Finder<>(SkilledPlayer.class);
 
     private String name;
     @OneToMany(cascade = CascadeType.REMOVE)
     private List<PlayerSkill> playerSkills = new ArrayList<>();
+    @Transient
+    private Set<Skill> skills = new HashSet<>();
 
     public SkilledPlayer(OfflinePlayer player) {
 
@@ -40,21 +38,32 @@ public class SkilledPlayer extends BaseEntity {
         name(player.getName());
     }
 
+    @Override
+    public List<Skill> skills() {
+        return null;
+    }
+
+    @Override
     public void loadSkills() {
 
         Player player = Bukkit.getPlayer(id());
         if (player == null) return;
-        for (PlayerSkill playerSkill : playerSkills()) {
-            SkillManager.instance().getSkill(playerSkill.identifier())
-                    .ifPresent(skill -> skill.apply(player));
-        }
+        playerSkills().stream().filter(PlayerSkill::unlocked)
+                .map(playerSkill -> SkillManager.instance().getSkill(playerSkill.identifier()))
+                .flatMap(skill -> skill.stream().flatMap(Stream::of))
+                .forEach(skill -> {
+                    skill.apply(player);
+                    skills.add(skill);
+                });
     }
 
-    public void addSkill(Skill skill) {
+    @Override
+    public AddSkillResult addSkill(Skill skill) {
 
-        addSkill(skill, false);
+        return addSkill(skill, false);
     }
 
+    @Override
     public AddSkillResult addSkill(Skill skill, boolean bypassChecks) {
 
         if (hasSkill(skill)) {
@@ -73,11 +82,13 @@ public class SkilledPlayer extends BaseEntity {
         return new AddSkillResult(skill, this, testResult, false, bypassChecks, "Requirements for obtaining the skill " + skill.identifier() + " were not met.");
     }
 
+    @Override
     public boolean hasSkill(Skill skill) {
 
         return hasSkill(skill.identifier());
     }
 
+    @Override
     public boolean hasSkill(String identifier) {
 
         return playerSkills().stream()

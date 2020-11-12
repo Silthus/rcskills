@@ -1,16 +1,14 @@
 package net.silthus.skills.requirements;
 
 import lombok.NonNull;
-import net.silthus.skills.AbstractRequirement;
-import net.silthus.skills.Requirement;
-import net.silthus.skills.SkillManager;
+import net.silthus.skills.*;
 import net.silthus.skills.entities.SkilledPlayer;
-import net.silthus.skills.TestResult;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import static net.silthus.skills.Messages.msg;
 
+@RequirementType("skill")
 public class SkillRequirement extends AbstractRequirement {
 
     private final SkillManager skillManager;
@@ -18,7 +16,6 @@ public class SkillRequirement extends AbstractRequirement {
 
     public SkillRequirement(SkillManager skillManager) {
 
-        super("skill");
         this.skillManager = skillManager;
     }
 

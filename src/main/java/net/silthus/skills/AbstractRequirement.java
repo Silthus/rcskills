@@ -4,33 +4,30 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.io.InvalidClassException;
+
 import static net.silthus.skills.Messages.msg;
 
 @Data
-@EqualsAndHashCode(of = "identifier")
 @Accessors(fluent = true)
 public abstract class AbstractRequirement implements Requirement {
 
-    private final String identifier;
+    private final String type;
     private final String name;
     private final String description;
 
-    public AbstractRequirement(String identifier, String name, String description) {
-
-        this.identifier = identifier;
-        this.name = name;
-        this.description = description;
-    }
-
-    public AbstractRequirement(String identifier) {
-
-        this.identifier = identifier;
-        this.name = msg(msgIdentifier("name"), identifier);
+    public AbstractRequirement() {
+        if (!getClass().isAnnotationPresent(RequirementType.class)) {
+            throw new RuntimeException("Cannot instantiate a requirement without a type identifier. " +
+                    "Use the @RequirementType annotation or call super(...)");
+        }
+        this.type = getClass().getAnnotation(RequirementType.class).value().toLowerCase();
+        this.name = msg(msgIdentifier("name"), type);
         this.description = msg(msgIdentifier("description"));
     }
 
     protected final String msgIdentifier(String key) {
 
-        return "requirements." + identifier() + "." + key;
+        return "requirements." + type() + "." + key;
     }
 }

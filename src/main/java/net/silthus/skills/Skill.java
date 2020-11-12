@@ -2,6 +2,7 @@ package net.silthus.skills;
 
 import lombok.Value;
 import lombok.experimental.Accessors;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
@@ -17,7 +18,7 @@ public interface Skill {
 
     Collection<Requirement> requirements();
 
-    Collection<String> permissions();
+    Skill load(ConfigurationSection config);
 
     default TestResult test(Player player) {
 
@@ -27,19 +28,27 @@ public interface Skill {
                 .orElse(TestResult.ofSuccess());
     }
 
-    default void apply(Player player) {
+    /**
+     * Applies the effects of this skill to the given player.
+     * <p>The apply method is called everytime a player logs on
+     * or obtains the skill.
+     *
+     * @param player the player this skill was applied to
+     */
+    void apply(Player player);
 
-        for (String permission : permissions()) {
-            player.addAttachment(SkillsPlugin.getInstance(), permission, true);
-        }
-    }
+    /**
+     * Removes any effects of the skill from the given player.
+     * @param player
+     */
+    void remove(Player player);
 
     @Value
     @Accessors(fluent = true)
-    class Registration {
+    class Registration<TSkill extends Skill> {
 
         String identifier;
-        Class<? extends Skill> skillClass;
-        Supplier<Skill> supplier;
+        Class<TSkill> skillClass;
+        Supplier<TSkill> supplier;
     }
 }

@@ -3,6 +3,7 @@ package net.silthus.skills.requirements;
 import lombok.NonNull;
 import net.silthus.skills.AbstractRequirement;
 import net.silthus.skills.Requirement;
+import net.silthus.skills.RequirementType;
 import net.silthus.skills.TestResult;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -12,14 +13,10 @@ import java.util.List;
 
 import static net.silthus.skills.Messages.msg;
 
+@RequirementType("permission")
 public class PermissionRequirement extends AbstractRequirement {
 
     private final List<String> permissions = new ArrayList<>();
-
-    public PermissionRequirement() {
-
-        super("permission");
-    }
 
     @Override
     public String description() {
