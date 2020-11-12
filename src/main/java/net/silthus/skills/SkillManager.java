@@ -9,11 +9,15 @@ import net.silthus.skills.entities.SkilledPlayer;
 import net.silthus.skills.requirements.PermissionRequirement;
 import net.silthus.skills.requirements.SkillRequirement;
 import net.silthus.skills.skills.PermissionSkill;
-import org.apache.commons.lang.NotImplementedException;
+import net.silthus.skills.util.ConfigUtil;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Log(topic = "sSkills")
 @Getter
@@ -36,9 +42,11 @@ public final class SkillManager {
     private final Map<String, Skill> loadedSkills = new HashMap<>();
 
     private final Database database;
+    private final SkillPluginConfig config;
 
-    SkillManager(Database database) {
+    SkillManager(Database database, SkillPluginConfig config) {
         this.database = database;
+        this.config = config;
         instance = this;
     }
 
@@ -52,14 +60,78 @@ public final class SkillManager {
         registerSkill(PermissionSkill.class, PermissionSkill::new);
     }
 
+    public void reload() {
+
+        unload();
+        load();
+    }
+
+    public void load() {
+
+        loadSkills(new File(SkillsPlugin.getInstance().getDataFolder(), config.getSkillsPath()).toPath());
+    }
+
+    public void unload() {
+
+        loadedSkills.clear();
+    }
+
     /**
      * Recursively loads all skill configs in the given path, creates and caches new skill instances for them.
      * Each file will be loaded and passed into {@link #loadSkill(String, ConfigurationSection)}.
      *
-     * @param skillConfigPath
+     * @param path the path to the skill configs
      */
-    public void loadSkills(Path skillConfigPath) {
+    public List<Skill> loadSkills(Path path) {
 
+        try {
+            List<File> files = Files.find(path, Integer.MAX_VALUE,
+                    (file, fileAttr) -> fileAttr.isRegularFile())
+                    .map(Path::toFile).collect(Collectors.toList());
+
+
+            int fileCount = files.size();
+            List<Skill> skills = files.stream().map(file -> loadSkill(path, file))
+                    .flatMap(skill -> skill.stream().flatMap(Stream::of))
+                    .collect(Collectors.toList());
+
+            log.info("Loaded " + skills.size() + "/" + fileCount + " skills from " + path);
+            return skills;
+        } catch (IOException e) {
+            log.severe("unable to load skills from " + path + ": " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Tries to load a skill from the given file configuration.
+     * <p>The load operation will fail if the file does not exist or
+     * the type key inside the config does not match any registered skill type.
+     * <p>If the config does not defined an id the unique path name of the file will be used as id.
+     * <p>The skill will be cached if the loading succeeds.
+     * <p>An empty optional will be returned in all error cases.
+     *
+     * @param file the file to load the skill from
+     * @return the loaded skill or an empty optional.
+     */
+    public Optional<Skill> loadSkill(Path base, @NonNull File file) {
+
+        if (!file.exists() || !(file.getName().endsWith(".yml") && !file.getName().endsWith(".yaml"))) {
+            return Optional.empty();
+        }
+
+        try {
+            YamlConfiguration config = new YamlConfiguration();
+            config.load(file);
+            config.set("id", config.getString("id", ConfigUtil.getFileIdentifier(base, file)));
+            return loadSkill(config.getString("type", "permission"), config);
+        } catch (IOException | InvalidConfigurationException e) {
+            log.severe("unable to load skill config " + file.getAbsolutePath() + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return Optional.empty();
     }
 
     /**
@@ -215,22 +287,6 @@ public final class SkillManager {
         }
 
         return requirements;
-    }
-
-    /**
-     * Tries to load a skill from the given file configuration.
-     * <p>The load operation will fail if the file does not exist or
-     * the type key inside the config does not match any registered skill type.
-     * <p>If the config does not defined an id the unique path name of the file will be used as id.
-     * <p>The skill will be cached if the loading succeeds.
-     * <p>An empty optional will be returned in all error cases.
-     *
-     * @param file the file to load the skill from
-     * @return the loaded skill or an empty optional.
-     */
-    public Optional<Skill> loadSkill(@NonNull File file) {
-
-        throw new NotImplementedException();
     }
 
     /**

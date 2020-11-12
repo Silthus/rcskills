@@ -3,10 +3,9 @@ package net.silthus.skills;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
+import io.ebean.DB;
 import lombok.NonNull;
 import net.silthus.ebean.BaseEntity;
-import net.silthus.ebean.Config;
-import net.silthus.ebean.EbeanWrapper;
 import net.silthus.skills.entities.SkilledPlayer;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
@@ -15,6 +14,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -25,10 +29,10 @@ class SkillManagerTest {
     private SkillManager skillManager;
 
     @BeforeEach
-    void setUp() {
+    void setUp(@TempDir Path temp) {
 
         this.server = MockBukkit.mock();
-        this.skillManager = new SkillManager(new EbeanWrapper(Config.builder().build()).getDatabase());
+        this.skillManager = new SkillManager(DB.getDefault(), new SkillPluginConfig(new File(temp.toFile(), "config.yml").toPath()));
     }
 
     @AfterEach
@@ -119,6 +123,29 @@ class SkillManagerTest {
             assertThat(skillManager.loadRequirements(config))
                     .hasSize(1)
                     .hasOnlyElementsOfType(ThirdRequirement.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("loadSkills(...)")
+    class loadSkills {
+
+        private Path testResources = Paths.get("src","test","resources", "skills");
+
+        @BeforeEach
+        void setUp() {
+
+            skillManager.registerDefaults();
+        }
+
+        @Test
+        @DisplayName("should load all skills from a path")
+        void shouldLoadSkillsFromPath() {
+
+            assertThat(skillManager.loadSkills(testResources))
+                    .hasSizeGreaterThan(2)
+                    .extracting(Skill::identifier)
+                    .contains("test", "foobar", "nested.minimal");
         }
     }
 

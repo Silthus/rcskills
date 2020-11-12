@@ -12,6 +12,7 @@ plugins {
     id 'io.freefair.lombok' version '5.3.0'
     id 'io.ebean' version '12.5.1'
     id 'kr.entree.spigradle' version '2.2.3'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
 apply from: "$rootDir/gradle/jacoco.gradle"
@@ -55,6 +56,7 @@ dependencies {
     compileOnly spigot(mcVersion)
 
     implementation 'net.silthus:ebean-wrapper:2.6.0'
+    implementation 'net.silthus.configlib:configlib-bukkit:2.6.0'
 
     testImplementation 'io.ebean:ebean-test:12.5.1'
 
@@ -71,6 +73,17 @@ dependencies {
     testImplementation mockBukkit()
 }
 
+shadowJar {
+    classifier = ''
+    dependencies {
+        include(dependency('net.silthus:configlib-bukkit:'))
+    }
+    relocate 'de.exlll.configlib', "shadow.configlib"
+}
+
+tasks.build.dependsOn(shadowJar)
+tasks.publish.dependsOn(shadowJar)
+
 test {
     useJUnitPlatform()
     testLogging {
@@ -79,9 +92,9 @@ test {
     ignoreFailures = false
 }
 
-//processResources {
-//    project.properties.put("version", this.version)
-//    expand project.properties
-//}
+processResources {
+    project.properties.put("version", this.version)
+    expand project.properties
+}
 
 defaultTasks 'build'

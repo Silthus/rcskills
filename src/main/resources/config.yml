@@ -1,4 +1,5 @@
-lang: en
+# the relative path where we should load skill configs from
+skills-path: skills
 database:
   driver: 'h2'
   url: 'jdbc:h2:~/skills.db'

@@ -19,7 +19,7 @@ public abstract class AbstractSkill implements Skill {
     private List<String> permissions = new ArrayList<>();
 
     @Override
-    public Skill load(ConfigurationSection config) {
+    public final Skill load(ConfigurationSection config) {
         this.identifier = config.getString("id", identifier);
         this.name = config.getString("name", identifier);
         this.description = config.getString("description", "").split("\\|");
@@ -28,4 +28,6 @@ public abstract class AbstractSkill implements Skill {
 
         return this;
     }
+
+    protected abstract void loadSkill(ConfigurationSection config);
 }

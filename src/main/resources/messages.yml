@@ -1,5 +1,9 @@
 requirements:
   skill:
     name: 'Required Skill'
-    description: 'Requires the %1$s skill to unlock this skill.'
-    error: 'You require the %1$s skill to unlock this skill.'
+    description: 'Requires the %s skill to unlock the skill.'
+    error: 'You require the %s skill to unlock the skill.'
+  permission:
+    name: 'Permission'
+    description: 'Requires the %s permission to unlock the skill.'
+    error: 'You do not have the required %s permission to unlock the skill.'
