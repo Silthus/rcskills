@@ -1,0 +1,3 @@
+rcskills:
+  list-cmd: Zeigt alle deine freigeschalteten Skills an.
+  reload-cmd: Lädt alle Skills aus den Config Dateien neu ein.

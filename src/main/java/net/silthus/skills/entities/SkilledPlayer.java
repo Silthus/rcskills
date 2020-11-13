@@ -12,14 +12,19 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import javax.persistence.*;
-import java.util.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Accessors(fluent = true)
 @Getter
 @Setter
-@Table(name = "skills_players")
+@Table(name = "rcs_players")
 public class SkilledPlayer extends BaseEntity implements net.silthus.skills.SkilledPlayer {
 
     public static final Finder<UUID, SkilledPlayer> find = new Finder<>(SkilledPlayer.class);
@@ -51,7 +56,7 @@ public class SkilledPlayer extends BaseEntity implements net.silthus.skills.Skil
         TestResult testResult = skill.test(player);
 
         if (testResult.success() || bypassChecks) {
-            skills.add(new PlayerSkill(this, skill.identifier()));
+            skills.add(new PlayerSkill(this, skill));
             skill.apply(player);
             return new AddSkillResult(skill, this, testResult, true, bypassChecks);
         }
@@ -68,8 +73,8 @@ public class SkilledPlayer extends BaseEntity implements net.silthus.skills.Skil
     @Override
     public boolean hasSkill(String identifier) {
 
-        return skills().stream()
+        return this.skills.stream()
                 .filter(PlayerSkill::unlocked)
-                .anyMatch(playerSkill -> playerSkill.identifier().equals(identifier));
+                .anyMatch(playerSkill -> playerSkill.identifier().equalsIgnoreCase(identifier));
     }
 }

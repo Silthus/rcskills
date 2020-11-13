@@ -14,7 +14,7 @@ public interface Skill {
 
     String name();
 
-    String[] description();
+    String description();
 
     Collection<Requirement> requirements();
 

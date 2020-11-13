@@ -18,6 +18,11 @@ plugins {
 apply from: "$rootDir/gradle/jacoco.gradle"
 apply from: "$rootDir/gradle/publish.gradle"
 
+
+if (project.hasProperty("local_script")) {
+    apply from: file(local_script + "/build.local.gradle")
+}
+
 sourceCompatibility = 11
 targetCompatibility = 11
 
@@ -50,6 +55,7 @@ repositories {
     jcenter()
     maven { url = 'https://jitpack.io' }
     spigot()
+    maven { url = "https://repo.aikar.co/content/groups/aikar/" }
 }
 
 dependencies {
@@ -57,6 +63,8 @@ dependencies {
 
     implementation 'net.silthus:ebean-wrapper:2.6.0'
     implementation 'net.silthus.configlib:configlib-bukkit:2.6.0'
+    implementation 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
+    implementation group: 'io.art-framework', name: 'art-core', version: '1.0.0-beta.30'
 
     testImplementation 'io.ebean:ebean-test:12.5.1'
 
@@ -76,13 +84,17 @@ dependencies {
 shadowJar {
     classifier = ''
     dependencies {
-        include(dependency('net.silthus:configlib-bukkit:'))
+        include(dependency('net.silthus.configlib:configlib-bukkit:'))
+        include(dependency('co.aikar:acf-paper:'))
     }
-    relocate 'de.exlll.configlib', "shadow.configlib"
+    relocate 'de.exlll.configlib', "shadow.silthus.skills.configlib"
+    relocate 'co.aikar.commands', 'shadow.silthus.skills.acf'
+    relocate 'co.aikar.locales', 'shadow.silthus.skills.locales'
 }
 
 tasks.build.dependsOn(shadowJar)
 tasks.publish.dependsOn(shadowJar)
+tasks.prepareSpigotPlugins.dependsOn(shadowJar)
 
 test {
     useJUnitPlatform()

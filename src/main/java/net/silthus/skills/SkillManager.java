@@ -11,7 +11,6 @@ import net.silthus.skills.requirements.PermissionRequirement;
 import net.silthus.skills.requirements.SkillRequirement;
 import net.silthus.skills.skills.PermissionSkill;
 import net.silthus.skills.util.ConfigUtil;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -83,6 +82,7 @@ public final class SkillManager {
     public List<Skill> loadSkills(Path path) {
 
         try {
+            Files.createDirectories(path);
             List<File> files = Files.find(path, Integer.MAX_VALUE,
                     (file, fileAttr) -> fileAttr.isRegularFile())
                     .map(Path::toFile).collect(Collectors.toList());

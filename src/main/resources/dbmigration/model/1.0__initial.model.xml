@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <migration xmlns="http://ebean-orm.github.io/xml/ns/dbmigration">
     <changeSet type="apply">
-        <createTable name="skills_player_skills" identityType="external" pkName="pk_skills_player_skills">
+        <createTable name="rcs_player_skills" identityType="external" pkName="pk_rcs_player_skills">
             <column name="id" type="uuid" primaryKey="true" identity="true"/>
-            <column name="player_id" type="uuid" references="skills_players.id" foreignKeyName="fk_skills_player_skills_player_id" foreignKeyIndex="ix_skills_player_skills_player_id"/>
+            <column name="player_id" type="uuid" references="rcs_players.id" foreignKeyName="fk_rcs_player_skills_player_id" foreignKeyIndex="ix_rcs_player_skills_player_id"/>
             <column name="identifier" type="varchar"/>
+            <column name="name" type="varchar"/>
+            <column name="description" type="varchar"/>
             <column name="unlocked" type="boolean" defaultValue="false" notnull="true"/>
             <column name="version" type="bigint" notnull="true"/>
             <column name="when_created" type="timestamp" notnull="true"/>
             <column name="when_modified" type="timestamp" notnull="true"/>
         </createTable>
-        <createTable name="skills_players" identityType="external" pkName="pk_skills_players">
+        <createTable name="rcs_players" identityType="external" pkName="pk_rcs_players">
             <column name="id" type="uuid" primaryKey="true" identity="true"/>
             <column name="name" type="varchar"/>
             <column name="version" type="bigint" notnull="true"/>

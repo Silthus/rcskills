@@ -15,14 +15,14 @@ public abstract class AbstractSkill implements Skill {
 
     private String identifier = "undefined";
     private String name = identifier;
-    private String[] description = new String[0];
+    private String description;
     private final List<Requirement> requirements = new ArrayList<>();
 
     @Override
     public final Skill load(ConfigurationSection config) {
         this.identifier = config.getString("id", identifier);
         this.name = config.getString("name", identifier);
-        this.description = config.getString("description", "").split("\\|");
+        this.description = config.getString("description", "");
 
         return this;
     }
