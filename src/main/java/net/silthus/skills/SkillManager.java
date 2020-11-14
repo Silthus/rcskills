@@ -1,5 +1,6 @@
 package net.silthus.skills;
 
+import com.google.common.base.Strings;
 import io.ebean.Database;
 import lombok.Getter;
 import lombok.NonNull;
@@ -375,5 +376,19 @@ public final class SkillManager {
     public Optional<Skill> getSkill(@NonNull String identifier) {
 
         return Optional.ofNullable(loadedSkills().get(identifier.toLowerCase()));
+    }
+
+    /**
+     * Tries to find a matching skill by the given name or id.
+     *
+     * @param id the id or name of the skill
+     * @return the skill if found
+     */
+    public Optional<Skill> findSkillByNameOrId(@NonNull String id) {
+
+        if (Strings.isNullOrEmpty(id)) return Optional.empty();
+        String name = id.toLowerCase().strip();
+        return getSkill(name).or(() -> loadedSkills().values().stream()
+                .filter(skill -> skill.name().toLowerCase().startsWith(name)).findFirst());
     }
 }

@@ -1,6 +1,7 @@
 package net.silthus.skills.entities;
 
 import io.ebean.Finder;
+import io.ebean.Model;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -58,10 +59,24 @@ public class SkilledPlayer extends BaseEntity implements net.silthus.skills.Skil
         if (testResult.success() || bypassChecks) {
             skills.add(new PlayerSkill(this, skill));
             skill.apply(player);
+            save();
             return new AddSkillResult(skill, this, testResult, true, bypassChecks);
         }
 
         return new AddSkillResult(skill, this, testResult, false, bypassChecks, "Requirements for obtaining the skill " + skill.identifier() + " were not met.");
+    }
+
+    @Override
+    public void removeSkill(Skill skill) {
+
+        if (!hasSkill(skill.identifier())) {
+            return;
+        }
+
+        skills().stream()
+                .filter(playerSkill -> playerSkill.identifier().equals(skill.identifier()))
+                .findFirst().ifPresent(Model::delete);
+
     }
 
     @Override

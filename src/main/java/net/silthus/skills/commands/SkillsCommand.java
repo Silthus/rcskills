@@ -1,15 +1,22 @@
 package net.silthus.skills.commands;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.*;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandCompletion;
+import co.aikar.commands.annotation.CommandPermission;
+import co.aikar.commands.annotation.Default;
+import co.aikar.commands.annotation.Description;
+import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.Syntax;
+import co.aikar.locales.MessageKey;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import net.silthus.skills.Skill;
+import net.silthus.skills.SkilledPlayer;
 import net.silthus.skills.SkillsPlugin;
-import net.silthus.skills.entities.PlayerSkill;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -42,14 +49,28 @@ public class SkillsCommand extends BaseCommand {
     }
 
     @Subcommand("add")
-    @Description("{@@rcskills.add-cmd}")
-    public void addSkill(Player player) {
+    @CommandCompletion("@players @skills")
+    @Description("{@@rcskills.add-cmd.desc}")
+    @CommandPermission("rcskills.admin.skill.add")
+    public void addSkill(SkilledPlayer player, Skill skill) {
 
+        player.addSkill(skill);
+        getCurrentCommandIssuer().sendInfo(MessageKey.of("rcskills.add-cmd.info"));
+    }
+
+    @Subcommand("remove|del")
+    @CommandCompletion("@players @skills")
+    @Description("{@@rcskills.remove-cmd.desc}")
+    @CommandPermission("rcskills.admin.skill.remove")
+    public void removeSkill(SkilledPlayer player, Skill skill) {
+
+        player.removeSkill(skill);
+        getCurrentCommandIssuer().sendInfo(MessageKey.of("rcskills.remove-cmd.info"));
     }
 
     @Subcommand("reload")
     @Description("{@@rcskills.reload-cmd}}")
-    @CommandPermission("rcskills.cmd.reload")
+    @CommandPermission("rcskills.reload")
     public void reload(Player player) {
 
         plugin.getSkillManager().reload();

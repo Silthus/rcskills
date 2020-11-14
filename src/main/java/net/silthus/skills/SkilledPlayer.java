@@ -17,6 +17,8 @@ public interface SkilledPlayer {
 
     AddSkillResult addSkill(Skill skill, boolean bypassChecks);
 
+    void removeSkill(Skill skill);
+
     boolean hasSkill(Skill skill);
 
     boolean hasSkill(String identifier);

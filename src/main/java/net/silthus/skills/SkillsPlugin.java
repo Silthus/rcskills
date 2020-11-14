@@ -1,5 +1,6 @@
 package net.silthus.skills;
 
+import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.PaperCommandManager;
 import io.ebean.Database;
 import kr.entree.spigradle.annotations.PluginMain;
@@ -12,14 +13,15 @@ import net.silthus.skills.entities.SkilledPlayer;
 import net.silthus.skills.listener.PlayerListener;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Locale;
+import java.util.Optional;
 
 @PluginMain
 public class SkillsPlugin extends JavaPlugin {
@@ -80,6 +82,21 @@ public class SkillsPlugin extends JavaPlugin {
             getLogger().severe("unable to load locales");
             e.printStackTrace();
         }
+
+        commandManager.getCommandCompletions().registerAsyncCompletion("skills", context -> skillManager.loadedSkills().keySet());
+        commandManager.getCommandContexts().registerContext(Skill.class, context -> {
+            Optional<Skill> skill = getSkillManager().findSkillByNameOrId(context.popFirstArg());
+            if (skill.isEmpty()) {
+                throw new InvalidCommandArgument("{@@rcskills.resolver.skill.error}");
+            }
+            return skill.get();
+        });
+        commandManager.getCommandContexts().registerContext(net.silthus.skills.SkilledPlayer.class, context -> {
+            Player player = (Player) context.getResolvedArg(Player.class);
+            return skillManager.getPlayer(player);
+        });
+
+
         commandManager.registerCommand(new SkillsCommand(this));
     }
 
