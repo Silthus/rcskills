@@ -42,7 +42,7 @@ public final class SkillManager {
     private final Database database;
     private final SkillPluginConfig config;
 
-    SkillManager(SkillsPlugin plugin, Database database, SkillPluginConfig config) {
+    public SkillManager(SkillsPlugin plugin, Database database, SkillPluginConfig config) {
         this.plugin = plugin;
         this.database = database;
         this.config = config;
@@ -51,7 +51,7 @@ public final class SkillManager {
     /**
      * Registers default requirements and skill types provided by this plugin.
      */
-    void registerDefaults() {
+    public void registerDefaults() {
 
         registerRequirement(PermissionRequirement.class, PermissionRequirement::new);
         registerRequirement(SkillRequirement.class, () -> new SkillRequirement(this));
@@ -123,8 +123,7 @@ public final class SkillManager {
         try {
             YamlConfiguration config = new YamlConfiguration();
             config.load(file);
-            config.set("id", config.getString("id", ConfigUtil.getFileIdentifier(base, file)));
-            return loadSkill(config.getString("type", "permission"), config);
+            return loadSkill(ConfigUtil.getFileIdentifier(base, file), config);
         } catch (IOException | InvalidConfigurationException e) {
             log.severe("unable to load skill config " + file.getAbsolutePath() + ": " + e.getMessage());
             e.printStackTrace();
@@ -236,7 +235,7 @@ public final class SkillManager {
      * @param player the player that should be retrieved or created
      * @return a skilled player from the database
      */
-    public SkilledPlayer getPlayer(OfflinePlayer player) {
+    public SkilledPlayer getPlayer(@NonNull OfflinePlayer player) {
 
         return Optional.ofNullable(database()
                 .find(SkilledPlayer.class, player.getUniqueId()))
@@ -331,13 +330,18 @@ public final class SkillManager {
      * <P>Loading the skill will also cache it inside {@link #loadedSkills()} and
      * make it available from the {@link #getSkill(String)} method.
      *
-     * @param type the skill type to load
+     * @param identifier the identifier of the skill
      * @param config the config to load the skill with
      * @return the loaded skill or an empty optional if the skill type was not found
      */
-    public Optional<Skill> loadSkill(String type, ConfigurationSection config) {
+    public Optional<Skill> loadSkill(String identifier, ConfigurationSection config) {
 
-        Optional<Skill> loadedSkill = getSkillType(type)
+        if (config == null) {
+            return Optional.empty();
+        }
+        config.set("id", config.getString("id", identifier));
+
+        Optional<Skill> loadedSkill = getSkillType(config.getString("type", "permission"))
                 .map(Skill.Registration::supplier)
                 .map(Supplier::get)
                 .map(skill -> skill.load(config));
@@ -359,8 +363,11 @@ public final class SkillManager {
      *             must not be null
      * @return the skill type registration or an empty optional
      */
-    public Optional<Skill.Registration<?>> getSkillType(@NonNull String type) {
+    public Optional<Skill.Registration<?>> getSkillType(String type) {
 
+        if (Strings.isNullOrEmpty(type)) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(skillTypes().get(type.toLowerCase()));
     }
 
@@ -373,8 +380,9 @@ public final class SkillManager {
      *                   must not be null
      * @return the skill or an empty optional
      */
-    public Optional<Skill> getSkill(@NonNull String identifier) {
+    public Optional<Skill> getSkill(String identifier) {
 
+        if (Strings.isNullOrEmpty(identifier)) return Optional.empty();
         return Optional.ofNullable(loadedSkills().get(identifier.toLowerCase()));
     }
 
@@ -384,7 +392,7 @@ public final class SkillManager {
      * @param id the id or name of the skill
      * @return the skill if found
      */
-    public Optional<Skill> findSkillByNameOrId(@NonNull String id) {
+    public Optional<Skill> findSkillByNameOrId(String id) {
 
         if (Strings.isNullOrEmpty(id)) return Optional.empty();
         String name = id.toLowerCase().strip();

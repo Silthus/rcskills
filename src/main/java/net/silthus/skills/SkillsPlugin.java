@@ -7,6 +7,7 @@ import kr.entree.spigradle.annotations.PluginMain;
 import lombok.Getter;
 import net.silthus.ebean.Config;
 import net.silthus.ebean.EbeanWrapper;
+import net.silthus.skills.commands.AdminCommands;
 import net.silthus.skills.commands.SkillsCommand;
 import net.silthus.skills.entities.PlayerSkill;
 import net.silthus.skills.entities.SkilledPlayer;
@@ -92,12 +93,15 @@ public class SkillsPlugin extends JavaPlugin {
             return skill.get();
         });
         commandManager.getCommandContexts().registerContext(net.silthus.skills.SkilledPlayer.class, context -> {
-            Player player = (Player) context.getResolvedArg(Player.class);
+            Player player = Bukkit.getPlayerExact(context.popFirstArg());
+            if (player == null) {
+                throw new InvalidCommandArgument("{@@invalid-player}");
+            }
             return skillManager.getPlayer(player);
         });
 
-
         commandManager.registerCommand(new SkillsCommand(this));
+        commandManager.registerCommand(new AdminCommands(getSkillManager()));
     }
 
     private Database connectToDatabase() {

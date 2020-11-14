@@ -17,7 +17,7 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
     private String skillsPath = "skills";
     private DatabaseConfig database = new DatabaseConfig();
 
-    SkillPluginConfig(Path path) {
+    public SkillPluginConfig(Path path) {
 
         super(path, BukkitYamlProperties.builder().setFormatter(FieldNameFormatters.LOWER_UNDERSCORE).build());
     }

@@ -16,6 +16,10 @@ public interface Skill {
 
     String description();
 
+    boolean unlocked();
+
+    boolean active();
+
     Collection<Requirement> requirements();
 
     void addRequirement(Requirement requirement);
@@ -23,6 +27,8 @@ public interface Skill {
     void addRequirements(Collection<Requirement> requirements);
 
     Skill load(ConfigurationSection config);
+
+    void unlock(Player player);
 
     default TestResult test(Player player) {
 

@@ -48,35 +48,6 @@ public class SkillsCommand extends BaseCommand {
         }
     }
 
-    @Subcommand("add")
-    @CommandCompletion("@players @skills")
-    @Description("{@@rcskills.add-cmd.desc}")
-    @CommandPermission("rcskills.admin.skill.add")
-    public void addSkill(SkilledPlayer player, Skill skill) {
-
-        player.addSkill(skill);
-        getCurrentCommandIssuer().sendInfo(MessageKey.of("rcskills.add-cmd.info"));
-    }
-
-    @Subcommand("remove|del")
-    @CommandCompletion("@players @skills")
-    @Description("{@@rcskills.remove-cmd.desc}")
-    @CommandPermission("rcskills.admin.skill.remove")
-    public void removeSkill(SkilledPlayer player, Skill skill) {
-
-        player.removeSkill(skill);
-        getCurrentCommandIssuer().sendInfo(MessageKey.of("rcskills.remove-cmd.info"));
-    }
-
-    @Subcommand("reload")
-    @Description("{@@rcskills.reload-cmd}}")
-    @CommandPermission("rcskills.reload")
-    public void reload(Player player) {
-
-        plugin.getSkillManager().reload();
-        player.sendMessage(ChatColor.GREEN  + "Reload all skills from disk.");
-    }
-
     private void listSkills(CommandSender sender, Collection<Skill> skillList) {
 
         for (Skill skill : skillList) {
@@ -89,7 +60,7 @@ public class SkillsCommand extends BaseCommand {
                             .append(skill.identifier())
                             .color(ChatColor.DARK_GRAY)
                             .append(")").color(ChatColor.GREEN)
-                            .append(" ]=-").color(ChatColor.AQUA)
+                            .append(" ]=-\n").color(ChatColor.AQUA)
                             .append(skill.description()).italic(true).color(ChatColor.GRAY)
                             .create()
                     )))

@@ -17,6 +17,7 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.time.Instant;
 import java.util.*;
 
 @Entity
@@ -33,7 +34,8 @@ public class PlayerSkill extends BaseEntity implements Skill {
     private String identifier;
     private String name;
     private String description;
-    private boolean unlocked;
+    private Instant unlocked = null;
+    private boolean active = false;
 
     public PlayerSkill() {
 
@@ -44,7 +46,14 @@ public class PlayerSkill extends BaseEntity implements Skill {
         this.identifier = skill.identifier();
         this.name = skill.name();
         this.description = skill.description();
-        this.unlocked = true;
+        save();
+    }
+
+    @Override
+    public void unlock(Player player) {
+        if (unlocked != null) return;
+        unlocked = Instant.now();
+        save();
     }
 
     public Optional<Skill> skill() {
@@ -55,6 +64,10 @@ public class PlayerSkill extends BaseEntity implements Skill {
     @Override
     public Collection<Requirement> requirements() {
         return skill().map(Skill::requirements).orElseGet(ArrayList::new);
+    }
+
+    public boolean unlocked() {
+        return this.unlocked != null;
     }
 
     @Override
