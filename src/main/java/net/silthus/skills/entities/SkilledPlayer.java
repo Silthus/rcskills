@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.silthus.ebean.BaseEntity;
 import net.silthus.skills.AddSkillResult;
+import net.silthus.skills.ConfiguredSkill;
 import net.silthus.skills.Skill;
 import net.silthus.skills.TestResult;
 import org.bukkit.Bukkit;
@@ -26,11 +27,14 @@ import java.util.UUID;
 @Getter
 @Setter
 @Table(name = "rcs_players")
-public class SkilledPlayer extends BaseEntity implements net.silthus.skills.SkilledPlayer {
+public class SkilledPlayer extends BaseEntity {
 
     public static final Finder<UUID, SkilledPlayer> find = new Finder<>(SkilledPlayer.class);
 
     private String name;
+    private long level;
+    private long exp;
+    private long skillPoints;
     @OneToMany(cascade = CascadeType.REMOVE)
     private List<PlayerSkill> skills = new ArrayList<>();
 
@@ -40,25 +44,26 @@ public class SkilledPlayer extends BaseEntity implements net.silthus.skills.Skil
         name(player.getName());
     }
 
-    @Override
-    public AddSkillResult addSkill(Skill skill) {
+    public Player getBukkitPlayer() {
+        return Bukkit.getPlayer(id());
+    }
+
+    public AddSkillResult addSkill(ConfiguredSkill skill) {
 
         return addSkill(skill, false);
     }
 
-    @Override
-    public AddSkillResult addSkill(Skill skill, boolean bypassChecks) {
+    public AddSkillResult addSkill(ConfiguredSkill skill, boolean bypassChecks) {
 
         if (hasSkill(skill)) {
             return new AddSkillResult(skill, this, TestResult.ofSuccess(), false, bypassChecks, name() + " already has the " + skill.identifier() + " skill.");
         }
 
-        Player player = Bukkit.getPlayer(id());
-        TestResult testResult = skill.test(player);
+        TestResult testResult = skill.test(this);
 
         if (testResult.success() || bypassChecks) {
             skills.add(new PlayerSkill(this, skill));
-            skill.apply(player);
+            skill.apply(this);
             save();
             return new AddSkillResult(skill, this, testResult, true, bypassChecks);
         }
@@ -66,10 +71,9 @@ public class SkilledPlayer extends BaseEntity implements net.silthus.skills.Skil
         return new AddSkillResult(skill, this, testResult, false, bypassChecks, "Requirements for obtaining the skill " + skill.identifier() + " were not met.");
     }
 
-    @Override
-    public void removeSkill(Skill skill) {
+    public void removeSkill(ConfiguredSkill skill) {
 
-        if (!hasSkill(skill.identifier())) {
+        if (!hasSkill(skill)) {
             return;
         }
 
@@ -79,13 +83,11 @@ public class SkilledPlayer extends BaseEntity implements net.silthus.skills.Skil
 
     }
 
-    @Override
-    public boolean hasSkill(Skill skill) {
+    public boolean hasSkill(ConfiguredSkill skill) {
 
         return hasSkill(skill.identifier());
     }
 
-    @Override
     public boolean hasSkill(String identifier) {
 
         return this.skills.stream()

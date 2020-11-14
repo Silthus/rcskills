@@ -3,6 +3,7 @@ package net.silthus.skills;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.experimental.Accessors;
+import net.silthus.skills.entities.SkilledPlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
@@ -21,7 +22,7 @@ public interface Requirement {
         return this;
     }
 
-    TestResult test(@NonNull Player target);
+    TestResult test(@NonNull SkilledPlayer target);
 
     @Value
     @Accessors(fluent = true)

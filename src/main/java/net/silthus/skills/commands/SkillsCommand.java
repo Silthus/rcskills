@@ -2,20 +2,18 @@ package net.silthus.skills.commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandCompletion;
-import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.Subcommand;
 import co.aikar.commands.annotation.Syntax;
-import co.aikar.locales.MessageKey;
+import io.ebeaninternal.server.lib.Str;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.hover.content.Text;
+import net.silthus.skills.ConfiguredSkill;
 import net.silthus.skills.Skill;
-import net.silthus.skills.SkilledPlayer;
 import net.silthus.skills.SkillsPlugin;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -23,6 +21,7 @@ import org.bukkit.entity.Player;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @CommandAlias("rcs|rcskills|skills")
 public class SkillsCommand extends BaseCommand {
@@ -41,16 +40,16 @@ public class SkillsCommand extends BaseCommand {
 
         if (args.length == 0) {
             listSkills(player, plugin.getSkillManager().getPlayer(player).skills().stream()
-                    .map(playerSkill -> playerSkill.skill().orElse(null))
+                    .flatMap(playerSkill -> plugin.getSkillManager().getSkill(playerSkill.identifier()).stream().flatMap(Stream::of))
                     .filter(Objects::nonNull).collect(Collectors.toList()));
         } else if (args[0].equalsIgnoreCase("--all")) {
             listSkills(player, plugin.getSkillManager().loadedSkills().values());
         }
     }
 
-    private void listSkills(CommandSender sender, Collection<Skill> skillList) {
+    private void listSkills(CommandSender sender, Collection<ConfiguredSkill> skillList) {
 
-        for (Skill skill : skillList) {
+        for (ConfiguredSkill skill : skillList) {
             BaseComponent[] text = new ComponentBuilder().append("[").color(ChatColor.AQUA)
                     .append(skill.name()).color(ChatColor.YELLOW)
                     .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder()

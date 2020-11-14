@@ -86,13 +86,13 @@ public class SkillsPlugin extends JavaPlugin {
 
         commandManager.getCommandCompletions().registerAsyncCompletion("skills", context -> skillManager.loadedSkills().keySet());
         commandManager.getCommandContexts().registerContext(Skill.class, context -> {
-            Optional<Skill> skill = getSkillManager().findSkillByNameOrId(context.popFirstArg());
+            Optional<ConfiguredSkill> skill = getSkillManager().findSkillByNameOrId(context.popFirstArg());
             if (skill.isEmpty()) {
                 throw new InvalidCommandArgument("{@@rcskills.resolver.skill.error}");
             }
             return skill.get();
         });
-        commandManager.getCommandContexts().registerContext(net.silthus.skills.SkilledPlayer.class, context -> {
+        commandManager.getCommandContexts().registerContext(SkilledPlayer.class, context -> {
             Player player = Bukkit.getPlayerExact(context.popFirstArg());
             if (player == null) {
                 throw new InvalidCommandArgument("{@@invalid-player}");

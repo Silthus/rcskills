@@ -145,7 +145,7 @@ class SkillManagerTest {
 
             assertThat(skillManager.loadSkills(testResources))
                     .hasSizeGreaterThan(2)
-                    .extracting(Skill::identifier)
+                    .extracting(ConfiguredSkill::identifier)
                     .contains("test", "foobar", "nested.minimal");
         }
     }
@@ -189,7 +189,7 @@ class SkillManagerTest {
     static class CustomRequirement extends AbstractRequirement {
 
         @Override
-        public TestResult test(@NonNull Player target) {
+        public TestResult test(@NonNull SkilledPlayer target) {
 
             return TestResult.ofSuccess();
         }
@@ -199,7 +199,7 @@ class SkillManagerTest {
     static class SecondRequirement extends AbstractRequirement {
 
         @Override
-        public TestResult test(@NonNull Player target) {
+        public TestResult test(@NonNull SkilledPlayer target) {
             return TestResult.ofSuccess();
         }
     }
@@ -207,7 +207,7 @@ class SkillManagerTest {
     @RequirementType("test3")
     static class ThirdRequirement extends AbstractRequirement {
         @Override
-        public TestResult test(@NonNull Player target) {
+        public TestResult test(@NonNull SkilledPlayer target) {
             return TestResult.ofSuccess();
         }
     }

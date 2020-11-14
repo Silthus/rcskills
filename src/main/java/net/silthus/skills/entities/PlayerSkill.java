@@ -5,10 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.silthus.ebean.BaseEntity;
-import net.silthus.skills.Requirement;
-import net.silthus.skills.Skill;
-import net.silthus.skills.SkillManager;
-import net.silthus.skills.SkillsPlugin;
+import net.silthus.skills.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -25,7 +22,7 @@ import java.util.*;
 @Setter
 @Table(name = "rcs_player_skills")
 @Accessors(fluent = true)
-public class PlayerSkill extends BaseEntity implements Skill {
+public class PlayerSkill extends BaseEntity {
 
     public static final Finder<UUID, PlayerSkill> find = new Finder<>(PlayerSkill.class);
 
@@ -41,7 +38,7 @@ public class PlayerSkill extends BaseEntity implements Skill {
 
     }
 
-    public PlayerSkill(SkilledPlayer player, Skill skill) {
+    public PlayerSkill(SkilledPlayer player, ConfiguredSkill skill) {
         this.player = player;
         this.identifier = skill.identifier();
         this.name = skill.name();
@@ -49,49 +46,13 @@ public class PlayerSkill extends BaseEntity implements Skill {
         save();
     }
 
-    @Override
-    public void unlock(Player player) {
-        if (unlocked != null) return;
-        unlocked = Instant.now();
-        save();
-    }
-
-    public Optional<Skill> skill() {
-
-        return JavaPlugin.getPlugin(SkillsPlugin.class).getSkillManager().getSkill(identifier());
-    }
-
-    @Override
-    public Collection<Requirement> requirements() {
-        return skill().map(Skill::requirements).orElseGet(ArrayList::new);
-    }
-
     public boolean unlocked() {
         return this.unlocked != null;
     }
 
-    @Override
-    public void addRequirement(Requirement requirement) {
-        skill().ifPresent(skill -> skill.addRequirement(requirement));
-    }
-
-    @Override
-    public void addRequirements(Collection<Requirement> requirements) {
-        skill().ifPresent(skill -> skill.addRequirements(requirements));
-    }
-
-    @Override
-    public Skill load(ConfigurationSection config) {
-        return skill().map(skill -> skill.load(config)).orElse(this);
-    }
-
-    @Override
-    public void apply(Player player) {
-        skill().ifPresent(skill -> skill.apply(player));
-    }
-
-    @Override
-    public void remove(Player player) {
-        skill().ifPresent(skill -> skill.remove(player));
+    public void unlock() {
+        if (unlocked != null) return;
+        unlocked = Instant.now();
+        save();
     }
 }

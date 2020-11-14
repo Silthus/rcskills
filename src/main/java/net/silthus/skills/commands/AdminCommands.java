@@ -6,6 +6,7 @@ import co.aikar.commands.annotation.*;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
 import net.silthus.skills.*;
+import net.silthus.skills.entities.SkilledPlayer;
 
 @CommandAlias("rcsa|rcs:admin|rcskills:admin|skills:admin")
 @CommandPermission("rcskills.admin.*")
@@ -22,7 +23,7 @@ public class AdminCommands extends BaseCommand {
     @CommandCompletion("@players @skills bypass|check")
     @Description("{@@rcskills.add-cmd.desc}")
     @CommandPermission("rcskills.admin.skill.add")
-    public void addSkill(SkilledPlayer skilledPlayer, Skill skill, @Default("bypass") String mode) {
+    public void addSkill(SkilledPlayer skilledPlayer, ConfiguredSkill skill, @Default("bypass") String mode) {
 
         AddSkillResult result = skilledPlayer.addSkill(skill, mode.equalsIgnoreCase("bypass"));
         if (result.success()) {
@@ -36,7 +37,7 @@ public class AdminCommands extends BaseCommand {
     @CommandCompletion("@players @skills")
     @Description("{@@rcskills.remove-cmd.desc}")
     @CommandPermission("rcskills.admin.skill.remove")
-    public void removeSkill(SkilledPlayer player, Skill skill) {
+    public void removeSkill(SkilledPlayer player, ConfiguredSkill skill) {
 
         player.removeSkill(skill);
         getCurrentCommandIssuer().sendMessage("{@@rcskills.remove-cmd.info}");

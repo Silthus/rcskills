@@ -7,7 +7,8 @@
             <column name="identifier" type="varchar"/>
             <column name="name" type="varchar"/>
             <column name="description" type="varchar"/>
-            <column name="unlocked" type="boolean" defaultValue="false" notnull="true"/>
+            <column name="unlocked" type="timestamp"/>
+            <column name="active" type="boolean" defaultValue="false" notnull="true"/>
             <column name="version" type="bigint" notnull="true"/>
             <column name="when_created" type="timestamp" notnull="true"/>
             <column name="when_modified" type="timestamp" notnull="true"/>
@@ -15,6 +16,9 @@
         <createTable name="rcs_players" identityType="external" pkName="pk_rcs_players">
             <column name="id" type="uuid" primaryKey="true" identity="true"/>
             <column name="name" type="varchar"/>
+            <column name="level" type="bigint" notnull="true"/>
+            <column name="exp" type="bigint" notnull="true"/>
+            <column name="skill_points" type="bigint" notnull="true"/>
             <column name="version" type="bigint" notnull="true"/>
             <column name="when_created" type="timestamp" notnull="true"/>
             <column name="when_modified" type="timestamp" notnull="true"/>

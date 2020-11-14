@@ -1,10 +1,10 @@
 package net.silthus.skills.skills;
 
-import net.silthus.skills.AbstractSkill;
+import net.silthus.skills.Skill;
 import net.silthus.skills.SkillType;
 import net.silthus.skills.SkillsPlugin;
+import net.silthus.skills.entities.SkilledPlayer;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @SkillType("permission")
-public class PermissionSkill extends AbstractSkill {
+public class PermissionSkill implements Skill {
 
     private final SkillsPlugin plugin;
     private final List<String> permissions = new ArrayList<>();
@@ -26,26 +26,26 @@ public class PermissionSkill extends AbstractSkill {
     }
 
     @Override
-    public void loadSkill(ConfigurationSection config) {
+    public void load(ConfigurationSection config) {
 
         this.permissions.clear();
         this.permissions.addAll(config.getStringList("permissions"));
     }
 
     @Override
-    public void apply(Player player) {
+    public void apply(SkilledPlayer player) {
 
-        List<PermissionAttachment> attachments = this.attachments.getOrDefault(player.getUniqueId(), new ArrayList<>());
+        List<PermissionAttachment> attachments = this.attachments.getOrDefault(player.id(), new ArrayList<>());
         attachments
                 .addAll(permissions.stream()
-                .map(permission -> player.addAttachment(plugin, permission, true))
+                .map(permission -> player.getBukkitPlayer().addAttachment(plugin, permission, true))
                 .collect(Collectors.toList()));
-        this.attachments.put(player.getUniqueId(), attachments);
+        this.attachments.put(player.id(), attachments);
     }
 
     @Override
-    public void remove(Player player) {
+    public void remove(SkilledPlayer player) {
 
-        attachments.getOrDefault(player.getUniqueId(), new ArrayList<>()).forEach(player::removeAttachment);
+        attachments.getOrDefault(player.id(), new ArrayList<>()).forEach(permissionAttachment -> player.getBukkitPlayer().removeAttachment(permissionAttachment));
     }
 }

@@ -33,9 +33,8 @@ public class SkillRequirement extends AbstractRequirement {
     }
 
     @Override
-    public TestResult test(@NonNull Player player) {
+    public TestResult test(@NonNull SkilledPlayer player) {
 
-        SkilledPlayer skilledPlayer = skillManager.getPlayer(player);
-        return TestResult.of(skilledPlayer.hasSkill(skill), String.format(msg(msgIdentifier("error"), "You require the %1$s skill to unlock this skill."), skill));
+        return TestResult.of(player.hasSkill(skill), String.format(msg(msgIdentifier("error"), "You require the %1$s skill to unlock this skill."), skill));
     }
 }

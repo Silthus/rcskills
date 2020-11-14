@@ -35,8 +35,8 @@ public final class SkillManager {
     private final Map<String, Requirement.Registration<?>> requirements = new HashMap<>();
     private final Map<String, Skill.Registration<?>> skillTypes = new HashMap<>();
 
-    private final Map<String, Skill> loadedSkills = new HashMap<>();
-    private final Map<UUID, List<Skill>> loadedPlayerSkills = new HashMap<>();
+    private final Map<String, ConfiguredSkill> loadedSkills = new HashMap<>();
+    private final Map<UUID, List<ConfiguredSkill>> loadedPlayerSkills = new HashMap<>();
 
     private final SkillsPlugin plugin;
     private final Database database;
@@ -80,7 +80,7 @@ public final class SkillManager {
      *
      * @param path the path to the skill configs
      */
-    public List<Skill> loadSkills(Path path) {
+    public List<ConfiguredSkill> loadSkills(Path path) {
 
         try {
             Files.createDirectories(path);
@@ -90,7 +90,7 @@ public final class SkillManager {
 
 
             int fileCount = files.size();
-            List<Skill> skills = files.stream().map(file -> loadSkill(path, file))
+            List<ConfiguredSkill> skills = files.stream().map(file -> loadSkill(path, file))
                     .flatMap(skill -> skill.stream().flatMap(Stream::of))
                     .collect(Collectors.toList());
 
@@ -114,7 +114,7 @@ public final class SkillManager {
      * @param file the file to load the skill from
      * @return the loaded skill or an empty optional.
      */
-    public Optional<Skill> loadSkill(Path base, @NonNull File file) {
+    public Optional<ConfiguredSkill> loadSkill(Path base, @NonNull File file) {
 
         if (!file.exists() || !(file.getName().endsWith(".yml") && !file.getName().endsWith(".yaml"))) {
             return Optional.empty();
@@ -254,12 +254,14 @@ public final class SkillManager {
             return;
         }
 
-        List<Skill> skills = new ArrayList<>();
-        getPlayer(player).skills().stream().filter(PlayerSkill::unlocked)
+        List<ConfiguredSkill> skills = new ArrayList<>();
+        getPlayer(player).skills().stream()
+                .filter(PlayerSkill::unlocked)
+                .filter(PlayerSkill::active)
                 .map(playerSkill -> getSkill(playerSkill.identifier()))
                 .flatMap(skill -> skill.stream().flatMap(Stream::of))
                 .forEach(skill -> {
-                    skill.apply(player);
+                    skill.apply(getPlayer(player));
                     skills.add(skill);
                 });
         this.loadedPlayerSkills.put(player.getUniqueId(), skills);
@@ -273,9 +275,9 @@ public final class SkillManager {
      */
     public void unload(@NonNull Player player) {
 
-        List<Skill> skills = loadedPlayerSkills.remove(player.getUniqueId());
+        List<ConfiguredSkill> skills = loadedPlayerSkills.remove(player.getUniqueId());
         if (skills != null) {
-            skills.forEach(skill -> skill.remove(player));
+            skills.forEach(skill -> skill.remove(getPlayer(player)));
         }
     }
 
@@ -334,20 +336,21 @@ public final class SkillManager {
      * @param config the config to load the skill with
      * @return the loaded skill or an empty optional if the skill type was not found
      */
-    public Optional<Skill> loadSkill(String identifier, ConfigurationSection config) {
+    public Optional<ConfiguredSkill> loadSkill(String identifier, ConfigurationSection config) {
 
         if (config == null) {
             return Optional.empty();
         }
         config.set("id", config.getString("id", identifier));
 
-        Optional<Skill> loadedSkill = getSkillType(config.getString("type", "permission"))
+        Optional<ConfiguredSkill> loadedSkill = getSkillType(config.getString("type", "permission"))
                 .map(Skill.Registration::supplier)
                 .map(Supplier::get)
-                .map(skill -> skill.load(config));
+                .map(ConfiguredSkill::new);
 
         loadedSkill.ifPresent(skill -> {
-            skill.addRequirements(loadRequirements(config.getConfigurationSection("requirements")));
+            skill.load(config);
+            skill.addRequirement(loadRequirements(config.getConfigurationSection("requirements")).toArray(new Requirement[0]));
             this.loadedSkills.put(skill.identifier(), skill);
         });
 
@@ -380,7 +383,7 @@ public final class SkillManager {
      *                   must not be null
      * @return the skill or an empty optional
      */
-    public Optional<Skill> getSkill(String identifier) {
+    public Optional<ConfiguredSkill> getSkill(String identifier) {
 
         if (Strings.isNullOrEmpty(identifier)) return Optional.empty();
         return Optional.ofNullable(loadedSkills().get(identifier.toLowerCase()));
@@ -392,7 +395,7 @@ public final class SkillManager {
      * @param id the id or name of the skill
      * @return the skill if found
      */
-    public Optional<Skill> findSkillByNameOrId(String id) {
+    public Optional<ConfiguredSkill> findSkillByNameOrId(String id) {
 
         if (Strings.isNullOrEmpty(id)) return Optional.empty();
         String name = id.toLowerCase().strip();
