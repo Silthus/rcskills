@@ -1,10 +1,7 @@
 package net.silthus.skills;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-
-import java.io.InvalidClassException;
 
 import static net.silthus.skills.Messages.msg;
 

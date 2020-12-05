@@ -1,19 +1,13 @@
 package net.silthus.skills.commands;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Description;
-import co.aikar.commands.annotation.Subcommand;
-import co.aikar.commands.annotation.Syntax;
-import io.ebeaninternal.server.lib.Str;
+import co.aikar.commands.annotation.*;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import net.silthus.skills.ConfiguredSkill;
-import net.silthus.skills.Skill;
 import net.silthus.skills.SkillsPlugin;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

@@ -5,7 +5,9 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
-import net.silthus.skills.*;
+import net.silthus.skills.AddSkillResult;
+import net.silthus.skills.ConfiguredSkill;
+import net.silthus.skills.SkillManager;
 import net.silthus.skills.entities.SkilledPlayer;
 
 @CommandAlias("rcsa|rcs:admin|rcskills:admin|skills:admin")

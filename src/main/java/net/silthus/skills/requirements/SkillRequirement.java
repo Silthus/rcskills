@@ -4,7 +4,6 @@ import lombok.NonNull;
 import net.silthus.skills.*;
 import net.silthus.skills.entities.SkilledPlayer;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 
 import static net.silthus.skills.Messages.msg;
 

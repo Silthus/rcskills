@@ -8,7 +8,6 @@ import lombok.experimental.Accessors;
 import net.silthus.ebean.BaseEntity;
 import net.silthus.skills.AddSkillResult;
 import net.silthus.skills.ConfiguredSkill;
-import net.silthus.skills.Skill;
 import net.silthus.skills.TestResult;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;

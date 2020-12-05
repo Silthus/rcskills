@@ -7,11 +7,7 @@ import net.silthus.skills.entities.SkilledPlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.permissions.PermissionAttachment;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @SkillType("permission")

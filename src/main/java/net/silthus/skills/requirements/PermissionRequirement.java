@@ -7,7 +7,6 @@ import net.silthus.skills.RequirementType;
 import net.silthus.skills.TestResult;
 import net.silthus.skills.entities.SkilledPlayer;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;

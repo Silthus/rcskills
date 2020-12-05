@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import net.silthus.skills.entities.SkilledPlayer;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Arrays;
