@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
 import lombok.extern.java.Log;
+import net.silthus.skills.entities.ConfiguredSkill;
 import net.silthus.skills.entities.PlayerSkill;
 import net.silthus.skills.entities.SkilledPlayer;
 import net.silthus.skills.requirements.PermissionRequirement;
@@ -25,7 +26,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Log(topic = "sSkills")
 @Getter
@@ -90,8 +90,9 @@ public final class SkillManager {
 
 
             int fileCount = files.size();
-            List<ConfiguredSkill> skills = files.stream().map(file -> loadSkill(path, file))
-                    .flatMap(skill -> skill.stream().flatMap(Stream::of))
+            List<ConfiguredSkill> skills = files.stream()
+                    .map(file -> loadSkill(path, file))
+                    .flatMap(Optional::stream)
                     .collect(Collectors.toList());
 
             log.info("Loaded " + skills.size() + "/" + fileCount + " skills from " + path);
@@ -258,8 +259,7 @@ public final class SkillManager {
         getPlayer(player).skills().stream()
                 .filter(PlayerSkill::unlocked)
                 .filter(PlayerSkill::active)
-                .map(playerSkill -> getSkill(playerSkill.identifier()))
-                .flatMap(skill -> skill.stream().flatMap(Stream::of))
+                .map(PlayerSkill::skill)
                 .forEach(skill -> {
                     skill.apply(getPlayer(player));
                     skills.add(skill);
@@ -311,11 +311,7 @@ public final class SkillManager {
         for (String requirementKey : config.getKeys(false)) {
             ConfigurationSection section = config.getConfigurationSection(requirementKey);
             if (section == null) continue;
-            if (!section.isSet("type")) {
-                log.severe("requirement section "  + config.getName() + "." + requirementKey + " is missing the requirement type.");
-                continue;
-            }
-            String type = section.getString("type");
+            String type = section.getString("type", requirementKey);
             if (requirements().containsKey(type)) {
                 requirements.add(requirements().get(type).supplier().get().load(section));
             } else {
@@ -329,8 +325,6 @@ public final class SkillManager {
     /**
      * Creates an instance of the given skill type and loads it with the given config.
      * <p>The skill can then be added and applied to players.
-     * <P>Loading the skill will also cache it inside {@link #loadedSkills()} and
-     * make it available from the {@link #getSkill(String)} method.
      *
      * @param identifier the identifier of the skill
      * @param config the config to load the skill with
@@ -341,7 +335,7 @@ public final class SkillManager {
         if (config == null) {
             return Optional.empty();
         }
-        config.set("id", config.getString("id", identifier));
+        config.set("alias", config.getString("alias", identifier));
 
         Optional<ConfiguredSkill> loadedSkill = getSkillType(config.getString("type", "permission"))
                 .map(Skill.Registration::supplier)
@@ -351,7 +345,7 @@ public final class SkillManager {
         loadedSkill.ifPresent(skill -> {
             skill.load(config);
             skill.addRequirement(loadRequirements(config.getConfigurationSection("requirements")).toArray(new Requirement[0]));
-            this.loadedSkills.put(skill.identifier(), skill);
+            this.loadedSkills.put(skill.alias(), skill);
         });
 
         return loadedSkill;
@@ -372,34 +366,5 @@ public final class SkillManager {
             return Optional.empty();
         }
         return Optional.ofNullable(skillTypes().get(type.toLowerCase()));
-    }
-
-    /**
-     * Tries to get a loaded skill with the given identifier from the cache.
-     * <p>Will return an empty optional if the skill is unknown or not loaded.
-     * <p>Use the {@link #getSkillType(String)} method to get the raw skill type class.
-     *
-     * @param identifier the identifier of the skill as defined in the config
-     *                   must not be null
-     * @return the skill or an empty optional
-     */
-    public Optional<ConfiguredSkill> getSkill(String identifier) {
-
-        if (Strings.isNullOrEmpty(identifier)) return Optional.empty();
-        return Optional.ofNullable(loadedSkills().get(identifier.toLowerCase()));
-    }
-
-    /**
-     * Tries to find a matching skill by the given name or id.
-     *
-     * @param id the id or name of the skill
-     * @return the skill if found
-     */
-    public Optional<ConfiguredSkill> findSkillByNameOrId(String id) {
-
-        if (Strings.isNullOrEmpty(id)) return Optional.empty();
-        String name = id.toLowerCase().strip();
-        return getSkill(name).or(() -> loadedSkills().values().stream()
-                .filter(skill -> skill.name().toLowerCase().startsWith(name)).findFirst());
     }
 }

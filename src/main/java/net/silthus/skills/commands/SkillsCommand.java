@@ -7,15 +7,13 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.hover.content.Text;
-import net.silthus.skills.ConfiguredSkill;
 import net.silthus.skills.SkillsPlugin;
-import org.bukkit.command.CommandSender;
+import net.silthus.skills.entities.ConfiguredSkill;
+import net.silthus.skills.entities.PlayerSkill;
+import net.silthus.skills.entities.SkilledPlayer;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @CommandAlias("rcs|rcskills|skills")
 public class SkillsCommand extends BaseCommand {
@@ -28,29 +26,25 @@ public class SkillsCommand extends BaseCommand {
 
     @Default
     @Subcommand("list")
-    @Syntax("[--all] [page]")
-    @Description("{@@rcskills.list-cmd}")
-    public void list(Player player, String[] args) {
+    @CommandPermission("rcskills.cmd.skills.list")
+    @Description("Zeigt alle Skills des Spielers an.")
+    public void list(Player player, SkilledPlayer skilledPlayer) {
 
-        if (args.length == 0) {
-            listSkills(player, plugin.getSkillManager().getPlayer(player).skills().stream()
-                    .flatMap(playerSkill -> plugin.getSkillManager().getSkill(playerSkill.identifier()).stream().flatMap(Stream::of))
-                    .filter(Objects::nonNull).collect(Collectors.toList()));
-        } else if (args[0].equalsIgnoreCase("--all")) {
-            listSkills(player, plugin.getSkillManager().loadedSkills().values());
-        }
+        player.spigot().sendMessage(listSkills(skilledPlayer.skills()));
     }
 
-    private void listSkills(CommandSender sender, Collection<ConfiguredSkill> skillList) {
+    private BaseComponent[] listSkills(Collection<PlayerSkill> skills) {
 
-        for (ConfiguredSkill skill : skillList) {
-            BaseComponent[] text = new ComponentBuilder().append("[").color(ChatColor.AQUA)
+        ComponentBuilder builder = new ComponentBuilder();
+        for (PlayerSkill playerSkill : skills) {
+            ConfiguredSkill skill = playerSkill.skill();
+            builder.append("[").color(ChatColor.AQUA)
                     .append(skill.name()).color(ChatColor.YELLOW)
                     .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder()
                             .append("-=[ ").color(ChatColor.AQUA)
                             .append(skill.name()).color(ChatColor.YELLOW)
                             .append(" (").color(ChatColor.GREEN)
-                            .append(skill.identifier())
+                            .append(skill.alias())
                             .color(ChatColor.DARK_GRAY)
                             .append(")").color(ChatColor.GREEN)
                             .append(" ]=-\n").color(ChatColor.AQUA)
@@ -58,8 +52,8 @@ public class SkillsCommand extends BaseCommand {
                             .create()
                     )))
                     .append("]").color(ChatColor.AQUA)
-                    .append(" - ").color(ChatColor.BLACK).create();
-            sender.spigot().sendMessage(text);
+                    .append(" - \n").color(ChatColor.BLACK).create();
         }
+        return builder.create();
     }
 }

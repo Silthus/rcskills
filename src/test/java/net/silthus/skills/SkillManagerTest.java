@@ -6,9 +6,9 @@ import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import io.ebean.DB;
 import lombok.NonNull;
 import net.silthus.ebean.BaseEntity;
+import net.silthus.skills.entities.ConfiguredSkill;
 import net.silthus.skills.entities.SkilledPlayer;
 import org.bukkit.configuration.MemoryConfiguration;
-import org.bukkit.entity.Player;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -145,7 +145,7 @@ class SkillManagerTest {
 
             assertThat(skillManager.loadSkills(testResources))
                     .hasSizeGreaterThan(2)
-                    .extracting(ConfiguredSkill::identifier)
+                    .extracting(ConfiguredSkill::alias)
                     .contains("test", "foobar", "nested.minimal");
         }
     }

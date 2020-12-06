@@ -34,14 +34,17 @@ public class PermissionSkill implements Skill {
         List<PermissionAttachment> attachments = this.attachments.getOrDefault(player.id(), new ArrayList<>());
         attachments
                 .addAll(permissions.stream()
-                .map(permission -> player.getBukkitPlayer().addAttachment(plugin, permission, true))
-                .collect(Collectors.toList()));
+                        .map(permission -> player.getBukkitPlayer()
+                                .map(p -> p.addAttachment(plugin, permission, true)).orElse(null))
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList()));
         this.attachments.put(player.id(), attachments);
     }
 
     @Override
     public void remove(SkilledPlayer player) {
 
-        attachments.getOrDefault(player.id(), new ArrayList<>()).forEach(permissionAttachment -> player.getBukkitPlayer().removeAttachment(permissionAttachment));
+        attachments.getOrDefault(player.id(), new ArrayList<>())
+                .forEach(permissionAttachment -> player.getBukkitPlayer().ifPresent(p -> p.removeAttachment(permissionAttachment)));
     }
 }

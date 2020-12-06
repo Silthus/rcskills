@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.silthus.ebean.BaseEntity;
-import net.silthus.skills.ConfiguredSkill;
+import net.silthus.skills.SkillsPlugin;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -20,13 +20,25 @@ import java.util.UUID;
 @Accessors(fluent = true)
 public class PlayerSkill extends BaseEntity {
 
+    public static PlayerSkill getOrCreate(SkilledPlayer player, ConfiguredSkill skill) {
+
+        return find.query()
+                .where().eq("player_id", player.id())
+                .and().eq("skill_id", skill.id())
+                .findOneOrEmpty()
+                .orElseGet(() -> {
+                    PlayerSkill playerSkill = new PlayerSkill(player, skill);
+                    playerSkill.save();
+                    return playerSkill;
+                });
+    }
+
     public static final Finder<UUID, PlayerSkill> find = new Finder<>(PlayerSkill.class);
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     private SkilledPlayer player;
-    private String identifier;
-    private String name;
-    private String description;
+    @ManyToOne(optional = false)
+    private ConfiguredSkill skill;
     private Instant unlocked = null;
     private boolean active = false;
 
@@ -34,12 +46,9 @@ public class PlayerSkill extends BaseEntity {
 
     }
 
-    public PlayerSkill(SkilledPlayer player, ConfiguredSkill skill) {
+    PlayerSkill(SkilledPlayer player, ConfiguredSkill skill) {
         this.player = player;
-        this.identifier = skill.identifier();
-        this.name = skill.name();
-        this.description = skill.description();
-        save();
+        this.skill = skill;
     }
 
     public boolean unlocked() {

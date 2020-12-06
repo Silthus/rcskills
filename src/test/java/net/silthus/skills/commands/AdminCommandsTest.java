@@ -7,6 +7,7 @@ import io.ebean.DB;
 import net.silthus.skills.SkillManager;
 import net.silthus.skills.SkillPluginConfig;
 import net.silthus.skills.SkillsPlugin;
+import net.silthus.skills.entities.ConfiguredSkill;
 import net.silthus.skills.entities.SkilledPlayer;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.junit.jupiter.api.*;
@@ -62,9 +63,9 @@ class AdminCommandsTest {
             PlayerMock player = server.addPlayer();
             SkilledPlayer skilledPlayer = skillManager.getPlayer(player);
 
-            commands.addSkill(skilledPlayer, skillManager.getSkill(TEST_SKILL).get(), "bypass");
+            commands.addSkill(skilledPlayer, ConfiguredSkill.findByAliasOrName(TEST_SKILL).get(), "bypass");
 
-            assertThat(skilledPlayer.hasSkill(TEST_SKILL));
+            assertThat(skilledPlayer.hasSkill(TEST_SKILL)).isTrue();
         }
     }
 }

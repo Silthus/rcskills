@@ -6,7 +6,7 @@ import co.aikar.commands.annotation.*;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
 import net.silthus.skills.AddSkillResult;
-import net.silthus.skills.ConfiguredSkill;
+import net.silthus.skills.entities.ConfiguredSkill;
 import net.silthus.skills.SkillManager;
 import net.silthus.skills.entities.SkilledPlayer;
 

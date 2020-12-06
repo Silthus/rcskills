@@ -61,12 +61,13 @@ repositories {
 dependencies {
     compileOnly spigot(mcVersion)
 
-    implementation 'net.silthus:ebean-wrapper:2.6.1'
+    implementation 'net.silthus:ebean-wrapper:2.8.1'
     implementation 'net.silthus.configlib:configlib-bukkit:2.6.0'
     implementation 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
+
     implementation group: 'io.art-framework', name: 'art-core', version: '1.0.0-beta.30'
 
-    testImplementation 'io.ebean:ebean-test:12.5.1'
+    testImplementation 'io.ebean:ebean-test:12.6.0'
 
     testImplementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
     testImplementation group: 'com.h2database', name: 'h2', version: '1.4.200'
@@ -78,18 +79,18 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.+'
     testImplementation "org.mockito:mockito-core:3.+"
     testImplementation 'org.assertj:assertj-core:3.+'
-    testImplementation mockBukkit()
+    testImplementation group: 'com.github.seeseemelk', name: 'MockBukkit-v1.16', version: '0.16.0'
 }
 
 shadowJar {
     classifier = ''
     dependencies {
-        include(dependency('net.silthus.configlib:configlib-bukkit:'))
         include(dependency('co.aikar:acf-paper:'))
+        include(dependency('net.silthus.configlib:configlib-bukkit:'))
     }
-    relocate 'de.exlll.configlib', "shadow.silthus.skills.configlib"
-    relocate 'co.aikar.commands', 'shadow.silthus.skills.acf'
-    relocate 'co.aikar.locales', 'shadow.silthus.skills.locales'
+    relocate 'co.aikar.commands', "shadow.${pluginName}.acf"
+    relocate 'co.aikar.locales', "shadow.${pluginName}.locales"
+    relocate 'de.exlll.configlib', "shadow.${pluginName}.configlib"
 }
 
 tasks.build.dependsOn(shadowJar)

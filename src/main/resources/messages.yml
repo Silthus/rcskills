@@ -1,9 +1,9 @@
 requirements:
   skill:
-    name: 'Required Skill'
-    description: 'Requires the %s skill to unlock the skill.'
-    error: 'You require the %s skill to unlock the skill.'
+    name: 'Skill'
+    description: 'Benötigt den Skill %s um den Skill freizuschalten.'
+    error: 'Du benötigst den Skill %s um diesen Skill freizuschalten.'
   permission:
     name: 'Permission'
-    description: 'Requires the %s permission to unlock the skill.'
-    error: 'You do not have the required %s permission to unlock the skill.'
+    description: 'Du benötigst die Permission %s um den Skill freizuschalten.'
+    error: 'Du hast nicht genügend Rechte um den Skill freizuschalten.'
