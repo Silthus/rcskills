@@ -27,7 +27,7 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-@Log(topic = "sSkills")
+@Log(topic = "RCSkills")
 @Getter
 @Accessors(fluent = true)
 public final class SkillManager {
@@ -39,12 +39,10 @@ public final class SkillManager {
     private final Map<UUID, List<ConfiguredSkill>> loadedPlayerSkills = new HashMap<>();
 
     private final SkillsPlugin plugin;
-    private final Database database;
     private final SkillPluginConfig config;
 
-    public SkillManager(SkillsPlugin plugin, Database database, SkillPluginConfig config) {
+    public SkillManager(SkillsPlugin plugin, SkillPluginConfig config) {
         this.plugin = plugin;
-        this.database = database;
         this.config = config;
     }
 
@@ -124,7 +122,9 @@ public final class SkillManager {
         try {
             YamlConfiguration config = new YamlConfiguration();
             config.load(file);
-            return loadSkill(ConfigUtil.getFileIdentifier(base, file), config);
+            Optional<ConfiguredSkill> skill = loadSkill(ConfigUtil.getFileIdentifier(base, file), config);
+            config.save(file);
+            return skill;
         } catch (IOException | InvalidConfigurationException e) {
             log.severe("unable to load skill config " + file.getAbsolutePath() + ": " + e.getMessage());
             e.printStackTrace();
@@ -181,7 +181,7 @@ public final class SkillManager {
 
     /**
      * Registers the given skill type with this skill manager.
-     * <p>Make sure your skill class is annotated with @{@link SkillType} or the registration will fail.
+     * <p>Make sure your skill class is annotated with @{@link SkillInfo} or the registration will fail.
      * <p>The provided supplier will be used to create instances of the given skill type which are then loaded
      * and applied to players.
      *
@@ -192,12 +192,12 @@ public final class SkillManager {
      */
     public <TSkill extends Skill> SkillManager registerSkill(Class<TSkill> skillClass, Supplier<TSkill> supplier) {
 
-        if (!skillClass.isAnnotationPresent(SkillType.class)) {
+        if (!skillClass.isAnnotationPresent(SkillInfo.class)) {
             log.severe("Cannot register skill " + skillClass.getCanonicalName() + " without a @SkillType annotation.");
             return this;
         }
 
-        String type = skillClass.getAnnotation(SkillType.class).value().toLowerCase();
+        String type = skillClass.getAnnotation(SkillInfo.class).value().toLowerCase();
         if (skillTypes.containsKey(type)) {
             log.severe("Cannot register skill: " + skillClass.getCanonicalName()
                     + "! A skill with the same type identifier '"
@@ -221,10 +221,10 @@ public final class SkillManager {
      */
     public SkillManager unregisterSkill(Class<? extends Skill> skill) {
 
-        if (!skill.isAnnotationPresent(SkillType.class)) {
+        if (!skill.isAnnotationPresent(SkillInfo.class)) {
             return this;
         }
-        skillTypes.remove(skill.getAnnotation(SkillType.class).value().toLowerCase());
+        skillTypes.remove(skill.getAnnotation(SkillInfo.class).value().toLowerCase());
         return this;
     }
 
@@ -238,8 +238,7 @@ public final class SkillManager {
      */
     public SkilledPlayer getPlayer(@NonNull OfflinePlayer player) {
 
-        return Optional.ofNullable(database()
-                .find(SkilledPlayer.class, player.getUniqueId()))
+        return Optional.ofNullable(SkilledPlayer.find.byId(player.getUniqueId()))
                 .orElse(new SkilledPlayer(player));
     }
 
@@ -335,6 +334,7 @@ public final class SkillManager {
         if (config == null) {
             return Optional.empty();
         }
+        config.set("id", config.getString("id", identifier));
         config.set("alias", config.getString("alias", identifier));
 
         Optional<ConfiguredSkill> loadedSkill = getSkillType(config.getString("type", "permission"))

@@ -34,7 +34,7 @@ class AdminCommandsTest {
     void setUp(@TempDir Path temp) {
 
         this.server = MockBukkit.mock();
-        this.skillManager = new SkillManager(mock(SkillsPlugin.class), DB.getDefault(), new SkillPluginConfig(new File(temp.toFile(), "config.yml").toPath()));
+        this.skillManager = new SkillManager(mock(SkillsPlugin.class), new SkillPluginConfig(new File(temp.toFile(), "config.yml").toPath()));
         skillManager.registerDefaults();
         this.commands = new AdminCommands(skillManager);
     }

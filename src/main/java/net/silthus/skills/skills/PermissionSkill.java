@@ -1,7 +1,7 @@
 package net.silthus.skills.skills;
 
 import net.silthus.skills.Skill;
-import net.silthus.skills.SkillType;
+import net.silthus.skills.SkillInfo;
 import net.silthus.skills.SkillsPlugin;
 import net.silthus.skills.entities.SkilledPlayer;
 import org.bukkit.configuration.ConfigurationSection;
@@ -10,7 +10,7 @@ import org.bukkit.permissions.PermissionAttachment;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@SkillType("permission")
+@SkillInfo("permission")
 public class PermissionSkill implements Skill {
 
     private final SkillsPlugin plugin;

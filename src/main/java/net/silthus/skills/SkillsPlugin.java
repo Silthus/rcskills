@@ -33,6 +33,7 @@ public class SkillsPlugin extends JavaPlugin {
 
     @Getter
     private SkillManager skillManager;
+    private Database database;
     private SkillPluginConfig config;
     private PlayerListener playerListener;
     private PaperCommandManager commandManager;
@@ -54,6 +55,7 @@ public class SkillsPlugin extends JavaPlugin {
     public void onEnable() {
 
         loadConfig();
+        setupDatabase();
         setupSkillManager();
         if (!testing) {
             setupListener();
@@ -70,7 +72,7 @@ public class SkillsPlugin extends JavaPlugin {
 
     private void setupSkillManager() {
 
-        this.skillManager = new SkillManager(this, connectToDatabase(), config);
+        this.skillManager = new SkillManager(this, config);
         skillManager.registerDefaults();
 
         skillManager.load();
@@ -121,15 +123,14 @@ public class SkillsPlugin extends JavaPlugin {
         });
     }
 
-    private Database connectToDatabase() {
+    private void setupDatabase() {
 
-        Config dbConfig = Config.builder(this)
+        this.database = new EbeanWrapper(Config.builder(this)
                 .entities(
                         ConfiguredSkill.class,
                         PlayerSkill.class,
                         SkilledPlayer.class
                 )
-                .build();
-        return new EbeanWrapper(dbConfig).getDatabase();
+                .build()).connect();
     }
 }

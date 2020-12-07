@@ -1,6 +1,6 @@
 -- apply changes
 create table rcs_skills (
-  id                            varchar(40) not null,
+  id                            varchar(255) not null,
   alias                         varchar(255),
   name                          varchar(255),
   type                          varchar(255),
@@ -14,7 +14,7 @@ create table rcs_skills (
 create table rcs_player_skills (
   id                            varchar(40) not null,
   player_id                     varchar(40) not null,
-  skill_id                      varchar(40) not null,
+  skill_id                      varchar(255) not null,
   unlocked                      datetime(6),
   active                        tinyint(1) default 0 not null,
   version                       bigint not null,

@@ -1,7 +1,10 @@
 package net.silthus.skills.entities;
 
 import io.ebean.Finder;
+import io.ebean.Model;
 import io.ebean.annotation.Index;
+import io.ebean.annotation.WhenCreated;
+import io.ebean.annotation.WhenModified;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -13,10 +16,8 @@ import net.silthus.skills.TestResult;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 
-import javax.persistence.Entity;
-import javax.persistence.PostLoad;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
+import java.time.Instant;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -25,18 +26,19 @@ import java.util.function.Supplier;
 @Setter
 @Table(name = "rcs_skills")
 @Accessors(fluent = true)
-public class ConfiguredSkill extends BaseEntity implements Skill {
+public class ConfiguredSkill extends Model implements Skill {
 
     public static Optional<ConfiguredSkill> findByAliasOrName(String alias) {
 
         return find.query()
-                .where().ieq("alias", alias)
-                .or().ieq("name", alias)
+                .where().eq("alias", alias)
                 .findOneOrEmpty();
     }
 
     public static final Finder<UUID, ConfiguredSkill> find = new Finder<>(ConfiguredSkill.class);
 
+    @Id
+    private String id;
     @Index
     private String alias;
     @Index
@@ -44,6 +46,15 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
     private String type;
     private String description;
     private Map<String, Object> config = new HashMap<>();
+
+    @Version
+    Long version;
+
+    @WhenCreated
+    Instant whenCreated;
+
+    @WhenModified
+    Instant whenModified;
 
     @Transient
     private Skill skill;
@@ -61,10 +72,10 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
 
     @Override
     public void load(ConfigurationSection config) {
-        this.id(UUID.fromString(Objects.requireNonNull(config.getString("id", UUID.randomUUID().toString()))));
+        this.id(config.getString("id"));
         this.alias = config.getString("alias");
         this.name = config.getString("name", alias());
-        this.type = config.getString("type");
+        this.type = config.getString("type", "permission");
         this.description = config.getString("description");
         ConfigurationSection with = config.getConfigurationSection("with");
         if (with != null) {
