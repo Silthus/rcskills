@@ -3,22 +3,21 @@ package net.silthus.skills;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import io.ebean.DB;
 import lombok.NonNull;
 import net.silthus.ebean.BaseEntity;
 import net.silthus.skills.entities.ConfiguredSkill;
 import net.silthus.skills.entities.SkilledPlayer;
+import org.apache.commons.io.FileUtils;
 import org.bukkit.configuration.MemoryConfiguration;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -131,11 +130,14 @@ class SkillManagerTest {
     @DisplayName("loadSkills(...)")
     class loadSkills {
 
-        private Path testResources = Paths.get("src","test","resources", "skills");
+        public Path skillsPath;
 
         @BeforeEach
-        void setUp() {
+        void setUp(@TempDir Path temp) throws IOException {
 
+            Path path = Paths.get("src", "test", "resources", "skills");
+            FileUtils.copyDirectory(path.toFile(), temp.toFile());
+            skillsPath = temp;
             skillManager.registerDefaults();
         }
 
@@ -143,7 +145,7 @@ class SkillManagerTest {
         @DisplayName("should load all skills from a path")
         void shouldLoadSkillsFromPath() {
 
-            assertThat(skillManager.loadSkills(testResources))
+            assertThat(skillManager.loadSkills(skillsPath))
                     .hasSizeGreaterThan(2)
                     .extracting(ConfiguredSkill::alias)
                     .contains("test", "foobar", "nested.minimal");
@@ -178,7 +180,7 @@ class SkillManagerTest {
         void shouldAlwaysReturnAPlayer() {
 
             PlayerMock player = server.addPlayer();
-            assertThat(skillManager.getPlayer(player))
+            assertThat(SkilledPlayer.getOrCreate(player))
                     .isNotNull()
                     .extracting(BaseEntity::id, SkilledPlayer::name)
                     .contains(player.getUniqueId(), player.getName());

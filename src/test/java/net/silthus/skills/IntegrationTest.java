@@ -2,6 +2,7 @@ package net.silthus.skills;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
+import net.silthus.skills.entities.SkilledPlayer;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.*;
@@ -59,7 +60,7 @@ public class IntegrationTest {
                 void shouldAddSkillToPlayer() {
 
                     server.dispatchCommand(server.getConsoleSender(),"rcs:admin " + player.getName() + " " + TEST_SKILL);
-                    assertThat(plugin.getSkillManager().getPlayer(player).hasSkill(TEST_SKILL));
+                    assertThat(SkilledPlayer.getOrCreate(player).hasSkill(TEST_SKILL));
                 }
             }
         }

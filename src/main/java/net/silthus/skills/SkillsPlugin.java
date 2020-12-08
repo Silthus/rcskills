@@ -23,6 +23,7 @@ import org.bukkit.plugin.java.JavaPluginLoader;
 
 import java.io.File;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @PluginMain
 public class SkillsPlugin extends JavaPlugin {
@@ -90,7 +91,10 @@ public class SkillsPlugin extends JavaPlugin {
         registerSkilledPlayerContext(commandManager);
         registerSkillContext(commandManager);
 
-        commandManager.getCommandCompletions().registerAsyncCompletion("skills", context -> skillManager.loadedSkills().keySet());
+        commandManager.getCommandCompletions().registerAsyncCompletion("skills", context -> ConfiguredSkill.find
+                .query().findSet().stream()
+                .map(ConfiguredSkill::alias)
+                .collect(Collectors.toSet()));
 
         commandManager.registerCommand(new SkillsCommand(this));
         commandManager.registerCommand(new AdminCommands(getSkillManager()));
@@ -110,16 +114,16 @@ public class SkillsPlugin extends JavaPlugin {
 
     private void registerSkilledPlayerContext(PaperCommandManager commandManager) {
 
-        commandManager.getCommandContexts().registerContext(SkilledPlayer.class, context -> {
+        commandManager.getCommandContexts().registerIssuerAwareContext(SkilledPlayer.class, context -> {
             String playerName = context.popFirstArg();
             if (Strings.isNullOrEmpty(playerName)) {
-                return skillManager.getPlayer(context.getPlayer());
+                return SkilledPlayer.getOrCreate(context.getPlayer());
             }
             Player player = Bukkit.getPlayerExact(playerName);
             if (player == null) {
                 throw new InvalidCommandArgument("Der Spieler " + playerName + " wurde nicht gefunden.");
             }
-            return skillManager.getPlayer(player);
+            return SkilledPlayer.getOrCreate(player);
         });
     }
 

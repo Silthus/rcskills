@@ -2,12 +2,14 @@ package net.silthus.skills.entities;
 
 import io.ebean.Finder;
 import io.ebean.Model;
+import io.ebean.annotation.Transactional;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.silthus.ebean.BaseEntity;
 import net.silthus.skills.AddSkillResult;
 import net.silthus.skills.Skill;
+import net.silthus.skills.SkillsPlugin;
 import net.silthus.skills.TestResult;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -31,14 +33,32 @@ public class SkilledPlayer extends BaseEntity {
 
     public static final Finder<UUID, SkilledPlayer> find = new Finder<>(SkilledPlayer.class);
 
+    /**
+     * Gets an existing player from the database or creates a new record from the given player.
+     * <p>This method takes an {@link OfflinePlayer} for easier access to skills while players are offline.
+     * However the skill can only be applied to the player if he is online. Any interaction will fail silently while offline.
+     *
+     * @param player the player that should be retrieved or created
+     * @return a skilled player from the database
+     */
+    public static SkilledPlayer getOrCreate(OfflinePlayer player) {
+
+        return Optional.ofNullable(find.byId(player.getUniqueId()))
+                .orElseGet(() -> {
+                    SkilledPlayer skilledPlayer = new SkilledPlayer(player);
+                    skilledPlayer.save();
+                    return skilledPlayer;
+                });
+    }
+
     private String name;
     private long level;
     private long exp;
     private long skillPoints;
-    @OneToMany(cascade = CascadeType.REMOVE)
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "player")
     private List<PlayerSkill> skills = new ArrayList<>();
 
-    public SkilledPlayer(OfflinePlayer player) {
+    private SkilledPlayer(OfflinePlayer player) {
 
         id(player.getUniqueId());
         name(player.getName());
@@ -58,6 +78,7 @@ public class SkilledPlayer extends BaseEntity {
         return addSkill(skill, false);
     }
 
+    @Transactional
     public AddSkillResult addSkill(ConfiguredSkill skill, boolean bypassChecks) {
 
         if (hasSkill(skill)) {
@@ -67,7 +88,7 @@ public class SkilledPlayer extends BaseEntity {
         TestResult testResult = skill.test(this);
 
         if (testResult.success() || bypassChecks) {
-            skills.add(new PlayerSkill(this, skill));
+            skills.add(PlayerSkill.getOrCreate(this, skill));
             skill.apply(this);
             save();
             return new AddSkillResult(skill, this, testResult, true, bypassChecks);
@@ -101,11 +122,11 @@ public class SkilledPlayer extends BaseEntity {
 
     public boolean hasSkill(ConfiguredSkill skill) {
 
-        return getSkill(skill).map(PlayerSkill::active).orElse(false);
+        return getSkill(skill).isPresent();
     }
 
     public boolean hasSkill(String alias) {
 
-        return getSkill(alias).map(PlayerSkill::active).orElse(false);
+        return getSkill(alias).isPresent();
     }
 }

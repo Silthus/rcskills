@@ -23,13 +23,13 @@ public class AdminCommands extends BaseCommand {
 
     @Subcommand("add")
     @CommandCompletion("@players @skills bypass|check")
-    @Description("{@@rcskills.add-cmd.desc}")
+    @Description("Fügt einen Skill direkt einem Spieler zu.")
     @CommandPermission("rcskills.admin.skill.add")
     public void addSkill(SkilledPlayer skilledPlayer, ConfiguredSkill skill, @Default("bypass") String mode) {
 
         AddSkillResult result = skilledPlayer.addSkill(skill, mode.equalsIgnoreCase("bypass"));
         if (result.success()) {
-            getCurrentCommandIssuer().sendMessage("{@@rcskills.add-cmd.info}");
+            getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + "Der Skill " + skill.name() + "(" + skill.alias() + ") wurde " + skilledPlayer.name() + " erfolgreich zugewiesen.");
         } else {
             getCurrentCommandIssuer().sendMessage(ChatColor.RED + result.errorMessage());
         }
@@ -37,20 +37,20 @@ public class AdminCommands extends BaseCommand {
 
     @Subcommand("remove|del")
     @CommandCompletion("@players @skills")
-    @Description("{@@rcskills.remove-cmd.desc}")
+    @Description("Entfernt einen Skill von einem Spieler.")
     @CommandPermission("rcskills.admin.skill.remove")
     public void removeSkill(SkilledPlayer player, ConfiguredSkill skill) {
 
         player.removeSkill(skill);
-        getCurrentCommandIssuer().sendMessage("{@@rcskills.remove-cmd.info}");
+        getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + "Der Skill " + skill.name() + "(" + skill.alias() + ") wurde von " + player.name() + " erfolgreich entfernt.");
     }
 
     @Subcommand("reload")
-    @Description("{@@rcskills.reload-cmd}}")
+    @Description("Lädt das RCSkills Plugin und alle Konfigurationen neu.")
     @CommandPermission("rcskills.admin.reload")
     public void reload() {
 
         getSkillManager().reload();
-        getCurrentCommandIssuer().sendMessage("{@@rcskills.reload}");
+        getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + "Das Skillplugin wurde neugeladen.");
     }
 }

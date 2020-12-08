@@ -35,9 +35,9 @@ public class PlayerSkill extends BaseEntity {
 
     public static final Finder<UUID, PlayerSkill> find = new Finder<>(PlayerSkill.class);
 
-    @ManyToOne(optional = false)
+    @ManyToOne
     private SkilledPlayer player;
-    @ManyToOne(optional = false)
+    @ManyToOne
     private ConfiguredSkill skill;
     private Instant unlocked = null;
     private boolean active = false;

@@ -26,6 +26,7 @@ public class SkillsCommand extends BaseCommand {
 
     @Default
     @Subcommand("list")
+    @CommandCompletion("@players")
     @CommandPermission("rcskills.cmd.skills.list")
     @Description("Zeigt alle Skills des Spielers an.")
     public void list(Player player, SkilledPlayer skilledPlayer) {

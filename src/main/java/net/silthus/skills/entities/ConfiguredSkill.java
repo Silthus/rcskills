@@ -1,23 +1,16 @@
 package net.silthus.skills.entities;
 
 import io.ebean.Finder;
-import io.ebean.Model;
 import io.ebean.annotation.Index;
-import io.ebean.annotation.WhenCreated;
-import io.ebean.annotation.WhenModified;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.silthus.ebean.BaseEntity;
-import net.silthus.skills.Requirement;
-import net.silthus.skills.Skill;
-import net.silthus.skills.SkillsPlugin;
-import net.silthus.skills.TestResult;
+import net.silthus.skills.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 
 import javax.persistence.*;
-import java.time.Instant;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -26,7 +19,7 @@ import java.util.function.Supplier;
 @Setter
 @Table(name = "rcs_skills")
 @Accessors(fluent = true)
-public class ConfiguredSkill extends Model implements Skill {
+public class ConfiguredSkill extends BaseEntity implements Skill {
 
     public static Optional<ConfiguredSkill> findByAliasOrName(String alias) {
 
@@ -37,8 +30,6 @@ public class ConfiguredSkill extends Model implements Skill {
 
     public static final Finder<UUID, ConfiguredSkill> find = new Finder<>(ConfiguredSkill.class);
 
-    @Id
-    private String id;
     @Index
     private String alias;
     @Index
@@ -46,23 +37,24 @@ public class ConfiguredSkill extends Model implements Skill {
     private String type;
     private String description;
     private Map<String, Object> config = new HashMap<>();
-
-    @Version
-    Long version;
-
-    @WhenCreated
-    Instant whenCreated;
-
-    @WhenModified
-    Instant whenModified;
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "skill")
+    private List<PlayerSkill> playerSkills = new ArrayList<>();
 
     @Transient
     private Skill skill;
     @Transient
-    private final List<Requirement> requirements = new ArrayList<>();
+    private List<Requirement> requirements;
 
     public ConfiguredSkill(Skill skill) {
         this.skill = skill;
+    }
+
+    public List<Requirement> requirements() {
+
+        if (requirements == null) {
+            this.requirements = new ArrayList<>();
+        }
+        return requirements;
     }
 
     public Optional<Skill> getSkill() {
@@ -72,26 +64,25 @@ public class ConfiguredSkill extends Model implements Skill {
 
     @Override
     public void load(ConfigurationSection config) {
-        this.id(config.getString("id"));
         this.alias = config.getString("alias");
         this.name = config.getString("name", alias());
         this.type = config.getString("type", "permission");
         this.description = config.getString("description");
+
         ConfigurationSection with = config.getConfigurationSection("with");
-        if (with != null) {
-            this.config = new HashMap<>();
-            with.getKeys(true).forEach(key -> this.config.put(key, with.get(key)));
-            this.skill.load(with);
-        } else {
-            this.skill.load(config.createSection("with"));
-        }
+        this.skill.load(Objects.requireNonNullElseGet(with, () -> config.createSection("with")));
+
+        this.config = new HashMap<>();
+        config.getKeys(true).forEach(key -> this.config.put(key, config.get(key)));
+
         save();
     }
 
     @PostLoad
     private void postLoad() {
 
-        this.skill = SkillsPlugin.instance().getSkillManager().getSkillType(type())
+        SkillManager skillManager = SkillsPlugin.instance().getSkillManager();
+        this.skill = skillManager.getSkillType(type())
                 .map(Registration::supplier)
                 .map(Supplier::get)
                 .orElse(null);
@@ -101,7 +92,9 @@ public class ConfiguredSkill extends Model implements Skill {
                 for (Map.Entry<String, Object> entry : config().entrySet()) {
                     cfg.set(entry.getKey(), entry.getValue());
                 }
-                skill.load(cfg);
+                ConfigurationSection with = cfg.getConfigurationSection("with");
+                skill.load(Objects.requireNonNullElseGet(with, () -> cfg.createSection("with")));
+                skillManager.loadRequirements(cfg.getConfigurationSection("requirements"));
             }
         });
     }
@@ -117,7 +110,7 @@ public class ConfiguredSkill extends Model implements Skill {
     }
 
     public void addRequirement(Requirement... requirements) {
-        this.requirements.addAll(Arrays.asList(requirements));
+        this.requirements().addAll(Arrays.asList(requirements));
     }
 
     public TestResult test(SkilledPlayer player) {

@@ -35,7 +35,6 @@ public final class SkillManager {
     private final Map<String, Requirement.Registration<?>> requirements = new HashMap<>();
     private final Map<String, Skill.Registration<?>> skillTypes = new HashMap<>();
 
-    private final Map<String, ConfiguredSkill> loadedSkills = new HashMap<>();
     private final Map<UUID, List<ConfiguredSkill>> loadedPlayerSkills = new HashMap<>();
 
     private final SkillsPlugin plugin;
@@ -69,7 +68,6 @@ public final class SkillManager {
 
     public void unload() {
 
-        loadedSkills.clear();
     }
 
     /**
@@ -229,20 +227,6 @@ public final class SkillManager {
     }
 
     /**
-     * Gets an existing player from the database or creates a new record from the given player.
-     * <p>This method takes an {@link OfflinePlayer} for easier access to skills while players are offline.
-     * However the skill can only be applied to the player if he is online. Any interaction will fail silently while offline.
-     *
-     * @param player the player that should be retrieved or created
-     * @return a skilled player from the database
-     */
-    public SkilledPlayer getPlayer(@NonNull OfflinePlayer player) {
-
-        return Optional.ofNullable(SkilledPlayer.find.byId(player.getUniqueId()))
-                .orElse(new SkilledPlayer(player));
-    }
-
-    /**
      * Loads and applies all active skills to the given player.
      * <p>Will do nothing if the player is already loaded.
      *
@@ -255,12 +239,13 @@ public final class SkillManager {
         }
 
         List<ConfiguredSkill> skills = new ArrayList<>();
-        getPlayer(player).skills().stream()
+        final SkilledPlayer skilledPlayer = SkilledPlayer.getOrCreate(player);
+        skilledPlayer.skills().stream()
                 .filter(PlayerSkill::unlocked)
                 .filter(PlayerSkill::active)
                 .map(PlayerSkill::skill)
                 .forEach(skill -> {
-                    skill.apply(getPlayer(player));
+                    skill.apply(skilledPlayer);
                     skills.add(skill);
                 });
         this.loadedPlayerSkills.put(player.getUniqueId(), skills);
@@ -276,7 +261,7 @@ public final class SkillManager {
 
         List<ConfiguredSkill> skills = loadedPlayerSkills.remove(player.getUniqueId());
         if (skills != null) {
-            skills.forEach(skill -> skill.remove(getPlayer(player)));
+            skills.forEach(skill -> skill.remove(SkilledPlayer.getOrCreate(player)));
         }
     }
 
@@ -334,18 +319,30 @@ public final class SkillManager {
         if (config == null) {
             return Optional.empty();
         }
-        config.set("id", config.getString("id", identifier));
+        UUID id;
+        try {
+            id = UUID.fromString(config.getString("id", UUID.randomUUID().toString()));
+        } catch (Exception e) {
+            id = UUID.randomUUID();
+        }
+        config.set("id", id.toString());
         config.set("alias", config.getString("alias", identifier));
 
+        UUID finalId = id;
         Optional<ConfiguredSkill> loadedSkill = getSkillType(config.getString("type", "permission"))
                 .map(Skill.Registration::supplier)
                 .map(Supplier::get)
-                .map(ConfiguredSkill::new);
+                .map(skill -> Optional.ofNullable(ConfiguredSkill.find.byId(finalId))
+                        .orElseGet(() -> {
+                            ConfiguredSkill configuredSkill = new ConfiguredSkill(skill);
+                            configuredSkill.id(finalId);
+                            return configuredSkill;
+                        }));
 
         loadedSkill.ifPresent(skill -> {
             skill.load(config);
             skill.addRequirement(loadRequirements(config.getConfigurationSection("requirements")).toArray(new Requirement[0]));
-            this.loadedSkills.put(skill.alias(), skill);
+            skill.save();
         });
 
         return loadedSkill;
