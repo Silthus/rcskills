@@ -50,16 +50,30 @@ public class PlayerSkill extends BaseEntity {
         this.skill = skill;
     }
 
-    public boolean unlocked() {
+    public boolean isUnlocked() {
         return this.unlocked != null;
     }
 
     public void unlock() {
 
-        if (unlocked != null) {
+        if (unlocked == null) {
             unlocked = Instant.now();
         }
         active(true);
         save();
+    }
+
+    @Override
+    public boolean delete() {
+
+        if (!isUnlocked() || !active()) {
+            return false;
+        }
+
+        active(false);
+        skill().getSkill().ifPresent(skill -> skill.remove(player()));
+        save();
+
+        return true;
     }
 }

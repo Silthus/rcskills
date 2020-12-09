@@ -83,7 +83,7 @@ public class SkilledPlayer extends BaseEntity {
     public AddSkillResult addSkill(ConfiguredSkill skill, boolean bypassChecks) {
 
         if (hasSkill(skill)) {
-            return new AddSkillResult(skill, this, TestResult.ofSuccess(), false, bypassChecks, name() + " already has the " + skill.alias() + " skill.");
+            return new AddSkillResult(skill, this, null, TestResult.ofSuccess(), false, bypassChecks, name() + " already has the " + skill.alias() + " skill.");
         }
 
         TestResult testResult = skill.test(this);
@@ -94,10 +94,10 @@ public class SkilledPlayer extends BaseEntity {
             playerSkill.unlock();
             skill.apply(this);
             save();
-            return new AddSkillResult(skill, this, testResult, true, bypassChecks);
+            return new AddSkillResult(skill, this, playerSkill, testResult, true, bypassChecks);
         }
 
-        return new AddSkillResult(skill, this, testResult, false, bypassChecks, "Requirements for obtaining the skill " + skill.alias() + " were not met.");
+        return new AddSkillResult(skill, this, playerSkill, testResult, false, bypassChecks, "Requirements for obtaining the skill " + skill.alias() + " were not met.");
     }
 
     public Optional<PlayerSkill> getSkill(String alias) {
@@ -115,10 +115,6 @@ public class SkilledPlayer extends BaseEntity {
     }
 
     public void removeSkill(ConfiguredSkill skill) {
-
-        if (!hasSkill(skill)) {
-            return;
-        }
 
         getSkill(skill).ifPresent(Model::delete);
     }

@@ -1,7 +1,9 @@
 package net.silthus.skills.entities;
 
 import io.ebean.Finder;
+import io.ebean.annotation.DbJson;
 import io.ebean.annotation.Index;
+import io.ebean.text.json.EJson;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -11,6 +13,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 
 import javax.persistence.*;
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -20,6 +23,14 @@ import java.util.function.Supplier;
 @Table(name = "rcs_skills")
 @Accessors(fluent = true)
 public class ConfiguredSkill extends BaseEntity implements Skill {
+
+    static {
+        try {
+            EJson.write(new Object());
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+    }
 
     public static Optional<ConfiguredSkill> findByAliasOrName(String alias) {
 
@@ -36,6 +47,7 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
     private String name;
     private String type;
     private String description;
+    @DbJson
     private Map<String, Object> config = new HashMap<>();
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "skill")
     private List<PlayerSkill> playerSkills = new ArrayList<>();
@@ -45,7 +57,8 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
     @Transient
     private List<Requirement> requirements;
 
-    public ConfiguredSkill(Skill skill) {
+    public ConfiguredSkill(UUID id, Skill skill) {
+        this.id(id);
         this.skill = skill;
     }
 
@@ -79,7 +92,7 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
     }
 
     @PostLoad
-    private void postLoad() {
+    public void load() {
 
         SkillManager skillManager = SkillsPlugin.instance().getSkillManager();
         this.skill = skillManager.getSkillType(type())

@@ -1,7 +1,6 @@
 package net.silthus.skills;
 
 import com.google.common.base.Strings;
-import io.ebean.Database;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
@@ -13,7 +12,6 @@ import net.silthus.skills.requirements.PermissionRequirement;
 import net.silthus.skills.requirements.SkillRequirement;
 import net.silthus.skills.skills.PermissionSkill;
 import net.silthus.skills.util.ConfigUtil;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -241,7 +239,7 @@ public final class SkillManager {
         List<ConfiguredSkill> skills = new ArrayList<>();
         final SkilledPlayer skilledPlayer = SkilledPlayer.getOrCreate(player);
         skilledPlayer.skills().stream()
-                .filter(PlayerSkill::unlocked)
+                .filter(PlayerSkill::isUnlocked)
                 .filter(PlayerSkill::active)
                 .map(PlayerSkill::skill)
                 .forEach(skill -> {
@@ -319,27 +317,21 @@ public final class SkillManager {
         if (config == null) {
             return Optional.empty();
         }
-        UUID id;
-        try {
-            id = UUID.fromString(config.getString("id", UUID.randomUUID().toString()));
-        } catch (Exception e) {
-            id = UUID.randomUUID();
-        }
-        config.set("id", id.toString());
-        config.set("alias", config.getString("alias", identifier));
 
-        UUID finalId = id;
+        final UUID id = UUID.fromString(Objects.requireNonNull(config.getString("id", UUID.randomUUID().toString())));
+
         Optional<ConfiguredSkill> loadedSkill = getSkillType(config.getString("type", "permission"))
                 .map(Skill.Registration::supplier)
                 .map(Supplier::get)
-                .map(skill -> Optional.ofNullable(ConfiguredSkill.find.byId(finalId))
-                        .orElseGet(() -> {
-                            ConfiguredSkill configuredSkill = new ConfiguredSkill(skill);
-                            configuredSkill.id(finalId);
-                            return configuredSkill;
-                        }));
+                .map(skill -> ConfiguredSkill.findByAliasOrName(identifier)
+                        .orElseGet(() -> Optional.ofNullable(ConfiguredSkill.find.byId(id))
+                         .orElse(new ConfiguredSkill(id, skill))));
 
         loadedSkill.ifPresent(skill -> {
+
+            config.set("id", skill.id().toString());
+            config.set("alias", config.getString("alias", identifier));
+
             skill.load(config);
             skill.addRequirement(loadRequirements(config.getConfigurationSection("requirements")).toArray(new Requirement[0]));
             skill.save();

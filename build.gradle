@@ -64,6 +64,7 @@ dependencies {
     implementation 'net.silthus:ebean-wrapper:2.8.1'
     implementation 'net.silthus.configlib:configlib-bukkit:2.6.0'
     implementation 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.3'
 
     implementation group: 'io.art-framework', name: 'art-core', version: '1.0.0-beta.30'
     implementation 'net.silthus.config-mapper:bukkit:1.1.2'

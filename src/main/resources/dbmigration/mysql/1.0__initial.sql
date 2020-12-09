@@ -5,6 +5,7 @@ create table rcs_skills (
   name                          varchar(255),
   type                          varchar(255),
   description                   varchar(255),
+  config                        json,
   version                       bigint not null,
   when_created                  datetime(6) not null,
   when_modified                 datetime(6) not null,

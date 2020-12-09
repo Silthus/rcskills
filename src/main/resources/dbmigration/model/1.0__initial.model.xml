@@ -7,6 +7,7 @@
             <column name="name" type="varchar"/>
             <column name="type" type="varchar"/>
             <column name="description" type="varchar"/>
+            <column name="config" type="json"/>
             <column name="version" type="bigint" notnull="true"/>
             <column name="when_created" type="timestamp" notnull="true"/>
             <column name="when_modified" type="timestamp" notnull="true"/>
