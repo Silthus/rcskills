@@ -29,6 +29,8 @@ public interface Skill {
 
     /**
      * Removes any effects of the skill from the given player.
+     * <p>remove(...) is called everytime the skill becomes inactive and
+     * when the player loses access to it.
      *
      * @param player the player this skill was removed from
      */

@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.silthus.ebean.BaseEntity;
-import net.silthus.skills.SkillsPlugin;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -56,8 +55,11 @@ public class PlayerSkill extends BaseEntity {
     }
 
     public void unlock() {
-        if (unlocked != null) return;
-        unlocked = Instant.now();
+
+        if (unlocked != null) {
+            unlocked = Instant.now();
+        }
+        active(true);
         save();
     }
 }

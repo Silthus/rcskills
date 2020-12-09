@@ -13,7 +13,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +46,7 @@ public class SkilledPlayer extends BaseEntity {
                 .orElseGet(() -> {
                     SkilledPlayer skilledPlayer = new SkilledPlayer(player);
                     skilledPlayer.save();
+                    skilledPlayer.level(PlayerLevel.getOrCreate(skilledPlayer));
                     return skilledPlayer;
                 });
     }
@@ -58,7 +63,6 @@ public class SkilledPlayer extends BaseEntity {
 
         id(player.getUniqueId());
         name(player.getName());
-        level(PlayerLevel.getOrCreate(this));
     }
 
     public OfflinePlayer getOfflinePlayer() {
@@ -83,9 +87,11 @@ public class SkilledPlayer extends BaseEntity {
         }
 
         TestResult testResult = skill.test(this);
+        PlayerSkill playerSkill = PlayerSkill.getOrCreate(this, skill);
+        skills.add(playerSkill);
 
         if (testResult.success() || bypassChecks) {
-            skills.add(PlayerSkill.getOrCreate(this, skill));
+            playerSkill.unlock();
             skill.apply(this);
             save();
             return new AddSkillResult(skill, this, testResult, true, bypassChecks);
