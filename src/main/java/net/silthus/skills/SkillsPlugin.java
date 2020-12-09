@@ -12,6 +12,7 @@ import net.silthus.ebean.EbeanWrapper;
 import net.silthus.skills.commands.AdminCommands;
 import net.silthus.skills.commands.SkillsCommand;
 import net.silthus.skills.entities.ConfiguredSkill;
+import net.silthus.skills.entities.PlayerLevel;
 import net.silthus.skills.entities.PlayerSkill;
 import net.silthus.skills.entities.SkilledPlayer;
 import net.silthus.skills.listener.PlayerListener;
@@ -133,7 +134,8 @@ public class SkillsPlugin extends JavaPlugin {
                 .entities(
                         ConfiguredSkill.class,
                         PlayerSkill.class,
-                        SkilledPlayer.class
+                        SkilledPlayer.class,
+                        PlayerLevel.class
                 )
                 .build()).connect();
     }

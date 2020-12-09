@@ -11,6 +11,16 @@
             <column name="when_created" type="timestamp" notnull="true"/>
             <column name="when_modified" type="timestamp" notnull="true"/>
         </createTable>
+        <createTable name="rcs_player_levels" identityType="external" pkName="pk_rcs_player_levels">
+            <column name="id" type="uuid" primaryKey="true" identity="true"/>
+            <column name="player_id" type="uuid" notnull="true" uniqueOneToOne="uq_rcs_player_levels_player_id" references="rcs_players.id" foreignKeyName="fk_rcs_player_levels_player_id"/>
+            <column name="level" type="bigint" notnull="true"/>
+            <column name="total_exp" type="bigint" notnull="true"/>
+            <column name="skill_points" type="bigint" notnull="true"/>
+            <column name="version" type="bigint" notnull="true"/>
+            <column name="when_created" type="timestamp" notnull="true"/>
+            <column name="when_modified" type="timestamp" notnull="true"/>
+        </createTable>
         <createTable name="rcs_player_skills" identityType="external" pkName="pk_rcs_player_skills">
             <column name="id" type="uuid" primaryKey="true" identity="true"/>
             <column name="player_id" type="uuid" references="rcs_players.id" foreignKeyName="fk_rcs_player_skills_player_id" foreignKeyIndex="ix_rcs_player_skills_player_id"/>
@@ -24,9 +34,7 @@
         <createTable name="rcs_players" identityType="external" pkName="pk_rcs_players">
             <column name="id" type="uuid" primaryKey="true" identity="true"/>
             <column name="name" type="varchar"/>
-            <column name="level" type="bigint" notnull="true"/>
-            <column name="exp" type="bigint" notnull="true"/>
-            <column name="skill_points" type="bigint" notnull="true"/>
+            <column name="level_id" type="uuid" uniqueOneToOne="uq_rcs_players_level_id" references="rcs_player_levels.id" foreignKeyName="fk_rcs_players_level_id"/>
             <column name="version" type="bigint" notnull="true"/>
             <column name="when_created" type="timestamp" notnull="true"/>
             <column name="when_modified" type="timestamp" notnull="true"/>

@@ -8,17 +8,12 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.silthus.ebean.BaseEntity;
 import net.silthus.skills.AddSkillResult;
-import net.silthus.skills.Skill;
-import net.silthus.skills.SkillsPlugin;
 import net.silthus.skills.TestResult;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -52,9 +47,10 @@ public class SkilledPlayer extends BaseEntity {
     }
 
     private String name;
-    private long level;
-    private long exp;
-    private long skillPoints;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private PlayerLevel level;
+
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "player")
     private List<PlayerSkill> skills = new ArrayList<>();
 
@@ -62,6 +58,7 @@ public class SkilledPlayer extends BaseEntity {
 
         id(player.getUniqueId());
         name(player.getName());
+        level(PlayerLevel.getOrCreate(this));
     }
 
     public OfflinePlayer getOfflinePlayer() {
