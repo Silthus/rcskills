@@ -1,7 +1,7 @@
 package net.silthus.skills.entities;
 
 import io.ebean.Finder;
-import io.ebean.annotation.Index;
+import io.ebean.annotation.History;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;

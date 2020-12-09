@@ -49,12 +49,4 @@ public class PlayerSkillTest {
         player = SkilledPlayer.getOrCreate(server.addPlayer());
         skill = ConfiguredSkill.findByAliasOrName(TEST_SKILL).get();
     }
-
-    @Test
-    @DisplayName("unlock() should set unlock timestamp")
-    void shouldUnlockAndActivateSkill() {
-
-        assertThat(player.addSkill(skill).playerSkill().unlocked())
-                .isCloseTo(Instant.now(), new TemporalUnitWithinOffset(5, ChronoUnit.SECONDS));
-    }
 }

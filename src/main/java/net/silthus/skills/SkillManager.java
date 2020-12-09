@@ -33,7 +33,7 @@ public final class SkillManager {
     private final Map<String, Requirement.Registration<?>> requirements = new HashMap<>();
     private final Map<String, Skill.Registration<?>> skillTypes = new HashMap<>();
 
-    private final Map<UUID, List<ConfiguredSkill>> loadedPlayerSkills = new HashMap<>();
+    private final Map<UUID, List<PlayerSkill>> loadedPlayerSkills = new HashMap<>();
 
     private final SkillsPlugin plugin;
     private final SkillPluginConfig config;
@@ -236,14 +236,13 @@ public final class SkillManager {
             return;
         }
 
-        List<ConfiguredSkill> skills = new ArrayList<>();
+        List<PlayerSkill> skills = new ArrayList<>();
         final SkilledPlayer skilledPlayer = SkilledPlayer.getOrCreate(player);
         skilledPlayer.skills().stream()
-                .filter(PlayerSkill::isUnlocked)
+                .filter(PlayerSkill::unlocked)
                 .filter(PlayerSkill::active)
-                .map(PlayerSkill::skill)
                 .forEach(skill -> {
-                    skill.apply(skilledPlayer);
+                    skill.activate();
                     skills.add(skill);
                 });
         this.loadedPlayerSkills.put(player.getUniqueId(), skills);
@@ -257,9 +256,9 @@ public final class SkillManager {
      */
     public void unload(@NonNull Player player) {
 
-        List<ConfiguredSkill> skills = loadedPlayerSkills.remove(player.getUniqueId());
+        List<PlayerSkill> skills = loadedPlayerSkills.remove(player.getUniqueId());
         if (skills != null) {
-            skills.forEach(skill -> skill.remove(SkilledPlayer.getOrCreate(player)));
+            skills.forEach(PlayerSkill::deactivate);
         }
     }
 

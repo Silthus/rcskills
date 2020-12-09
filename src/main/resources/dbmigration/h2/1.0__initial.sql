@@ -29,11 +29,11 @@ create table rcs_player_skills (
   id                            uuid not null,
   player_id                     uuid,
   skill_id                      uuid,
-  unlocked                      timestamp,
-  active                        boolean default false not null,
+  status                        varchar(8),
   version                       bigint not null,
   when_created                  timestamp not null,
   when_modified                 timestamp not null,
+  constraint ck_rcs_player_skills_status check ( status in ('ENABLED','DISABLED','ACTIVE','UNLOCKED','INACTIVE','REMOVED')),
   constraint pk_rcs_player_skills primary key (id)
 );
 

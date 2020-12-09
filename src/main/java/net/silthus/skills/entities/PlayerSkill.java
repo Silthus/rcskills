@@ -1,10 +1,12 @@
 package net.silthus.skills.entities;
 
 import io.ebean.Finder;
+import io.ebean.annotation.History;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.silthus.ebean.BaseEntity;
+import net.silthus.skills.SkillStatus;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -38,8 +40,7 @@ public class PlayerSkill extends BaseEntity {
     private SkilledPlayer player;
     @ManyToOne
     private ConfiguredSkill skill;
-    private Instant unlocked = null;
-    private boolean active = false;
+    private SkillStatus status;
 
     public PlayerSkill() {
 
@@ -50,27 +51,40 @@ public class PlayerSkill extends BaseEntity {
         this.skill = skill;
     }
 
-    public boolean isUnlocked() {
-        return this.unlocked != null;
+    public boolean unlocked() {
+        return status.isUnlocked();
+    }
+
+    public boolean active() {
+        return status.isActive();
+    }
+
+    public void activate() {
+        if (!unlocked()) return;
+
+        skill().getSkill().ifPresent(s -> s.apply(player()));
+        status(SkillStatus.ACTIVE);
+        save();
+    }
+
+    public void deactivate() {
+        if (!active()) return;
+
+        skill.getSkill().ifPresent(s -> s.remove(player()));
+        status(SkillStatus.INACTIVE);
+        save();
     }
 
     public void unlock() {
 
-        if (unlocked == null) {
-            unlocked = Instant.now();
-        }
-        active(true);
+        status(SkillStatus.UNLOCKED);
         save();
     }
 
     @Override
     public boolean delete() {
 
-        if (!isUnlocked() || !active()) {
-            return false;
-        }
-
-        active(false);
+        status(SkillStatus.REMOVED);
         skill().getSkill().ifPresent(skill -> skill.remove(player()));
         save();
 

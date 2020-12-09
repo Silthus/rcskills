@@ -30,11 +30,11 @@ create table rcs_player_skills (
   id                            varchar(40) not null,
   player_id                     varchar(40),
   skill_id                      varchar(40),
-  unlocked                      timestamp,
-  active                        int default 0 not null,
+  status                        varchar(8),
   version                       integer not null,
   when_created                  timestamp not null,
   when_modified                 timestamp not null,
+  constraint ck_rcs_player_skills_status check ( status in ('ENABLED','DISABLED','ACTIVE','UNLOCKED','INACTIVE','REMOVED')),
   constraint pk_rcs_player_skills primary key (id),
   foreign key (player_id) references rcs_players (id) on delete restrict on update restrict,
   foreign key (skill_id) references rcs_skills (id) on delete restrict on update restrict
