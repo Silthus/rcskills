@@ -3,6 +3,7 @@ package net.silthus.skills;
 import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.PaperCommandManager;
 import com.google.common.base.Strings;
+import de.slikey.effectlib.EffectManager;
 import io.ebean.Database;
 import kr.entree.spigradle.annotations.PluginMain;
 import lombok.Getter;
@@ -39,6 +40,8 @@ public class SkillsPlugin extends JavaPlugin {
     private SkillPluginConfig config;
     private PlayerListener playerListener;
     private PaperCommandManager commandManager;
+    @Getter
+    private EffectManager effectManager;
 
     private boolean testing = false;
 
@@ -59,6 +62,7 @@ public class SkillsPlugin extends JavaPlugin {
         loadConfig();
         setupDatabase();
         setupSkillManager();
+        setupEffectManager();
         if (!testing) {
             setupListener();
             setupCommands();
@@ -78,6 +82,11 @@ public class SkillsPlugin extends JavaPlugin {
         skillManager.registerDefaults();
 
         skillManager.load();
+    }
+
+    private void setupEffectManager() {
+
+        this.effectManager = new EffectManager(this);
     }
 
     private void setupListener() {

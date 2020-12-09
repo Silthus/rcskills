@@ -1,7 +1,7 @@
 package net.silthus.skills.entities;
 
 import io.ebean.Finder;
-import io.ebean.annotation.History;
+import io.ebean.annotation.Index;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -9,15 +9,16 @@ import net.silthus.ebean.BaseEntity;
 import net.silthus.skills.SkillStatus;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.time.Instant;
 import java.util.UUID;
 
 @Entity
 @Getter
 @Setter
 @Table(name = "rcs_player_skills")
+@Index(columnNames = {"player_id", "skill_id"})
 @Accessors(fluent = true)
 public class PlayerSkill extends BaseEntity {
 
@@ -36,11 +37,11 @@ public class PlayerSkill extends BaseEntity {
 
     public static final Finder<UUID, PlayerSkill> find = new Finder<>(PlayerSkill.class);
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private SkilledPlayer player;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private ConfiguredSkill skill;
-    private SkillStatus status;
+    private SkillStatus status = SkillStatus.REMOVED;
 
     public PlayerSkill() {
 
@@ -52,11 +53,11 @@ public class PlayerSkill extends BaseEntity {
     }
 
     public boolean unlocked() {
-        return status.isUnlocked();
+        return status != null && status.isUnlocked();
     }
 
     public boolean active() {
-        return status.isActive();
+        return status != null && status.isActive();
     }
 
     public void activate() {

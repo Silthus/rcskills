@@ -50,6 +50,7 @@ create table rcs_players (
 
 create index ix_rcs_skills_alias on rcs_skills (alias);
 create index ix_rcs_skills_name on rcs_skills (name);
+create index ix_rcs_player_skills_player_id_skill_id on rcs_player_skills (player_id,skill_id);
 alter table rcs_player_levels add constraint fk_rcs_player_levels_player_id foreign key (player_id) references rcs_players (id) on delete restrict on update restrict;
 
 create index ix_rcs_player_skills_player_id on rcs_player_skills (player_id);

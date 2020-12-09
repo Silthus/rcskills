@@ -5,9 +5,9 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
-import net.silthus.skills.AddSkillResult;
-import net.silthus.skills.entities.ConfiguredSkill;
 import net.silthus.skills.SkillManager;
+import net.silthus.skills.actions.AddSkillAction;
+import net.silthus.skills.entities.ConfiguredSkill;
 import net.silthus.skills.entities.SkilledPlayer;
 
 @CommandAlias("rcsa|rcs:admin|rcskills:admin|skills:admin")
@@ -27,11 +27,12 @@ public class AdminCommands extends BaseCommand {
     @CommandPermission("rcskills.admin.skill.add")
     public void addSkill(SkilledPlayer skilledPlayer, ConfiguredSkill skill, @Default("bypass") String mode) {
 
-        AddSkillResult result = skilledPlayer.addSkill(skill, mode.equalsIgnoreCase("bypass"));
+
+        AddSkillAction.Result result = new AddSkillAction(skilledPlayer, skill).execute(mode.equalsIgnoreCase("bypass"));
         if (result.success()) {
             getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + "Der Skill " + skill.name() + "(" + skill.alias() + ") wurde " + skilledPlayer.name() + " erfolgreich zugewiesen.");
         } else {
-            getCurrentCommandIssuer().sendMessage(ChatColor.RED + result.errorMessage());
+            getCurrentCommandIssuer().sendMessage(ChatColor.RED + result.error());
         }
     }
 

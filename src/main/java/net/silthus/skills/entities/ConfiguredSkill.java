@@ -66,11 +66,16 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
 
         if (requirements == null) {
             this.requirements = new ArrayList<>();
+            load();
         }
         return requirements;
     }
 
     public Optional<Skill> getSkill() {
+
+        if (skill == null) {
+            load();
+        }
 
         return Optional.ofNullable(skill);
     }
@@ -95,21 +100,19 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
     public void load() {
 
         SkillManager skillManager = SkillsPlugin.instance().getSkillManager();
-        this.skill = skillManager.getSkillType(type())
+        skill = skillManager.getSkillType(type)
                 .map(Registration::supplier)
                 .map(Supplier::get)
                 .orElse(null);
-        getSkill().ifPresent(skill -> {
-            if (config() != null) {
-                MemoryConfiguration cfg = new MemoryConfiguration();
-                for (Map.Entry<String, Object> entry : config().entrySet()) {
-                    cfg.set(entry.getKey(), entry.getValue());
-                }
-                ConfigurationSection with = cfg.getConfigurationSection("with");
-                skill.load(Objects.requireNonNullElseGet(with, () -> cfg.createSection("with")));
-                skillManager.loadRequirements(cfg.getConfigurationSection("requirements"));
+        if (skill != null && config != null) {
+            MemoryConfiguration cfg = new MemoryConfiguration();
+            for (Map.Entry<String, Object> entry : config.entrySet()) {
+                cfg.set(entry.getKey(), entry.getValue());
             }
-        });
+            ConfigurationSection with = cfg.getConfigurationSection("with");
+            skill.load(Objects.requireNonNullElseGet(with, () -> cfg.createSection("with")));
+            skillManager.loadRequirements(cfg.getConfigurationSection("requirements"));
+        }
     }
 
     @Override

@@ -54,3 +54,4 @@ create table rcs_players (
 
 create index ix_rcs_skills_alias on rcs_skills (alias);
 create index ix_rcs_skills_name on rcs_skills (name);
+create index ix_rcs_player_skills_player_id_skill_id on rcs_player_skills (player_id,skill_id);

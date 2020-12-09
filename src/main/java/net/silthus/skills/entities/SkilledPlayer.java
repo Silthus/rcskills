@@ -1,26 +1,20 @@
 package net.silthus.skills.entities;
 
 import io.ebean.Finder;
-import io.ebean.Model;
 import io.ebean.annotation.Transactional;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.silthus.ebean.BaseEntity;
-import net.silthus.skills.AddSkillResult;
-import net.silthus.skills.TestResult;
+import net.silthus.skills.actions.AddSkillAction;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -47,6 +41,7 @@ public class SkilledPlayer extends BaseEntity {
                     SkilledPlayer skilledPlayer = new SkilledPlayer(player);
                     skilledPlayer.save();
                     skilledPlayer.level(PlayerLevel.getOrCreate(skilledPlayer));
+                    skilledPlayer.save();
                     return skilledPlayer;
                 });
     }
@@ -57,7 +52,7 @@ public class SkilledPlayer extends BaseEntity {
     private PlayerLevel level;
 
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "player")
-    private List<PlayerSkill> skills = new ArrayList<>();
+    private Set<PlayerSkill> skills = new HashSet<>();
 
     private SkilledPlayer(OfflinePlayer player) {
 
@@ -74,58 +69,45 @@ public class SkilledPlayer extends BaseEntity {
         return Optional.ofNullable(Bukkit.getPlayer(id()));
     }
 
-    public AddSkillResult addSkill(ConfiguredSkill skill) {
+    public AddSkillAction.Result addSkill(ConfiguredSkill skill) {
 
         return addSkill(skill, false);
     }
 
     @Transactional
-    public AddSkillResult addSkill(ConfiguredSkill skill, boolean bypassChecks) {
+    public AddSkillAction.Result addSkill(ConfiguredSkill skill, boolean bypassChecks) {
 
-        if (hasSkill(skill)) {
-            return new AddSkillResult(skill, this, null, TestResult.ofSuccess(), false, bypassChecks, name() + " already has the " + skill.alias() + " skill.");
-        }
-
-        TestResult testResult = skill.test(this);
-        PlayerSkill playerSkill = PlayerSkill.getOrCreate(this, skill);
-        skills.add(playerSkill);
-
-        if (testResult.success() || bypassChecks) {
-            playerSkill.unlock();
-            skill.apply(this);
-            save();
-            return new AddSkillResult(skill, this, playerSkill, testResult, true, bypassChecks);
-        }
-
-        return new AddSkillResult(skill, this, playerSkill, testResult, false, bypassChecks, "Requirements for obtaining the skill " + skill.alias() + " were not met.");
+        return new AddSkillAction(this, skill).execute(bypassChecks);
     }
 
     public Optional<PlayerSkill> getSkill(String alias) {
 
-        return skills().stream()
-                .filter(playerSkill -> playerSkill.skill().alias().equalsIgnoreCase(alias))
-                .findFirst();
+        return ConfiguredSkill.findByAliasOrName(alias)
+                .map(this::getSkill);
     }
 
-    public Optional<PlayerSkill> getSkill(ConfiguredSkill skill) {
+    public PlayerSkill getSkill(ConfiguredSkill skill) {
 
-        return skills().stream()
-                .filter(playerSkill -> playerSkill.skill().equals(skill))
-                .findFirst();
+        return PlayerSkill.getOrCreate(this, skill);
     }
 
     public void removeSkill(ConfiguredSkill skill) {
 
-        getSkill(skill).ifPresent(Model::delete);
+        getSkill(skill).delete();
+    }
+
+    public boolean hasActiveSkill(ConfiguredSkill skill) {
+
+        return getSkill(skill).active();
     }
 
     public boolean hasSkill(ConfiguredSkill skill) {
 
-        return getSkill(skill).isPresent();
+        return getSkill(skill).unlocked();
     }
 
     public boolean hasSkill(String alias) {
 
-        return getSkill(alias).isPresent();
+        return getSkill(alias).map(PlayerSkill::unlocked).orElse(false);
     }
 }

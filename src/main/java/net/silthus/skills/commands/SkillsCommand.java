@@ -14,6 +14,7 @@ import net.silthus.skills.entities.SkilledPlayer;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @CommandAlias("rcs|rcskills|skills")
 public class SkillsCommand extends BaseCommand {
@@ -31,7 +32,9 @@ public class SkillsCommand extends BaseCommand {
     @Description("Zeigt alle Skills des Spielers an.")
     public void list(Player player, SkilledPlayer skilledPlayer) {
 
-        player.spigot().sendMessage(listSkills(skilledPlayer.skills()));
+        player.spigot().sendMessage(listSkills(skilledPlayer.skills().stream()
+                .filter(PlayerSkill::unlocked)
+                .collect(Collectors.toList())));
     }
 
     private BaseComponent[] listSkills(Collection<PlayerSkill> skills) {

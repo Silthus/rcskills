@@ -41,5 +41,6 @@
         </createTable>
         <createIndex indexName="ix_rcs_skills_alias" tableName="rcs_skills" columns="alias"/>
         <createIndex indexName="ix_rcs_skills_name" tableName="rcs_skills" columns="name"/>
+        <createIndex indexName="ix_rcs_player_skills_player_id_skill_id" tableName="rcs_player_skills" columns="player_id,skill_id"/>
     </changeSet>
 </migration>

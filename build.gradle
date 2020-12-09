@@ -65,6 +65,7 @@ dependencies {
     implementation 'net.silthus.configlib:configlib-bukkit:2.6.0'
     implementation 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.3'
+    implementation 'com.github.Slikey:EffectLib:master-SNAPSHOT'
 
     implementation group: 'io.art-framework', name: 'art-core', version: '1.0.0-beta.30'
     implementation 'net.silthus.config-mapper:bukkit:1.1.2'
@@ -89,10 +90,12 @@ shadowJar {
     dependencies {
         include(dependency('co.aikar:acf-paper:'))
         include(dependency('net.silthus.configlib:configlib-bukkit:'))
+        include(dependency('com.github.Slikey:EffectLib:'))
     }
     relocate 'co.aikar.commands', "shadow.${pluginName}.acf"
     relocate 'co.aikar.locales', "shadow.${pluginName}.locales"
     relocate 'de.exlll.configlib', "shadow.${pluginName}.configlib"
+    relocate 'de.slikey.effectlib', "shadow.${pluginName}.effectlib"
 }
 
 tasks.build.dependsOn(shadowJar)
