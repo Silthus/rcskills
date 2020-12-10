@@ -58,6 +58,18 @@ public class PlayerSkill extends BaseEntity {
         this.skill = skill;
     }
 
+    public String alias() {
+        return skill.alias();
+    }
+
+    public String name() {
+        return skill.name();
+    }
+
+    public String description() {
+        return skill.description();
+    }
+
     /**
      * Checks if this skill is unlocked or active.
      *

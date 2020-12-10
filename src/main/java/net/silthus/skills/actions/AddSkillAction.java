@@ -1,19 +1,14 @@
 package net.silthus.skills.actions;
 
 import com.google.common.base.Strings;
-import de.slikey.effectlib.effect.DnaEffect;
 import lombok.Value;
 import lombok.experimental.Accessors;
-import net.silthus.skills.SkillsPlugin;
 import net.silthus.skills.TestResult;
 import net.silthus.skills.entities.ConfiguredSkill;
 import net.silthus.skills.entities.PlayerSkill;
 import net.silthus.skills.entities.SkilledPlayer;
 import net.silthus.skills.events.AddPlayerSkillEvent;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
 
 @Value
 @Accessors(fluent = true)
@@ -46,7 +41,7 @@ public class AddSkillAction {
         playerSkill.activate();
 
         player.save();
-        return new Result(this, testResult);
+        return new Result(this, playerSkill, testResult);
     }
 
     @Value
@@ -54,6 +49,7 @@ public class AddSkillAction {
     public static class Result {
 
         AddSkillAction action;
+        PlayerSkill playerSkill;
         TestResult testResult;
         String error;
 
@@ -61,10 +57,12 @@ public class AddSkillAction {
             this.action = action;
             this.testResult = testResult;
             this.error = error;
+            playerSkill = null;
         }
 
-        public Result(AddSkillAction action, TestResult testResult) {
+        public Result(AddSkillAction action, PlayerSkill playerSkill, TestResult testResult) {
             this.action = action;
+            this.playerSkill = playerSkill;
             this.testResult = testResult;
             this.error = null;
         }
@@ -73,6 +71,7 @@ public class AddSkillAction {
             this.action = action;
             this.testResult = null;
             this.error = error;
+            playerSkill = null;
         }
 
         public boolean success() {
