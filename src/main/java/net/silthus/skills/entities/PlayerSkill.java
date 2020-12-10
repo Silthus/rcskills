@@ -7,6 +7,12 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.silthus.ebean.BaseEntity;
 import net.silthus.skills.SkillStatus;
+import net.silthus.skills.events.PlayerActivateSkillEvent;
+import net.silthus.skills.events.PlayerActivatedSkillEvent;
+import net.silthus.skills.events.PlayerUnlockSkillEvent;
+import net.silthus.skills.events.PlayerUnlockedSkillEvent;
+import net.silthus.skills.util.Effects;
+import org.bukkit.Bukkit;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -52,20 +58,41 @@ public class PlayerSkill extends BaseEntity {
         this.skill = skill;
     }
 
+    /**
+     * Checks if this skill is unlocked or active.
+     *
+     * @return true if the skill is unlocked or active
+     */
     public boolean unlocked() {
         return status != null && status.isUnlocked();
     }
 
+    /**
+     * @return true if the skill is active
+     */
     public boolean active() {
         return status != null && status.isActive();
     }
 
-    public void activate() {
-        if (!unlocked()) return;
+    public boolean activate() {
+        if (active()) return false;
+
+        PlayerActivateSkillEvent event = new PlayerActivateSkillEvent(player(), this);
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isCancelled()) return false;
 
         skill().getSkill().ifPresent(s -> s.apply(player()));
         status(SkillStatus.ACTIVE);
         save();
+
+        if (event.isPlayEffect()) {
+            player().getBukkitPlayer().ifPresent(Effects::playerActivateSkill);
+        }
+
+        Bukkit.getPluginManager().callEvent(new PlayerActivatedSkillEvent(player(), this));
+
+        return true;
     }
 
     public void deactivate() {
@@ -76,10 +103,25 @@ public class PlayerSkill extends BaseEntity {
         save();
     }
 
-    public void unlock() {
+    public boolean unlock() {
+
+        if (unlocked()) return false;
+
+        PlayerUnlockSkillEvent event = new PlayerUnlockSkillEvent(player(), this);
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isCancelled()) return false;
 
         status(SkillStatus.UNLOCKED);
         save();
+
+        if (event.isPlayEffect()) {
+            player().getBukkitPlayer().ifPresent(Effects::playerUnlockSkill);
+        }
+
+        Bukkit.getPluginManager().callEvent(new PlayerUnlockedSkillEvent(player(), this));
+
+        return true;
     }
 
     @Override

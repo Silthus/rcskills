@@ -9,6 +9,8 @@ import net.silthus.skills.TestResult;
 import net.silthus.skills.entities.ConfiguredSkill;
 import net.silthus.skills.entities.PlayerSkill;
 import net.silthus.skills.entities.SkilledPlayer;
+import net.silthus.skills.events.AddPlayerSkillEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
@@ -26,29 +28,22 @@ public class AddSkillAction {
             return new Result(this, player.name() + " hat bereits den Skill: " + skill.alias());
         }
 
+        AddPlayerSkillEvent event = new AddPlayerSkillEvent(this, bypassChecks);
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isCancelled()) {
+            return new Result(this, "Das Hinzufügen des Skills " + skill.alias() + " wurde durch ein Plugin verhindert.");
+        }
+
         TestResult testResult = skill.test(player);
-        if (!testResult.success() && !bypassChecks) {
+        if (!testResult.success() && !event.isBypassChecks()) {
             return new Result(this, testResult, "Die Vorraussetzungen für den Skill " + skill.alias() + " sind nicht erfüllt.");
         }
 
         PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
 
-        if (!playerSkill.unlocked()) {
-            playerSkill.unlock();
-            player.getBukkitPlayer().ifPresent(p -> {
-                DnaEffect effect = new DnaEffect(SkillsPlugin.instance().getEffectManager());
-                effect.setLocation(p.getLocation());
-                effect.setTargetLocation(p.getLocation().add(0, 2, 0));
-                effect.duration = 2000;
-                effect.start();
-                p.playSound(p.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.MASTER, 10f, 1f);
-                p.sendMessage(ChatColor.GREEN + "Du hast den Skill " + playerSkill.skill().name() + " freigeschaltet!");
-            });
-        }
-
-        if (!playerSkill.active()) {
-            playerSkill.activate();
-        }
+        playerSkill.unlock();
+        playerSkill.activate();
 
         player.save();
         return new Result(this, testResult);
