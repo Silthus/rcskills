@@ -22,7 +22,7 @@ public class IntegrationTest {
     void setUp() {
 
         this.server = MockBukkit.mock();
-        this.plugin = MockBukkit.loadWith(SkillsPlugin.class, new File("src/test/resources", "plugin.yml"));
+        this.plugin = MockBukkit.load(SkillsPlugin.class);
 
         MemoryConfiguration cfg = new MemoryConfiguration();
         cfg.set("type", "permission");
@@ -59,7 +59,7 @@ public class IntegrationTest {
                 @DisplayName("should add the given skill to the player")
                 void shouldAddSkillToPlayer() {
 
-                    server.dispatchCommand(server.getConsoleSender(),"rcs:admin " + player.getName() + " " + TEST_SKILL);
+                    server.dispatchCommand(server.getConsoleSender(),"rcs:admin add skill " + player.getName() + " " + TEST_SKILL);
                     assertThat(SkilledPlayer.getOrCreate(player).hasSkill(TEST_SKILL));
                 }
             }
