@@ -34,16 +34,16 @@ public class PlayerLevel extends BaseEntity {
 
     @OneToOne(optional = false)
     private SkilledPlayer player;
-    private long level = 1;
+    private int level = 1;
     private long totalExp = 0;
-    private long skillPoints = 0;
+    private int skillPoints = 0;
 
     private PlayerLevel(SkilledPlayer player) {
 
         this.player = player;
     }
 
-    public PlayerLevel level(long level) {
+    public PlayerLevel level(int level) {
 
         SetPlayerLevelEvent event = new SetPlayerLevelEvent(this, this.level, level);
         Bukkit.getPluginManager().callEvent(event);
@@ -75,7 +75,7 @@ public class PlayerLevel extends BaseEntity {
         return this.exp(totalExp += exp);
     }
 
-    public PlayerLevel skillPoints(long skillPoints) {
+    public PlayerLevel skillPoints(int skillPoints) {
 
         SetPlayerSkillPointsEvent event = new SetPlayerSkillPointsEvent(this, this.skillPoints, skillPoints);
         Bukkit.getPluginManager().callEvent(event);

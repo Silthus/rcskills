@@ -110,9 +110,10 @@ public class PlayerSkill extends BaseEntity {
     public void deactivate() {
         if (!active()) return;
 
-        skill.getSkill().ifPresent(s -> s.remove(player()));
         status(SkillStatus.INACTIVE);
         save();
+
+        skill.getSkill().ifPresent(s -> s.remove(player()));
     }
 
     public boolean unlock() {

@@ -50,11 +50,11 @@ public final class Messages {
         send(playerId, builder.build());
     }
 
-    public static TextComponent addSkill(SkilledPlayer player, PlayerSkill skill) {
+    public static Component addSkill(SkilledPlayer player, PlayerSkill skill) {
 
         return text().append(text(player.name(), GOLD, BOLD)).hoverEvent(showText(player(player)))
                 .append(text(" hat den Skill ", YELLOW))
-                .append(text(skill.skill().name(), GREEN, BOLD)).hoverEvent(showText(skill(skill)))
+                .append(text(skill.name(), GREEN, BOLD)).hoverEvent(showText(skill(skill)))
                 .append(text(" erhalten.", YELLOW)).build();
     }
 
@@ -150,6 +150,31 @@ public final class Messages {
 
         if (player == null) return YELLOW;
         return requirement.test(player).success() ? GREEN : RED;
+    }
+
+    public static TextReplacementConfig replacePlayer(SkilledPlayer player) {
+
+        return TextReplacementConfig.builder()
+                .matchLiteral("{player}").replacement(player(player))
+                .matchLiteral("{player_name}").replacement(player.name())
+                .matchLiteral("{player_id}").replacement(player.id().toString())
+                .matchLiteral("{skills_count}").replacement(player.skills().size() + "")
+                .build();
+    }
+
+    public static TextReplacementConfig replaceLevel(PlayerLevel level) {
+
+        return TextReplacementConfig.builder()
+                .matchLiteral("{level}").replacement(level(level)).build();
+    }
+
+    public static TextReplacementConfig replaceSkill(PlayerSkill skill) {
+
+        return TextReplacementConfig.builder()
+                .matchLiteral("{skill}").replacement(skill(skill))
+                .matchLiteral("{skill_name}").replacement(skill.name())
+                .matchLiteral("{skill_alias}").replacement(skill.alias())
+                .build();
     }
 
     public static TextColor skillColor(PlayerSkill skill) {

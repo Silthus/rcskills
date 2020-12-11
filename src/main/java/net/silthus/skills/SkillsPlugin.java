@@ -22,6 +22,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
+import org.codehaus.commons.compiler.CompileException;
 
 import java.io.File;
 import java.util.Optional;
@@ -36,8 +37,11 @@ public class SkillsPlugin extends JavaPlugin {
 
     @Getter
     private SkillManager skillManager;
+    @Getter
+    private LevelManager levelManager;
     private Database database;
-    private SkillPluginConfig config;
+    @Getter
+    private SkillPluginConfig pluginConfig;
     private PlayerListener playerListener;
     private PaperCommandManager commandManager;
     @Getter
@@ -62,6 +66,7 @@ public class SkillsPlugin extends JavaPlugin {
         loadConfig();
         setupDatabase();
         setupSkillManager();
+        setupLevelManager();
         setupEffectManager();
         if (!testing) {
             setupListener();
@@ -69,16 +74,32 @@ public class SkillsPlugin extends JavaPlugin {
         }
     }
 
+    public void reload() {
+
+        try {
+            if (pluginConfig == null) {
+                loadConfig();
+            } else {
+                getPluginConfig().load();
+            }
+            getSkillManager().reload();
+            getLevelManager().load();
+        } catch (CompileException e) {
+            getLogger().severe("failed to parse level expression");
+            e.printStackTrace();
+        }
+    }
+
     private void loadConfig() {
 
         getDataFolder().mkdirs();
-        config = new SkillPluginConfig(new File(getDataFolder(), "config.yml").toPath());
-        config.loadAndSave();
+        pluginConfig = new SkillPluginConfig(new File(getDataFolder(), "config.yml").toPath());
+        pluginConfig.loadAndSave();
     }
 
     private void setupSkillManager() {
 
-        this.skillManager = new SkillManager(this, config);
+        this.skillManager = new SkillManager(this, pluginConfig);
         skillManager.registerDefaults();
 
         skillManager.load();
@@ -87,6 +108,18 @@ public class SkillsPlugin extends JavaPlugin {
     private void setupEffectManager() {
 
         this.effectManager = new EffectManager(this);
+    }
+
+    private void setupLevelManager() {
+
+        try {
+            this.levelManager = new LevelManager(getPluginConfig().getLevelConfig());
+            levelManager.load();
+            Bukkit.getPluginManager().registerEvents(levelManager, this);
+        } catch (CompileException e) {
+            getLogger().severe("failed to parse level expression");
+            e.printStackTrace();
+        }
     }
 
     private void setupListener() {
@@ -107,7 +140,7 @@ public class SkillsPlugin extends JavaPlugin {
                 .collect(Collectors.toSet()));
 
         commandManager.registerCommand(new SkillsCommand(this));
-        commandManager.registerCommand(new AdminCommands(getSkillManager()));
+        commandManager.registerCommand(new AdminCommands(this));
     }
 
     private void registerSkillContext(PaperCommandManager commandManager) {

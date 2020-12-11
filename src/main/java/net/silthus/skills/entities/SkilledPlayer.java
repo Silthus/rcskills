@@ -12,10 +12,8 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Accessors(fluent = true)
@@ -109,5 +107,12 @@ public class SkilledPlayer extends BaseEntity {
     public boolean hasSkill(String alias) {
 
         return getSkill(alias).map(PlayerSkill::unlocked).orElse(false);
+    }
+
+    public Collection<PlayerSkill> unlockedSkills() {
+
+        return skills().stream()
+                .filter(PlayerSkill::unlocked)
+                .collect(Collectors.toList());
     }
 }

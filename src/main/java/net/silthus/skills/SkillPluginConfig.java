@@ -16,6 +16,8 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
     @Comment("The relative path where your skill configs are located.")
     private String skillsPath = "skills";
     private DatabaseConfig database = new DatabaseConfig();
+    @Comment("Define the expression that calculates the required exp for each level here.")
+    private LevelConfig levelConfig = new LevelConfig();
 
     public SkillPluginConfig(Path path) {
 
@@ -33,4 +35,22 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
         private String url = "jdbc:h2:~/skills.db";
     }
 
+    @ConfigurationElement
+    @Getter
+    @Setter
+    public static class LevelConfig {
+
+        private int maxLevel = 100;
+        @Comment({
+                "You can use any of the following variables and all java Math.* expressions: ",
+                "  - x: settable in this config",
+                "  - y: settable in this config",
+                "  - z: settable in this config",
+                "  - level: the current level of the player"
+        })
+        private String expToNextLevel = "(-0.4 * Math.pow(level, 2)) + (x * Math.pow(level, 2))";
+        private double x = 40.4;
+        private double y = 0;
+        private double z = 0;
+    }
 }

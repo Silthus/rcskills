@@ -16,11 +16,11 @@ public class SetPlayerSkillPointsEvent extends PlayerEvent implements Cancellabl
     private static final HandlerList handlerList = new HandlerList();
 
     private final PlayerLevel level;
-    private final long oldSkillPoints;
-    private long newSkillPoints;
+    private final int oldSkillPoints;
+    private int newSkillPoints;
     private boolean cancelled;
 
-    public SetPlayerSkillPointsEvent(PlayerLevel level, long oldSkillPoints, long newSkillPoints) {
+    public SetPlayerSkillPointsEvent(PlayerLevel level, int oldSkillPoints, int newSkillPoints) {
         super(level.player());
         this.level = level;
         this.oldSkillPoints = oldSkillPoints;

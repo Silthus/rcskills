@@ -4,10 +4,8 @@ package net.silthus.skills.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import lombok.Getter;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.md_5.bungee.api.ChatColor;
 import net.silthus.skills.Messages;
-import net.silthus.skills.SkillManager;
 import net.silthus.skills.SkillsPlugin;
 import net.silthus.skills.actions.AddSkillAction;
 import net.silthus.skills.entities.ConfiguredSkill;
@@ -19,10 +17,10 @@ import net.silthus.skills.entities.SkilledPlayer;
 public class AdminCommands extends BaseCommand {
 
     @Getter
-    private final SkillManager skillManager;
+    private final SkillsPlugin plugin;
 
-    public AdminCommands(SkillManager skillManager) {
-        this.skillManager = skillManager;
+    public AdminCommands(SkillsPlugin plugin) {
+        this.plugin = plugin;
     }
 
     @Subcommand("add")
@@ -96,7 +94,7 @@ public class AdminCommands extends BaseCommand {
     @CommandPermission("rcskills.admin.reload")
     public void reload() {
 
-        getSkillManager().reload();
+        getPlugin().reload();
         getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + "Das Skillplugin wurde neugeladen.");
     }
 }
