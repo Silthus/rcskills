@@ -10,9 +10,9 @@ import net.silthus.skills.events.SetPlayerLevelEvent;
 import net.silthus.skills.events.SetPlayerSkillPointsEvent;
 import org.bukkit.Bukkit;
 
-import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.Entity;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import java.util.UUID;
 
 @Entity

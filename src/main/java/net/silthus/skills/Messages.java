@@ -16,14 +16,17 @@ import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
+import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
-import static net.kyori.adventure.text.Component.*;
+import static net.kyori.adventure.text.Component.newline;
+import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.event.HoverEvent.showText;
 import static net.kyori.adventure.text.format.NamedTextColor.*;
-import static net.kyori.adventure.text.format.TextDecoration.*;
+import static net.kyori.adventure.text.format.TextDecoration.BOLD;
+import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 
 public final class Messages {
 
@@ -165,16 +168,22 @@ public final class Messages {
 
     public static Component playerInfo(SkilledPlayer player) {
 
-        Set<PlayerSkill> skills = player.skills();
-        long unlockedSkills = skills.stream().filter(PlayerSkill::unlocked).count();
-        long activeSkills = skills.stream().filter(PlayerSkill::active).count();
         return text().append(text("--- [ ", DARK_AQUA))
                 .append(text(player.name(), GOLD))
                 .append(text(" ] ---", DARK_AQUA)).append(newline())
-                .append(level(player.level())).append(newline())
-                .append(text("Skills: ", YELLOW))
-                .append(text(activeSkills, GREEN)).append(text("/", YELLOW)).append(text(unlockedSkills, DARK_GREEN))
+                .append(level(player.level())).append(newline()).append(newline())
+                .append(text("Freigeschaltete Skills: ", YELLOW)).append(newline())
+                .append(skills(player.skills().stream().filter(PlayerSkill::unlocked).collect(Collectors.toList())))
                 .build();
+    }
+
+    public static Component skills(Collection<PlayerSkill> skills) {
+
+        TextComponent.Builder builder = text();
+        for (PlayerSkill skill : skills) {
+            builder.append(skill(skill));
+        }
+        return builder.build();
     }
 
     public static Component skill(PlayerSkill skill) {

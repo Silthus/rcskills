@@ -6,7 +6,6 @@ import lombok.Setter;
 import net.silthus.skills.entities.ConfiguredSkill;
 import net.silthus.skills.entities.PlayerSkill;
 import net.silthus.skills.entities.SkilledPlayer;
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 
 @Getter

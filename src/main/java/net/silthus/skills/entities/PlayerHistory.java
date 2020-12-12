@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.silthus.ebean.BaseEntity;
-import net.silthus.skills.SkillsPlugin;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
