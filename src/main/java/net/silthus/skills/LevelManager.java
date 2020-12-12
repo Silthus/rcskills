@@ -1,6 +1,5 @@
 package net.silthus.skills;
 
-import com.google.common.collect.HashBiMap;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -8,7 +7,7 @@ import lombok.extern.java.Log;
 import net.silthus.skills.entities.SkilledPlayer;
 import net.silthus.skills.events.SetPlayerExpEvent;
 import net.silthus.skills.events.SetPlayerLevelEvent;
-import org.bukkit.ChatColor;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -45,17 +44,30 @@ public final class LevelManager implements Listener {
     public void onExpGain(SetPlayerExpEvent event) {
 
         int level = getLevelForExp(event.getNewExp());
-        event.getLevel().level(level);
+        event.setLevel(level);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onLevelUp(SetPlayerLevelEvent event) {
 
         event.getPlayer().getBukkitPlayer().ifPresent(player -> {
+
+            int minExp = calculateTotalExpForLevel(event.getNewLevel());
+            int maxExp = calculateTotalExpForLevel(event.getNewLevel() + 1);
+            if (event.getExp() < minExp || event.getExp() >= maxExp) {
+                event.setExp(minExp);
+            }
+
             if (event.getNewLevel() > event.getOldLevel()) {
-                player.sendMessage(ChatColor.GREEN + "Du bist im Level aufgestiegen: Level " + event.getNewLevel() + " erreicht!");
+                Messages.send(player, Messages.levelUpSelf(event.getLevel(), event.getNewLevel()));
+                Bukkit.getOnlinePlayers().stream()
+                        .filter(p -> !p.equals(player))
+                        .forEach(p -> Messages.send(p, Messages.levelUp(event.getLevel())));
             } else if (event.getNewLevel() < event.getOldLevel()) {
-                player.sendMessage(ChatColor.RED + "Du bist im Level abgestiegen: Level " + event.getNewLevel());
+                Messages.send(player, Messages.levelDownSelf(event.getLevel(), event.getNewLevel()));
+                Bukkit.getOnlinePlayers().stream()
+                        .filter(p -> !p.equals(player))
+                        .forEach(p -> Messages.send(p, Messages.levelDown(event.getLevel())));
             }
         });
     }
@@ -137,7 +149,7 @@ public final class LevelManager implements Listener {
 
         return getCache(player).orElseGet(() ->
                 cache(player.id(), player.level().level(),
-                        calculateExpForLevel(player.level().level())));
+                        calculateExpForNextLevel(player.level().level())));
     }
 
     public int calculateExpToNextLevel(SkilledPlayer player) {
@@ -145,15 +157,14 @@ public final class LevelManager implements Listener {
         return calculateExpToNextLevel(player, false);
     }
 
-    public int calculateExpForLevel(int level) {
+    public int calculateExpForNextLevel(int level) {
 
         try {
-            return (int) Math.ceil((double) ee.evaluate(
+            return (int) Math.round((double) ee.evaluate(
                     x,
                     y,
                     z,
-                    level)
-            );
+                    level));
         } catch (InvocationTargetException e) {
             log.severe("failed to calculate exp for level " + level + ": " + e.getMessage());
             e.printStackTrace();
@@ -173,21 +184,19 @@ public final class LevelManager implements Listener {
             int level = entry.getKey();
             int exp = entry.getValue();
 
-            if (exp < totalExp) {
+            if (exp <= totalExp && level > lastLevel) {
                 lastLevel = level;
-            } else {
-                return lastLevel;
             }
         }
 
         return lastLevel;
     }
 
-    private int calculateTotalExpForLevel(int level) {
+    private int calculateTotalExpForLevel(final int level) {
 
         int sum = 0;
         for (int i = 1; i < level + 1; i++) {
-            sum += calculateExpForLevel(level);
+            sum += calculateExpForNextLevel(i);
         }
         return sum;
     }

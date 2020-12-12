@@ -37,7 +37,7 @@ class SkilledPlayerTest {
         assertThat(player.level())
                 .isNotNull()
                 .extracting(PlayerLevel::level)
-                .isEqualTo(1L);
+                .isEqualTo(1);
     }
 
     @Test

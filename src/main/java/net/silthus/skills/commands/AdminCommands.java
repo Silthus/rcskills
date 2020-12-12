@@ -78,6 +78,46 @@ public class AdminCommands extends BaseCommand {
         }
     }
 
+    @Subcommand("set")
+    public class SetCommands extends BaseCommand {
+
+        @Subcommand("level")
+        @CommandAlias("setlevel")
+        @CommandCompletion("@players")
+        @Description("Setzt das Level des Spielers auf den angegebenen Wert.")
+        @CommandPermission("rcskills.admin.set.level")
+        public void setLevel(SkilledPlayer player, int level) {
+
+            PlayerLevel playerLevel = player.level().level(level);
+            playerLevel.save();
+            Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.setLevel(playerLevel, level));
+        }
+
+        @Subcommand("exp|xp")
+        @CommandAlias("setxp")
+        @CommandCompletion("@players")
+        @Description("Setzt die Gesamt Erfahrungspunkte des Spielers auf den angegebenen Wert.")
+        @CommandPermission("rcskills.admin.set.exp")
+        public void setExp(SkilledPlayer player, int exp) {
+
+            PlayerLevel playerLevel = player.level().exp(exp);
+            playerLevel.save();
+            Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.setExp(playerLevel, exp));
+        }
+
+        @Subcommand("skillpoints|sp")
+        @CommandAlias("setskillpoints")
+        @CommandCompletion("@players")
+        @Description("Setzt die Skillpunkte des Spielers auf den angegebenen Wert.")
+        @CommandPermission("rcskills.admin.set.skillpoints")
+        public void setSkillpoints(SkilledPlayer player, int skillpoints) {
+
+            PlayerLevel playerLevel = player.level().skillPoints(skillpoints);
+            playerLevel.save();
+            Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.setSkillpoints(playerLevel, skillpoints));
+        }
+    }
+
 
     @Subcommand("remove|del")
     @CommandCompletion("@players @skills")

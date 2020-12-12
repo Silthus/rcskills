@@ -45,12 +45,15 @@ public class PlayerLevel extends BaseEntity {
 
     public PlayerLevel level(int level) {
 
-        SetPlayerLevelEvent event = new SetPlayerLevelEvent(this, this.level, level);
+        SetPlayerLevelEvent event = new SetPlayerLevelEvent(this, this.level, level, totalExp);
         Bukkit.getPluginManager().callEvent(event);
 
         if (event.isCancelled()) return this;
 
         this.level = event.getNewLevel();
+        if (event.getExp() != totalExp) {
+            exp(event.getExp());
+        }
         return this;
     }
 
@@ -61,12 +64,15 @@ public class PlayerLevel extends BaseEntity {
 
     public PlayerLevel exp(long exp) {
 
-        SetPlayerExpEvent event = new SetPlayerExpEvent(this, this.totalExp, exp);
+        SetPlayerExpEvent event = new SetPlayerExpEvent(this, this.totalExp, exp, level);
         Bukkit.getPluginManager().callEvent(event);
 
         if (event.isCancelled()) return this;
 
         this.totalExp = event.getNewExp();
+        if (event.getLevel() != level) {
+            level(event.getLevel());
+        }
         return this;
     }
 

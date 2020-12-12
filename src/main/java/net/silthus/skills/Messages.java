@@ -38,6 +38,7 @@ import static net.kyori.adventure.text.format.TextDecoration.*;
 public final class Messages {
 
     public static void send(UUID playerId, Component message) {
+        if (SkillsPlugin.isTesting()) return;
         BukkitAudiences.create(SkillsPlugin.instance())
                 .player(playerId)
                 .sendMessage(message);
@@ -50,6 +51,10 @@ public final class Messages {
         send(playerId, builder.build());
     }
 
+    public static void send(Player player, Component message) {
+        send(player.getUniqueId(), message);
+    }
+
     public static Component addSkill(SkilledPlayer player, PlayerSkill skill) {
 
         return text().append(text(player.name(), GOLD, BOLD)).hoverEvent(showText(player(player)))
@@ -58,56 +63,113 @@ public final class Messages {
                 .append(text(" erhalten.", YELLOW)).build();
     }
 
-    public static TextComponent addSkillpoints(PlayerLevel playerLevel, int skillpoints) {
+    public static Component addSkillpoints(PlayerLevel playerLevel, int skillpoints) {
 
-        return text("Die ", YELLOW)
-                .append(text("Skillpunkte", AQUA, BOLD).hoverEvent(showText(level(playerLevel))))
-                .append(text(" von ", YELLOW))
-                .append(text(playerLevel.player().name(), GOLD, BOLD).hoverEvent(showText(player(playerLevel.player()))))
+        return text("Die Skillpunkte von ", YELLOW)
+                .append(player(playerLevel.player()))
                 .append(text(" wurden um ", YELLOW))
-                .append(text(skillpoints, AQUA)).append(text(" Skillpunkt(e) auf ", YELLOW))
+                .append(text(skillpoints, AQUA))
+                .append(text(" Skillpunkt(e) auf ", YELLOW))
                 .append(text(playerLevel.skillPoints(), AQUA))
                 .append(text(" erhöht.", YELLOW));
     }
 
-    public static TextComponent addExp(PlayerLevel playerLevel, int exp) {
+    public static Component setSkillpoints(PlayerLevel playerLevel, int skillpoints) {
 
-        return text("Die ", YELLOW)
-                .append(text("Erfahrungspunkte", AQUA, BOLD).hoverEvent(showText(level(playerLevel))))
-                .append(text(" von ", YELLOW))
-                .append(text(playerLevel.player().name(), GOLD, BOLD).hoverEvent(showText(player(playerLevel.player()))))
+        return text("Die Skillpunkte von ", YELLOW)
+                .append(player(playerLevel.player()))
+                .append(text(" wurden auf ", YELLOW))
+                .append(text(skillpoints, AQUA))
+                .append(text(" Skillpunkt(e) gesetzt.", YELLOW));
+    }
+
+    public static Component addExp(PlayerLevel playerLevel, int exp) {
+
+        return text("Die Erfahrungspunkte von ", YELLOW)
+                .append(player(playerLevel.player()))
                 .append(text(" wurden um ", YELLOW))
-                .append(text(exp, AQUA)).append(text(" EXP auf ", YELLOW))
-                .append(text(playerLevel.totalExp(), AQUA))
+                .append(text(exp + " EXP", AQUA)).append(text(" auf ", YELLOW))
+                .append(text(playerLevel.totalExp() + " EXP", AQUA))
                 .append(text(" erhöht.", YELLOW));
     }
 
-    public static TextComponent addLevel(PlayerLevel playerLevel, int level) {
+    public static Component setExp(PlayerLevel playerLevel, int exp) {
 
-        return text("Das ", YELLOW)
-                .append(text("Level", AQUA, BOLD).hoverEvent(showText(level(playerLevel))))
-                .append(text(" von ", YELLOW))
-                .append(text(playerLevel.player().name(), GOLD, BOLD).hoverEvent(showText(player(playerLevel.player()))))
+        return text("Die Erfahrungspunkte von ", YELLOW)
+                .append(player(playerLevel.player()))
+                .append(text(" wurden auf ", YELLOW))
+                .append(text(exp + " EXP", AQUA))
+                .append(text(" gesetzt.", YELLOW));
+    }
+
+    public static Component addLevel(PlayerLevel playerLevel, int level) {
+
+        return text("Das Level von ", YELLOW)
+                .append(player(playerLevel.player()))
                 .append(text(" wurde um ", YELLOW))
                 .append(text(level, AQUA)).append(text(" Level auf ", YELLOW))
                 .append(text(playerLevel.level(), AQUA))
                 .append(text(" erhöht.", YELLOW));
     }
 
-    public static TextComponent level(PlayerLevel level) {
+    public static Component setLevel(PlayerLevel playerLevel, int level) {
+
+        return text("Das Level von ", YELLOW)
+                .append(player(playerLevel.player()))
+                .append(text(" wurde auf ", YELLOW))
+                .append(text("Level " + level, AQUA))
+                .append(text(" gesetzt.", YELLOW));
+    }
+
+    public static Component levelUpSelf(PlayerLevel playerLevel, int level) {
+
+        return text().append(text("Du", GOLD, BOLD).hoverEvent(playerInfo(playerLevel.player())))
+                .append(text(" bist im Level aufgestiegen: ", GREEN))
+                .append(text("Level " + level, AQUA))
+                .append(text(" erreicht.", GREEN)).build();
+    }
+
+    public static Component levelDownSelf(PlayerLevel playerLevel, int level) {
+
+        return text().append(text("Du", GOLD, BOLD).hoverEvent(playerInfo(playerLevel.player())))
+                .append(text(" bist im Level abgestiegen: ", RED))
+                .append(text("Level " + level, AQUA)).build();
+    }
+
+    public static Component levelUp(PlayerLevel level) {
+
+        return text().append(player(level.player()))
+                .append(text(" ist im Level aufgestiegen: ", GREEN))
+                .append(text("Level " + level.level(), AQUA))
+                .append(text(" erreicht.", GREEN)).build();
+    }
+
+    public static Component levelDown(PlayerLevel level) {
+
+        return text().append(player(level.player()))
+                .append(text(" ist im Level abgestiegen: ", RED))
+                .append(text("Level " + level.level(), AQUA)).build();
+    }
+
+    public static Component level(PlayerLevel level) {
 
         return text("Level: ", YELLOW).append(text(level.level(), AQUA)).append(newline())
                 .append(text("EXP: ", YELLOW)).append(text(level.totalExp(), AQUA)).append(newline())
                 .append(text("Skillpunkte: ", YELLOW)).append(text(level.skillPoints(), AQUA));
     }
 
-    public static TextComponent player(SkilledPlayer player) {
+    public static Component player(SkilledPlayer player) {
+
+        return text(player.name(), GOLD, BOLD)
+                .hoverEvent(showText(playerInfo(player)));
+    }
+
+    public static Component playerInfo(SkilledPlayer player) {
 
         Set<PlayerSkill> skills = player.skills();
         long unlockedSkills = skills.stream().filter(PlayerSkill::unlocked).count();
         long activeSkills = skills.stream().filter(PlayerSkill::active).count();
-        return text()
-                .append(text("--- [ ", DARK_AQUA))
+        return text().append(text("--- [ ", DARK_AQUA))
                 .append(text(player.name(), GOLD))
                 .append(text(" ] ---", DARK_AQUA)).append(newline())
                 .append(level(player.level())).append(newline())
@@ -116,7 +178,7 @@ public final class Messages {
                 .build();
     }
 
-    public static TextComponent skill(PlayerSkill skill) {
+    public static Component skill(PlayerSkill skill) {
 
         return text("--- [ ", DARK_AQUA)
                 .append(text(skill.name(), skillColor(skill), BOLD))
@@ -127,7 +189,7 @@ public final class Messages {
                 .append(requirements(skill));
     }
 
-    public static TextComponent requirements(PlayerSkill skill) {
+    public static Component requirements(PlayerSkill skill) {
 
         TextComponent.Builder text = text();
         for (Requirement requirement : skill.skill().requirements()) {
@@ -139,7 +201,7 @@ public final class Messages {
         return text.build();
     }
 
-    public static TextComponent requirement(Requirement requirement, SkilledPlayer player) {
+    public static Component requirement(Requirement requirement, SkilledPlayer player) {
 
         return text("--- [ ", AQUA).append(text(requirement.name(), requirementColor(requirement, player)))
                 .append(newline())

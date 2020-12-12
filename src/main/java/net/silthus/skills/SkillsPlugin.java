@@ -47,7 +47,8 @@ public class SkillsPlugin extends JavaPlugin {
     @Getter
     private EffectManager effectManager;
 
-    private boolean testing = false;
+    @Getter
+    private static boolean testing = false;
 
     public SkillsPlugin() {
         instance = this;
