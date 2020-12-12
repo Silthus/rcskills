@@ -2,6 +2,9 @@ package net.silthus.skills;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.bukkit.configuration.ConfigurationSection;
+
+import java.util.Objects;
 
 import static net.silthus.skills.Messages.msg;
 
@@ -10,8 +13,9 @@ import static net.silthus.skills.Messages.msg;
 public abstract class AbstractRequirement implements Requirement {
 
     private final String type;
-    private final String name;
-    private final String description;
+    private String name;
+    private String description;
+    private boolean negate = false;
 
     public AbstractRequirement() {
         if (!getClass().isAnnotationPresent(RequirementType.class)) {
@@ -19,9 +23,23 @@ public abstract class AbstractRequirement implements Requirement {
                     "Use the @RequirementType annotation or call super(...)");
         }
         this.type = getClass().getAnnotation(RequirementType.class).value().toLowerCase();
-        this.name = msg(msgIdentifier("name"), type);
-        this.description = msg(msgIdentifier("description"));
     }
+
+    @Override
+    public final Requirement load(ConfigurationSection config) {
+
+        this.name = config.getString("name", msg(msgIdentifier("name"), type));
+        this.description = config.getString("description", msg(msgIdentifier("description")));
+        this.negate = config.getBoolean("negate", false);
+
+        loadConfig(Objects.requireNonNullElseGet(
+                config.getConfigurationSection("with"),
+                () -> config.createSection("with")));
+
+        return this;
+    }
+
+    protected abstract void loadConfig(ConfigurationSection config);
 
     protected final String msgIdentifier(String key) {
 

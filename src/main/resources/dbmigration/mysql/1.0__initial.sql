@@ -12,12 +12,28 @@ create table rcs_skills (
   constraint pk_rcs_skills primary key (id)
 );
 
+create table rcs_player_history (
+  id                            varchar(40) not null,
+  player_id                     varchar(40),
+  old_level                     integer not null,
+  new_level                     integer not null,
+  old_exp                       bigint not null,
+  new_exp                       bigint not null,
+  old_skill_points              integer not null,
+  new_skill_points              integer not null,
+  data                          json,
+  version                       bigint not null,
+  when_created                  datetime(6) not null,
+  when_modified                 datetime(6) not null,
+  constraint pk_rcs_player_history primary key (id)
+);
+
 create table rcs_player_levels (
   id                            varchar(40) not null,
   player_id                     varchar(40) not null,
-  level                         bigint not null,
+  level                         integer not null,
   total_exp                     bigint not null,
-  skill_points                  bigint not null,
+  skill_points                  integer not null,
   version                       bigint not null,
   when_created                  datetime(6) not null,
   when_modified                 datetime(6) not null,
@@ -50,6 +66,9 @@ create table rcs_players (
 create index ix_rcs_skills_alias on rcs_skills (alias);
 create index ix_rcs_skills_name on rcs_skills (name);
 create index ix_rcs_player_skills_player_id_skill_id on rcs_player_skills (player_id,skill_id);
+create index ix_rcs_player_history_player_id on rcs_player_history (player_id);
+alter table rcs_player_history add constraint fk_rcs_player_history_player_id foreign key (player_id) references rcs_players (id) on delete restrict on update restrict;
+
 alter table rcs_player_levels add constraint fk_rcs_player_levels_player_id foreign key (player_id) references rcs_players (id) on delete restrict on update restrict;
 
 create index ix_rcs_player_skills_player_id on rcs_player_skills (player_id);

@@ -25,11 +25,10 @@ public class PermissionRequirement extends AbstractRequirement {
     }
 
     @Override
-    public Requirement load(ConfigurationSection config) {
+    public void loadConfig(ConfigurationSection config) {
 
         permissions.clear();
         permissions.addAll(config.getStringList("permissions"));
-        return this;
     }
 
     @Override

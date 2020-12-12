@@ -8,6 +8,7 @@ import net.silthus.ebean.BaseEntity;
 import net.silthus.skills.entities.ConfiguredSkill;
 import net.silthus.skills.entities.SkilledPlayer;
 import org.apache.commons.io.FileUtils;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
@@ -193,6 +194,11 @@ class SkillManagerTest {
 
             return TestResult.ofSuccess();
         }
+
+        @Override
+        protected void loadConfig(ConfigurationSection config) {
+
+        }
     }
 
     @RequirementType("test")
@@ -202,6 +208,11 @@ class SkillManagerTest {
         public TestResult test(@NonNull SkilledPlayer target) {
             return TestResult.ofSuccess();
         }
+
+        @Override
+        protected void loadConfig(ConfigurationSection config) {
+
+        }
     }
 
     @RequirementType("test3")
@@ -209,6 +220,11 @@ class SkillManagerTest {
         @Override
         public TestResult test(@NonNull SkilledPlayer target) {
             return TestResult.ofSuccess();
+        }
+
+        @Override
+        protected void loadConfig(ConfigurationSection config) {
+
         }
     }
 

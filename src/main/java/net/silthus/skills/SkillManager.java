@@ -49,7 +49,7 @@ public final class SkillManager {
     public void registerDefaults() {
 
         registerRequirement(PermissionRequirement.class, PermissionRequirement::new);
-        registerRequirement(SkillRequirement.class, () -> new SkillRequirement(this));
+        registerRequirement(SkillRequirement.class, SkillRequirement::new);
         registerSkill(PermissionSkill.class, () -> new PermissionSkill(plugin));
     }
 

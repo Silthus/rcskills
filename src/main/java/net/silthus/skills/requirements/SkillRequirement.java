@@ -10,13 +10,7 @@ import static net.silthus.skills.Messages.msg;
 @RequirementType("skill")
 public class SkillRequirement extends AbstractRequirement {
 
-    private final SkillManager skillManager;
     private String skill;
-
-    public SkillRequirement(SkillManager skillManager) {
-
-        this.skillManager = skillManager;
-    }
 
     @Override
     public String description() {
@@ -25,10 +19,9 @@ public class SkillRequirement extends AbstractRequirement {
     }
 
     @Override
-    public Requirement load(ConfigurationSection config) {
+    public void loadConfig(ConfigurationSection config) {
 
         this.skill = config.getString("skill");
-        return this;
     }
 
     @Override
