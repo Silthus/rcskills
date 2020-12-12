@@ -52,6 +52,9 @@ public class SkilledPlayer extends BaseEntity {
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "player")
     private Set<PlayerSkill> skills = new HashSet<>();
 
+    @OneToMany(cascade = CascadeType.REMOVE)
+    private List<PlayerHistory> history = new ArrayList<>();
+
     private SkilledPlayer(OfflinePlayer player) {
 
         id(player.getUniqueId());

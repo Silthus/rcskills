@@ -19,14 +19,16 @@ public class SetPlayerExpEvent extends PlayerEvent implements Cancellable {
     private final long oldExp;
     private long newExp;
     private int level;
+    private String reason;
     private boolean cancelled;
 
-    public SetPlayerExpEvent(PlayerLevel playerLevel, long oldExp, long newExp, int level) {
+    public SetPlayerExpEvent(PlayerLevel playerLevel, long oldExp, long newExp, int level, String reason) {
         super(playerLevel.player());
         this.playerLevel = playerLevel;
         this.oldExp = oldExp;
         this.newExp = newExp;
         this.level = level;
+        this.reason = reason;
     }
 
     @Override

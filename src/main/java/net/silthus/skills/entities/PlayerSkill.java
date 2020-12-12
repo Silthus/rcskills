@@ -128,6 +128,12 @@ public class PlayerSkill extends BaseEntity {
         status(SkillStatus.UNLOCKED);
         save();
 
+        PlayerHistory.of(player())
+                .data("action", "unlocked_skill")
+                .data("skill", name())
+                .data("alias", alias())
+                .save();
+
         if (event.isPlayEffect()) {
             player().getBukkitPlayer().ifPresent(Effects::playerUnlockSkill);
         }

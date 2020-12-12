@@ -61,7 +61,7 @@ public class AdminCommands extends BaseCommand {
         @CommandPermission("rcskills.admin.add.exp")
         public void addExp(SkilledPlayer player, int exp) {
 
-            PlayerLevel playerLevel = player.level().addExp(exp);
+            PlayerLevel playerLevel = player.level().addExp(exp, "admin:command");
             playerLevel.save();
             Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.addExp(playerLevel, exp));
         }

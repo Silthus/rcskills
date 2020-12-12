@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.extern.java.Log;
+import net.silthus.skills.entities.PlayerHistory;
 import net.silthus.skills.entities.SkilledPlayer;
 import net.silthus.skills.events.SetPlayerExpEvent;
 import net.silthus.skills.events.SetPlayerLevelEvent;
@@ -50,6 +51,13 @@ public final class LevelManager implements Listener {
 
         int level = getLevelForExp(event.getNewExp());
         event.setLevel(level);
+
+        PlayerHistory.of(event.getPlayer())
+                .oldExp(event.getOldExp())
+                .newExp(event.getNewExp())
+                .newLevel(event.getLevel())
+                .reason(event.getReason())
+                .save();
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)

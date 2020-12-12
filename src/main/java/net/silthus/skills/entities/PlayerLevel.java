@@ -10,9 +10,9 @@ import net.silthus.skills.events.SetPlayerLevelEvent;
 import net.silthus.skills.events.SetPlayerSkillPointsEvent;
 import org.bukkit.Bukkit;
 
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -51,6 +51,7 @@ public class PlayerLevel extends BaseEntity {
         if (event.isCancelled()) return this;
 
         this.level = event.getNewLevel();
+
         if (event.getExp() != totalExp) {
             exp(event.getExp());
         }
@@ -59,12 +60,17 @@ public class PlayerLevel extends BaseEntity {
 
     public PlayerLevel addLevel(int level) {
 
-        return this.level(this.level += level);
+        return this.level(this.level + level);
     }
 
     public PlayerLevel exp(long exp) {
 
-        SetPlayerExpEvent event = new SetPlayerExpEvent(this, this.totalExp, exp, level);
+        return exp(exp, null);
+    }
+
+    public PlayerLevel exp(long exp, String reason) {
+
+        SetPlayerExpEvent event = new SetPlayerExpEvent(this, this.totalExp, exp, level, reason);
         Bukkit.getPluginManager().callEvent(event);
 
         if (event.isCancelled()) return this;
@@ -76,9 +82,9 @@ public class PlayerLevel extends BaseEntity {
         return this;
     }
 
-    public PlayerLevel addExp(long exp) {
+    public PlayerLevel addExp(long exp, String reason) {
 
-        return this.exp(totalExp += exp);
+        return this.exp(totalExp + exp, reason);
     }
 
     public PlayerLevel skillPoints(int skillPoints) {
@@ -94,6 +100,6 @@ public class PlayerLevel extends BaseEntity {
 
     public PlayerLevel addSkillPoints(int skillPoints) {
 
-        return this.skillPoints(this.skillPoints += skillPoints);
+        return this.skillPoints(this.skillPoints + skillPoints);
     }
 }
