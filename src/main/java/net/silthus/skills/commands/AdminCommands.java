@@ -10,6 +10,7 @@ import net.silthus.skills.SkillsPlugin;
 import net.silthus.skills.actions.AddSkillAction;
 import net.silthus.skills.entities.ConfiguredSkill;
 import net.silthus.skills.entities.PlayerLevel;
+import net.silthus.skills.entities.PlayerSkill;
 import net.silthus.skills.entities.SkilledPlayer;
 
 @CommandAlias("rcsa|rcs:admin|rcskills:admin|skills:admin")
@@ -118,15 +119,19 @@ public class AdminCommands extends BaseCommand {
         }
     }
 
-
     @Subcommand("remove|del")
-    @CommandCompletion("@players @skills")
-    @Description("Entfernt einen Skill von einem Spieler.")
-    @CommandPermission("rcskills.admin.skill.remove")
-    public void removeSkill(SkilledPlayer player, ConfiguredSkill skill) {
+    public class RemoveCommands extends BaseCommand {
 
-        player.removeSkill(skill);
-        getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + "Der Skill " + skill.name() + "(" + skill.alias() + ") wurde von " + player.name() + " erfolgreich entfernt.");
+        @Subcommand("skill")
+        @CommandAlias("removeskill")
+        @CommandCompletion("@players @skills")
+        @Description("Entfernt einen Skill von einem Spieler.")
+        @CommandPermission("rcskills.admin.remove.skill")
+        public void removeSkill(SkilledPlayer player, ConfiguredSkill skill) {
+
+            PlayerSkill playerSkill = player.removeSkill(skill);
+            Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.removeSkill(playerSkill));
+        }
     }
 
     @Subcommand("reload")

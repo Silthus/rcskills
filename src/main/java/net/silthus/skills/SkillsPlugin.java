@@ -6,7 +6,9 @@ import com.google.common.base.Strings;
 import de.slikey.effectlib.EffectManager;
 import io.ebean.Database;
 import kr.entree.spigradle.annotations.PluginMain;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.silthus.ebean.Config;
 import net.silthus.ebean.EbeanWrapper;
@@ -41,6 +43,7 @@ public class SkillsPlugin extends JavaPlugin {
     private LevelManager levelManager;
     private Database database;
     @Getter
+    @Setter(AccessLevel.PACKAGE)
     private SkillPluginConfig pluginConfig;
     private PlayerListener playerListener;
     private PaperCommandManager commandManager;
@@ -78,11 +81,7 @@ public class SkillsPlugin extends JavaPlugin {
     public void reload() {
 
         try {
-            if (pluginConfig == null) {
-                loadConfig();
-            } else {
-                getPluginConfig().load();
-            }
+            loadConfig();
             getSkillManager().reload();
             getLevelManager().load();
         } catch (CompileException e) {
@@ -114,7 +113,7 @@ public class SkillsPlugin extends JavaPlugin {
     private void setupLevelManager() {
 
         try {
-            this.levelManager = new LevelManager(getPluginConfig().getLevelConfig());
+            this.levelManager = new LevelManager(this);
             levelManager.load();
             Bukkit.getPluginManager().registerEvents(levelManager, this);
         } catch (CompileException e) {

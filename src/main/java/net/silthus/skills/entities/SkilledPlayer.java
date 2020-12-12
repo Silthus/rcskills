@@ -89,9 +89,11 @@ public class SkilledPlayer extends BaseEntity {
         return PlayerSkill.getOrCreate(this, skill);
     }
 
-    public void removeSkill(ConfiguredSkill skill) {
+    public PlayerSkill removeSkill(ConfiguredSkill skill) {
 
-        getSkill(skill).delete();
+        PlayerSkill playerSkill = getSkill(skill);
+        playerSkill.delete();
+        return playerSkill;
     }
 
     public boolean hasActiveSkill(ConfiguredSkill skill) {

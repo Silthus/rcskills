@@ -25,7 +25,7 @@ import java.util.UUID;
 public final class LevelManager implements Listener {
 
     @Getter
-    private final SkillPluginConfig.LevelConfig config;
+    private final SkillsPlugin plugin;
     private final Map<UUID, Map<Integer, Integer>> cache = new HashMap<>();
     private Map<Integer, Integer> levelToExpMap = new HashMap<>();
 
@@ -36,8 +36,13 @@ public final class LevelManager implements Listener {
     private double y;
     private double z;
 
-    public LevelManager(SkillPluginConfig.LevelConfig config) {
-        this.config = config;
+    public LevelManager(SkillsPlugin plugin) {
+        this.plugin = plugin;
+    }
+
+    public SkillPluginConfig.LevelConfig getConfig() {
+
+        return getPlugin().getPluginConfig().getLevelConfig();
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
@@ -94,7 +99,7 @@ public final class LevelManager implements Listener {
                 int.class
         });
 
-        ee.cook(config.getExpToNextLevel());
+        ee.cook(getConfig().getExpToNextLevel());
         this.levelToExpMap = calculateTotalExpMap(getConfig().getMaxLevel());
     }
 

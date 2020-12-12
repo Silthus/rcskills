@@ -1,19 +1,12 @@
 package net.silthus.skills;
 
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Setter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.ComponentBuilder;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TextReplacementConfig;
-import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.silthus.skills.entities.ConfiguredSkill;
 import net.silthus.skills.entities.PlayerLevel;
 import net.silthus.skills.entities.PlayerSkill;
 import net.silthus.skills.entities.SkilledPlayer;
@@ -23,12 +16,9 @@ import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 import static net.kyori.adventure.text.Component.*;
 import static net.kyori.adventure.text.event.HoverEvent.showText;
@@ -57,10 +47,19 @@ public final class Messages {
 
     public static Component addSkill(SkilledPlayer player, PlayerSkill skill) {
 
-        return text().append(text(player.name(), GOLD, BOLD)).hoverEvent(showText(player(player)))
-                .append(text(" hat den Skill ", YELLOW))
-                .append(text(skill.name(), GREEN, BOLD)).hoverEvent(showText(skill(skill)))
-                .append(text(" erhalten.", YELLOW)).build();
+        return text().append(player(player))
+                .append(text(" hat den Skill ", GREEN))
+                .append(skill(skill))
+                .append(text(" erhalten.", GREEN)).build();
+    }
+
+    public static Component removeSkill(PlayerSkill playerSkill) {
+
+        return text("Der Skill ", RED)
+                .append(skill(playerSkill))
+                .append(text(" wurde von ", RED))
+                .append(player(playerSkill.player()))
+                .append(text(" entfernt.", RED));
     }
 
     public static Component addSkillpoints(PlayerLevel playerLevel, int skillpoints) {
@@ -180,6 +179,13 @@ public final class Messages {
 
     public static Component skill(PlayerSkill skill) {
 
+
+        return text(skill.name(), skill.active() ? GREEN : RED, BOLD)
+                .hoverEvent(skillInfo(skill));
+    }
+
+    public static Component skillInfo(PlayerSkill skill) {
+
         return text("--- [ ", DARK_AQUA)
                 .append(text(skill.name(), skillColor(skill), BOLD))
                 .append(text(" (" + skill.alias() + ")", GRAY, ITALIC))
@@ -233,7 +239,7 @@ public final class Messages {
     public static TextReplacementConfig replaceSkill(PlayerSkill skill) {
 
         return TextReplacementConfig.builder()
-                .matchLiteral("{skill}").replacement(skill(skill))
+                .matchLiteral("{skill}").replacement(skillInfo(skill))
                 .matchLiteral("{skill_name}").replacement(skill.name())
                 .matchLiteral("{skill_alias}").replacement(skill.alias())
                 .build();
@@ -271,8 +277,8 @@ public final class Messages {
         }
         return instance.getMessage(key, defaultValue);
     }
-
     private final File file;
+
     private final YamlConfiguration config;
 
     Messages(File file) throws InvalidConfigurationException {

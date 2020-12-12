@@ -34,15 +34,13 @@ class LevelManagerTest {
         MockBukkit.unmock();
     }
 
-    private SkillPluginConfig.LevelConfig levelConfig;
     private LevelManager levelManager;
     private SkilledPlayer player;
 
     @BeforeEach
     void setUp() {
 
-        this.levelConfig = new SkillPluginConfig.LevelConfig();
-        this.levelManager = new LevelManager(levelConfig);
+        this.levelManager = new LevelManager(plugin);
         this.player = SkilledPlayer.getOrCreate(server.addPlayer());
     }
 
@@ -53,19 +51,6 @@ class LevelManagerTest {
         assertThatCode(() -> levelManager.load())
                 .doesNotThrowAnyException();
     }
-
-    @Test
-    @DisplayName("should parse and evaluate simple expression: level^2")
-    void shouldParseSimpleExpression() {
-
-        levelConfig.setExpToNextLevel("Math.pow(level, 2)");
-        assertThatCode(() -> levelManager.load()).doesNotThrowAnyException();
-
-        player.level().level(2);
-        assertThat(levelManager.calculateExpToNextLevel(player))
-                .isEqualTo(4);
-    }
-
 
     @ParameterizedTest
     @MethodSource("levelTestValues")
