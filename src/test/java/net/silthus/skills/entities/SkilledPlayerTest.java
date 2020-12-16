@@ -2,6 +2,7 @@ package net.silthus.skills.entities;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
+import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import net.silthus.skills.SkillsPlugin;
 import net.silthus.skills.skills.PermissionSkill;
 import org.junit.jupiter.api.AfterEach;
@@ -43,7 +44,9 @@ class SkilledPlayerTest {
     @Test
     void shouldAllowAddingRemovedSkills() {
 
-        SkilledPlayer player = SkilledPlayer.getOrCreate(server.addPlayer());
+        PlayerMock serverPlayer = server.addPlayer();
+        serverPlayer.setOp(true);
+        SkilledPlayer player = SkilledPlayer.getOrCreate(serverPlayer);
         ConfiguredSkill skill = new ConfiguredSkill(UUID.randomUUID(), new PermissionSkill(plugin));
         skill.save();
 

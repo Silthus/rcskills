@@ -1,7 +1,9 @@
 package net.silthus.skills.requirements;
 
 import lombok.NonNull;
-import net.silthus.skills.*;
+import net.silthus.skills.AbstractRequirement;
+import net.silthus.skills.RequirementType;
+import net.silthus.skills.TestResult;
 import net.silthus.skills.entities.SkilledPlayer;
 import org.bukkit.configuration.ConfigurationSection;
 

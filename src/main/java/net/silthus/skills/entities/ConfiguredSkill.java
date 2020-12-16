@@ -9,6 +9,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.silthus.ebean.BaseEntity;
 import net.silthus.skills.*;
+import net.silthus.skills.requirements.LevelRequirement;
+import net.silthus.skills.requirements.PermissionRequirement;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 
@@ -87,17 +89,10 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
 
     @Override
     public void load(ConfigurationSection config) {
-        this.alias = config.getString("alias");
-        this.name = config.getString("name", alias());
-        this.type = config.getString("type", "permission");
-        this.description = config.getString("description");
-
-        ConfigurationSection with = config.getConfigurationSection("with");
-        this.skill.load(Objects.requireNonNullElseGet(with, () -> config.createSection("with")));
-
         this.config = new HashMap<>();
         config.getKeys(true).forEach(key -> this.config.put(key, config.get(key)));
 
+        load();
         save();
     }
 
@@ -105,18 +100,35 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
     public void load() {
 
         SkillManager skillManager = SkillsPlugin.instance().getSkillManager();
-        skill = skillManager.getSkillType(type)
-                .map(Registration::supplier)
-                .map(Supplier::get)
-                .orElse(null);
-        if (skill != null && config != null) {
-            MemoryConfiguration cfg = new MemoryConfiguration();
-            for (Map.Entry<String, Object> entry : config.entrySet()) {
-                cfg.set(entry.getKey(), entry.getValue());
+        if (skill == null) {
+            skill = skillManager.getSkillType(type)
+                    .map(Registration::supplier)
+                    .map(Supplier::get)
+                    .orElse(null);
+        }
+
+        if (skill != null && this.config != null) {
+            MemoryConfiguration config = new MemoryConfiguration();
+            for (Map.Entry<String, Object> entry : this.config.entrySet()) {
+                config.set(entry.getKey(), entry.getValue());
             }
-            ConfigurationSection with = cfg.getConfigurationSection("with");
-            skill.load(Objects.requireNonNullElseGet(with, () -> cfg.createSection("with")));
-            skillManager.loadRequirements(cfg.getConfigurationSection("requirements"));
+
+            this.alias = config.getString("alias");
+            this.name = config.getString("name", alias());
+            this.type = config.getString("type", "permission");
+            this.description = config.getString("description");
+
+            ConfigurationSection with = config.getConfigurationSection("with");
+            skill.load(Objects.requireNonNullElseGet(with, () -> config.createSection("with")));
+            this.requirements = skillManager.loadRequirements(config.getConfigurationSection("requirements"));
+
+            if (config.isSet("level")) {
+                LevelRequirement levelRequirement = new LevelRequirement();
+                levelRequirement.setLevel(config.getInt("level"));
+                requirements.add(levelRequirement);
+            }
+
+            requirements.add(new PermissionRequirement().add(SkillsPlugin.SKILL_PERMISSION_PREFIX + alias));
         }
     }
 

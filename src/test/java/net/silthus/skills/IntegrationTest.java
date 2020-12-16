@@ -7,8 +7,6 @@ import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.*;
 
-import java.io.File;
-
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class IntegrationTest {

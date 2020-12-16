@@ -1,8 +1,9 @@
 package net.silthus.skills.requirements;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import net.silthus.skills.AbstractRequirement;
-import net.silthus.skills.Requirement;
 import net.silthus.skills.RequirementType;
 import net.silthus.skills.TestResult;
 import net.silthus.skills.entities.SkilledPlayer;
@@ -13,7 +14,9 @@ import java.util.List;
 
 import static net.silthus.skills.Messages.msg;
 
+@Data
 @RequirementType("permission")
+@EqualsAndHashCode(callSuper = true)
 public class PermissionRequirement extends AbstractRequirement {
 
     private final List<String> permissions = new ArrayList<>();
@@ -29,6 +32,12 @@ public class PermissionRequirement extends AbstractRequirement {
 
         permissions.clear();
         permissions.addAll(config.getStringList("permissions"));
+    }
+
+    public PermissionRequirement add(String permission) {
+
+        this.permissions.add(permission);
+        return this;
     }
 
     @Override

@@ -15,11 +15,7 @@ import net.silthus.ebean.Config;
 import net.silthus.ebean.EbeanWrapper;
 import net.silthus.skills.commands.AdminCommands;
 import net.silthus.skills.commands.SkillsCommand;
-import net.silthus.skills.entities.ConfiguredSkill;
-import net.silthus.skills.entities.Level;
-import net.silthus.skills.entities.LevelHistory;
-import net.silthus.skills.entities.PlayerSkill;
-import net.silthus.skills.entities.SkilledPlayer;
+import net.silthus.skills.entities.*;
 import net.silthus.skills.listener.PlayerListener;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -36,6 +32,7 @@ import java.util.stream.Collectors;
 public class SkillsPlugin extends JavaPlugin {
 
     public static final String PERMISSION_PREFIX = "rcskills.";
+    public static final String SKILL_PERMISSION_PREFIX = PERMISSION_PREFIX + "skill.";
 
     @Getter
     @Accessors(fluent = true)

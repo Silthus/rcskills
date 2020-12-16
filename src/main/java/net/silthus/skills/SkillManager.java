@@ -13,10 +13,14 @@ import net.silthus.skills.requirements.PermissionRequirement;
 import net.silthus.skills.requirements.SkillRequirement;
 import net.silthus.skills.skills.PermissionSkill;
 import net.silthus.skills.util.ConfigUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
+import org.bukkit.plugin.PluginManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -90,6 +94,14 @@ public final class SkillManager {
                     .map(file -> loadSkill(path, file))
                     .flatMap(Optional::stream)
                     .collect(Collectors.toList());
+
+            PluginManager pluginManager = Bukkit.getServer().getPluginManager();
+            skills.stream()
+                    .map(ConfiguredSkill::requirements)
+                    .filter(r -> r instanceof PermissionRequirement)
+                    .flatMap(r -> ((PermissionRequirement) r).getPermissions().stream())
+                    .map(s -> new Permission(s, PermissionDefault.FALSE))
+                    .forEach(pluginManager::addPermission);
 
             log.info("Loaded " + skills.size() + "/" + fileCount + " skills from " + path);
             return skills;
@@ -333,8 +345,6 @@ public final class SkillManager {
             config.set("alias", config.getString("alias", identifier));
 
             skill.load(config);
-            skill.addRequirement(loadRequirements(config.getConfigurationSection("requirements")).toArray(new Requirement[0]));
-            skill.save();
         });
 
         return loadedSkill;

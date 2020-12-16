@@ -2,12 +2,7 @@ package net.silthus.skills.commands;
 
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandCompletion;
-import co.aikar.commands.annotation.CommandPermission;
-import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Description;
-import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.*;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
 import net.silthus.skills.Messages;
