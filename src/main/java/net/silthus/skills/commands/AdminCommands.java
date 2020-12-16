@@ -38,6 +38,9 @@ public class AdminCommands extends BaseCommand {
                 Messages.send(skilledPlayer.id(), Messages.addSkill(skilledPlayer, result.playerSkill()));
             } else {
                 getCurrentCommandIssuer().sendMessage(ChatColor.RED + result.error());
+                for (String errorMessage : result.testResult().errorMessages()) {
+                    getCurrentCommandIssuer().sendMessage(ChatColor.RED + " - " + errorMessage);
+                }
             }
         }
 

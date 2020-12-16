@@ -54,6 +54,8 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
     private String name;
     private String type;
     private String description;
+    private double moneyCost = 0d;
+    private int skillPointCost = 0;
     @DbJson
     private Map<String, Object> config = new HashMap<>();
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "skill")
@@ -117,6 +119,8 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
             this.name = config.getString("name", alias());
             this.type = config.getString("type", "permission");
             this.description = config.getString("description");
+            this.moneyCost = config.getDouble("money", 0d);
+            this.skillPointCost = config.getInt("skillpoints", 0);
 
             ConfigurationSection with = config.getConfigurationSection("with");
             skill.load(Objects.requireNonNullElseGet(with, () -> config.createSection("with")));
@@ -148,9 +152,11 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
 
     public TestResult test(SkilledPlayer player) {
 
-        return requirements().stream()
+        TestResult testResult = requirements().stream()
                 .map(requirement -> requirement.test(player))
                 .reduce(TestResult::merge)
                 .orElse(TestResult.ofSuccess());
+
+        return testResult;
     }
 }
