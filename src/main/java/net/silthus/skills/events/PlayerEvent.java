@@ -3,6 +3,7 @@ package net.silthus.skills.events;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import net.silthus.skills.entities.Level;
 import net.silthus.skills.entities.SkilledPlayer;
 import org.bukkit.event.HandlerList;
 
@@ -17,5 +18,10 @@ public abstract class PlayerEvent extends RCSkillsEvent {
 
     protected PlayerEvent(SkilledPlayer player) {
         this.player = player;
+    }
+
+    public Level getPlayerLevel() {
+
+        return getPlayer().level();
     }
 }

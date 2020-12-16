@@ -174,8 +174,8 @@ public class SkillsPlugin extends JavaPlugin {
                         ConfiguredSkill.class,
                         PlayerSkill.class,
                         SkilledPlayer.class,
-                        PlayerLevel.class,
-                        PlayerHistory.class
+                        Level.class,
+                        LevelHistory.class
                 )
                 .build()).connect();
     }

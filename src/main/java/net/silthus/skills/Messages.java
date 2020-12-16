@@ -1,5 +1,6 @@
 package net.silthus.skills;
 
+import co.aikar.commands.CommandIssuer;
 import lombok.AccessLevel;
 import lombok.Setter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -7,9 +8,12 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.format.TextColor;
-import net.silthus.skills.entities.PlayerLevel;
+import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.silthus.skills.entities.Level;
 import net.silthus.skills.entities.PlayerSkill;
 import net.silthus.skills.entities.SkilledPlayer;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.command.RemoteConsoleCommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -44,8 +48,31 @@ public final class Messages {
         send(playerId, builder.build());
     }
 
-    public static void send(Player player, Component message) {
+    public static void send(Object commandIssuer, Component message) {
+
+        if (commandIssuer instanceof Player) {
+            sendPlayer((Player) commandIssuer, message);
+        } else if (commandIssuer instanceof ConsoleCommandSender) {
+            sendConsole((ConsoleCommandSender) commandIssuer, message);
+        } else if (commandIssuer instanceof RemoteConsoleCommandSender) {
+            sendRemote((RemoteConsoleCommandSender) commandIssuer, message);
+        } else if (commandIssuer instanceof CommandIssuer) {
+            send((Object) ((CommandIssuer) commandIssuer).getIssuer(), message);
+        }
+    }
+
+    public static void sendPlayer(Player player, Component message) {
         send(player.getUniqueId(), message);
+    }
+
+    public static void sendConsole(ConsoleCommandSender sender, Component message) {
+
+        sender.sendMessage(PlainComponentSerializer.plain().serialize(message));
+    }
+
+    public static void sendRemote(RemoteConsoleCommandSender sender, Component message) {
+
+        sender.sendMessage(PlainComponentSerializer.plain().serialize(message));
     }
 
     public static Component addSkill(SkilledPlayer player, PlayerSkill skill) {
@@ -65,99 +92,103 @@ public final class Messages {
                 .append(text(" entfernt.", RED));
     }
 
-    public static Component addSkillpoints(PlayerLevel playerLevel, int skillpoints) {
+    public static Component addSkillpoints(SkilledPlayer player, int skillpoints) {
 
         return text("Die Skillpunkte von ", YELLOW)
-                .append(player(playerLevel.player()))
+                .append(player(player))
                 .append(text(" wurden um ", YELLOW))
                 .append(text(skillpoints, AQUA))
                 .append(text(" Skillpunkt(e) auf ", YELLOW))
-                .append(text(playerLevel.skillPoints(), AQUA))
+                .append(text(player.skillPoints(), AQUA))
                 .append(text(" erhöht.", YELLOW));
     }
 
-    public static Component setSkillpoints(PlayerLevel playerLevel, int skillpoints) {
+    public static Component setSkillpoints(SkilledPlayer player, int skillpoints) {
 
         return text("Die Skillpunkte von ", YELLOW)
-                .append(player(playerLevel.player()))
+                .append(player(player))
                 .append(text(" wurden auf ", YELLOW))
                 .append(text(skillpoints, AQUA))
                 .append(text(" Skillpunkt(e) gesetzt.", YELLOW));
     }
 
-    public static Component addExp(PlayerLevel playerLevel, int exp) {
+    public static Component addExp(SkilledPlayer player, int exp) {
 
         return text("Die Erfahrungspunkte von ", YELLOW)
-                .append(player(playerLevel.player()))
+                .append(player(player))
                 .append(text(" wurden um ", YELLOW))
                 .append(text(exp + " EXP", AQUA)).append(text(" auf ", YELLOW))
-                .append(text(playerLevel.totalExp() + " EXP", AQUA))
+                .append(text(player.level().getTotalExp() + " EXP", AQUA))
                 .append(text(" erhöht.", YELLOW));
     }
 
-    public static Component setExp(PlayerLevel playerLevel, int exp) {
+    public static Component setExp(SkilledPlayer player, int exp) {
 
         return text("Die Erfahrungspunkte von ", YELLOW)
-                .append(player(playerLevel.player()))
+                .append(player(player))
                 .append(text(" wurden auf ", YELLOW))
                 .append(text(exp + " EXP", AQUA))
                 .append(text(" gesetzt.", YELLOW));
     }
 
-    public static Component addLevel(PlayerLevel playerLevel, int level) {
+    public static Component addLevel(SkilledPlayer player, int level) {
 
         return text("Das Level von ", YELLOW)
-                .append(player(playerLevel.player()))
+                .append(player(player))
                 .append(text(" wurde um ", YELLOW))
                 .append(text(level, AQUA)).append(text(" Level auf ", YELLOW))
-                .append(text(playerLevel.level(), AQUA))
+                .append(text(player.level().getLevel(), AQUA))
                 .append(text(" erhöht.", YELLOW));
     }
 
-    public static Component setLevel(PlayerLevel playerLevel, int level) {
+    public static Component setLevel(SkilledPlayer player, int level) {
 
         return text("Das Level von ", YELLOW)
-                .append(player(playerLevel.player()))
+                .append(player(player))
                 .append(text(" wurde auf ", YELLOW))
                 .append(text("Level " + level, AQUA))
                 .append(text(" gesetzt.", YELLOW));
     }
 
-    public static Component levelUpSelf(PlayerLevel playerLevel, int level) {
+    public static Component levelUpSelf(SkilledPlayer player, int level) {
 
-        return text().append(text("Du", GOLD, BOLD).hoverEvent(playerInfo(playerLevel.player())))
+        return text().append(text("Du", GOLD, BOLD).hoverEvent(playerInfo(player)))
                 .append(text(" bist im Level aufgestiegen: ", GREEN))
                 .append(text("Level " + level, AQUA))
                 .append(text(" erreicht.", GREEN)).build();
     }
 
-    public static Component levelDownSelf(PlayerLevel playerLevel, int level) {
+    public static Component levelDownSelf(SkilledPlayer player, int level) {
 
-        return text().append(text("Du", GOLD, BOLD).hoverEvent(playerInfo(playerLevel.player())))
+        return text().append(text("Du", GOLD, BOLD).hoverEvent(playerInfo(player)))
                 .append(text(" bist im Level abgestiegen: ", RED))
                 .append(text("Level " + level, AQUA)).build();
     }
 
-    public static Component levelUp(PlayerLevel level) {
+    public static Component levelUp(SkilledPlayer player) {
 
-        return text().append(player(level.player()))
+        return text().append(player(player))
                 .append(text(" ist im Level aufgestiegen: ", GREEN))
-                .append(text("Level " + level.level(), AQUA))
+                .append(text("Level " + player.level().getLevel(), AQUA))
                 .append(text(" erreicht.", GREEN)).build();
     }
 
-    public static Component levelDown(PlayerLevel level) {
+    public static Component levelDown(SkilledPlayer player) {
 
-        return text().append(player(level.player()))
+        return text().append(player(player))
                 .append(text(" ist im Level abgestiegen: ", RED))
-                .append(text("Level " + level.level(), AQUA)).build();
+                .append(text("Level " + player.level().getLevel(), AQUA)).build();
     }
 
-    public static Component level(PlayerLevel level) {
+    public static Component level(Level level) {
 
-        return text("Level: ", YELLOW).append(text(level.level(), AQUA)).append(newline())
-                .append(text("EXP: ", YELLOW)).append(text(level.totalExp(), AQUA)).append(newline())
-                .append(text("Skillpunkte: ", YELLOW)).append(text(level.skillPoints(), AQUA));
+        return text("Level: ", YELLOW).append(text(level.getLevel(), AQUA)).append(newline())
+                .append(text("EXP: ", YELLOW)).append(text(level.getTotalExp(), AQUA));
+    }
+
+    public static Component skillPoints(SkilledPlayer player) {
+
+        return text("Skillpunkte: ", YELLOW).append(text(player.skillPoints(), AQUA));
     }
 
     public static Component player(SkilledPlayer player) {
@@ -171,7 +202,8 @@ public final class Messages {
         return text().append(text("--- [ ", DARK_AQUA))
                 .append(text(player.name(), GOLD))
                 .append(text(" ] ---", DARK_AQUA)).append(newline())
-                .append(level(player.level())).append(newline()).append(newline())
+                .append(level(player.level())).append(newline())
+                .append(skillPoints(player)).append(newline()).append(newline())
                 .append(text("Freigeschaltete Skills: ", YELLOW)).append(newline())
                 .append(skills(player.skills().stream().filter(PlayerSkill::unlocked).collect(Collectors.toList())))
                 .build();
@@ -239,7 +271,7 @@ public final class Messages {
                 .build();
     }
 
-    public static TextReplacementConfig replaceLevel(PlayerLevel level) {
+    public static TextReplacementConfig replaceLevel(Level level) {
 
         return TextReplacementConfig.builder()
                 .matchLiteral("{level}").replacement(level(level)).build();

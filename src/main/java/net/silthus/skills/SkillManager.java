@@ -323,8 +323,7 @@ public final class SkillManager {
                 .map(Skill.Registration::supplier)
                 .map(Supplier::get)
                 .map(skill -> ConfiguredSkill.findByAliasOrName(identifier)
-                        .orElseGet(() -> Optional.ofNullable(ConfiguredSkill.find.byId(id))
-                         .orElse(new ConfiguredSkill(id, skill))));
+                        .orElseGet(() -> ConfiguredSkill.getOrCreate(id, skill)));
 
         loadedSkill.ifPresent(skill -> {
 

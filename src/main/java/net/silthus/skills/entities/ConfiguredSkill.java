@@ -39,6 +39,11 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
                 .findOneOrEmpty();
     }
 
+    public static ConfiguredSkill getOrCreate(UUID id, Skill skill) {
+
+        return Optional.ofNullable(find.byId(id)).orElse(new ConfiguredSkill(id, skill));
+    }
+
     public static final Finder<UUID, ConfiguredSkill> find = new Finder<>(ConfiguredSkill.class);
 
     @Index
@@ -57,7 +62,7 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
     @Transient
     private List<Requirement> requirements;
 
-    public ConfiguredSkill(UUID id, Skill skill) {
+    ConfiguredSkill(UUID id, Skill skill) {
         this.id(id);
         this.skill = skill;
     }

@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.extern.java.Log;
-import net.silthus.skills.entities.PlayerHistory;
+import net.silthus.skills.entities.LevelHistory;
 import net.silthus.skills.entities.SkilledPlayer;
 import net.silthus.skills.events.SetPlayerExpEvent;
 import net.silthus.skills.events.SetPlayerLevelEvent;
@@ -52,7 +52,7 @@ public final class LevelManager implements Listener {
         int level = getLevelForExp(event.getNewExp());
         event.setLevel(level);
 
-        PlayerHistory.of(event.getPlayer())
+        LevelHistory.create(event.getPlayerLevel())
                 .oldExp(event.getOldExp())
                 .newExp(event.getNewExp())
                 .newLevel(event.getLevel())
@@ -72,15 +72,15 @@ public final class LevelManager implements Listener {
             }
 
             if (event.getNewLevel() > event.getOldLevel()) {
-                Messages.send(player, Messages.levelUpSelf(event.getLevel(), event.getNewLevel()));
+                Messages.send(player, Messages.levelUpSelf(event.getPlayer(), event.getNewLevel()));
                 Bukkit.getOnlinePlayers().stream()
                         .filter(p -> !p.equals(player))
-                        .forEach(p -> Messages.send(p, Messages.levelUp(event.getLevel())));
+                        .forEach(p -> Messages.send(p, Messages.levelUp(event.getPlayer())));
             } else if (event.getNewLevel() < event.getOldLevel()) {
-                Messages.send(player, Messages.levelDownSelf(event.getLevel(), event.getNewLevel()));
+                Messages.send(player, Messages.levelDownSelf(event.getPlayer(), event.getNewLevel()));
                 Bukkit.getOnlinePlayers().stream()
                         .filter(p -> !p.equals(player))
-                        .forEach(p -> Messages.send(p, Messages.levelDown(event.getLevel())));
+                        .forEach(p -> Messages.send(p, Messages.levelDown(event.getPlayer())));
             }
         });
     }
@@ -130,8 +130,8 @@ public final class LevelManager implements Listener {
         }
 
         Map<Integer, Integer> playerCache = cache.getOrDefault(player.id(), new HashMap<>());
-        if (playerCache.containsKey(player.level().level())) {
-            return Optional.of(playerCache.get(player.level().level()));
+        if (playerCache.containsKey(player.level().getLevel())) {
+            return Optional.of(playerCache.get(player.level().getLevel()));
         }
 
         return Optional.empty();
@@ -161,8 +161,8 @@ public final class LevelManager implements Listener {
         if (clearCache) clearCache(player.id());
 
         return getCache(player).orElseGet(() ->
-                cache(player.id(), player.level().level(),
-                        calculateExpForNextLevel(player.level().level())));
+                cache(player.id(), player.level().getLevel(),
+                        calculateExpForNextLevel(player.level().getLevel())));
     }
 
     public int calculateExpToNextLevel(SkilledPlayer player) {

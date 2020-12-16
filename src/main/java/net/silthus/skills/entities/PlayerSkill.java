@@ -49,10 +49,6 @@ public class PlayerSkill extends BaseEntity {
     private ConfiguredSkill skill;
     private SkillStatus status = SkillStatus.REMOVED;
 
-    public PlayerSkill() {
-
-    }
-
     PlayerSkill(SkilledPlayer player, ConfiguredSkill skill) {
         this.player = player;
         this.skill = skill;
@@ -128,11 +124,12 @@ public class PlayerSkill extends BaseEntity {
         status(SkillStatus.UNLOCKED);
         save();
 
-        PlayerHistory.of(player())
-                .data("action", "unlocked_skill")
-                .data("skill", name())
-                .data("alias", alias())
-                .save();
+        // TODO: create own skill history table
+//        LevelHistory.create(player())
+//                .data("action", "unlocked_skill")
+//                .data("skill", name())
+//                .data("alias", alias())
+//                .save();
 
         if (event.isPlayEffect()) {
             player().getBukkitPlayer().ifPresent(Effects::playerUnlockSkill);

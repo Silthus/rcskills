@@ -10,7 +10,11 @@ import net.silthus.skills.entities.SkilledPlayer;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
@@ -20,18 +24,19 @@ import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.mockito.Mockito.mock;
 
 class SkillManagerTest {
 
     private ServerMock server;
+    private SkillsPlugin plugin;
     private SkillManager skillManager;
 
     @BeforeEach
     void setUp(@TempDir Path temp) {
 
         this.server = MockBukkit.mock();
-        this.skillManager = new SkillManager(mock(SkillsPlugin.class), new SkillPluginConfig(new File(temp.toFile(), "config.yml").toPath()));
+        this.plugin = MockBukkit.load(SkillsPlugin.class);
+        this.skillManager = new SkillManager(plugin, new SkillPluginConfig(new File(temp.toFile(), "config.yml").toPath()));
     }
 
     @AfterEach

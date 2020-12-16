@@ -2,9 +2,8 @@ package net.silthus.skills;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
-import net.silthus.skills.entities.PlayerLevel;
+import net.silthus.skills.entities.Level;
 import net.silthus.skills.entities.SkilledPlayer;
-import org.bukkit.event.HandlerList;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -18,30 +17,24 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 class LevelManagerTest {
 
 
-    private static ServerMock server;
-    private static SkillsPlugin plugin;
-
-    @BeforeAll
-    static void beforeAll() {
-
-        server = MockBukkit.mock();
-        plugin = MockBukkit.load(SkillsPlugin.class);
-    }
-
-    @AfterAll
-    static void afterAll() {
-
-        MockBukkit.unmock();
-    }
-
+    private ServerMock server;
+    private SkillsPlugin plugin;
     private LevelManager levelManager;
     private SkilledPlayer player;
 
     @BeforeEach
     void setUp() {
 
+        server = MockBukkit.mock();
+        plugin = MockBukkit.load(SkillsPlugin.class);
         this.levelManager = new LevelManager(plugin);
         this.player = SkilledPlayer.getOrCreate(server.addPlayer());
+    }
+
+    @AfterEach
+    void afterAll() {
+
+        MockBukkit.unmock();
     }
 
     @Test
@@ -58,7 +51,7 @@ class LevelManagerTest {
 
         assertThatCode(() -> levelManager.load()).doesNotThrowAnyException();
 
-        player.level().level(level);
+        player.setLevel(level);
         assertThat(levelManager.calculateExpToNextLevel(player))
                 .isEqualTo(result);
     }
@@ -107,11 +100,11 @@ class LevelManagerTest {
 
         assertThatCode(() -> levelManager.load()).doesNotThrowAnyException();
 
-        player.level().level(10).save();
-        player.level().exp(500).save();
+        player.setLevel(10).save();
+        player.setExp(500).save();
 
         assertThat(player.level())
-                .extracting(PlayerLevel::level, PlayerLevel::totalExp)
+                .extracting(Level::getLevel, Level::getTotalExp)
                 .contains(4, 500L);
     }
 
@@ -121,11 +114,11 @@ class LevelManagerTest {
 
         assertThatCode(() -> levelManager.load()).doesNotThrowAnyException();
 
-        player.level().level(3).save();
-        player.level().exp(1400).save();
+        player.setLevel(3).save();
+        player.setExp(1400).save();
 
         assertThat(player.level())
-                .extracting(PlayerLevel::level, PlayerLevel::totalExp)
+                .extracting(Level::getLevel, Level::getTotalExp)
                 .contains(7, 1400L);
     }
 
@@ -135,10 +128,10 @@ class LevelManagerTest {
 
         assertThatCode(() -> levelManager.load()).doesNotThrowAnyException();
 
-        player.level().level(10).save();
+        player.setLevel(10).save();
 
         assertThat(player.level())
-                .extracting(PlayerLevel::level, PlayerLevel::totalExp)
+                .extracting(Level::getLevel, Level::getTotalExp)
                 .contains(10, 3850L);
     }
 
@@ -148,11 +141,11 @@ class LevelManagerTest {
 
         assertThatCode(() -> levelManager.load()).doesNotThrowAnyException();
 
-        player.level().exp(10000);
-        player.level().level(10).save();
+        player.setExp(10000);
+        player.setLevel(10).save();
 
         assertThat(player.level())
-                .extracting(PlayerLevel::level, PlayerLevel::totalExp)
+                .extracting(Level::getLevel, Level::getTotalExp)
                 .contains(10, 3850L);
     }
 
@@ -162,11 +155,11 @@ class LevelManagerTest {
 
         assertThatCode(() -> levelManager.load()).doesNotThrowAnyException();
 
-        player.level().exp(1500);
-        player.level().level(7).save();
+        player.setExp(1500);
+        player.setLevel(7).save();
 
         assertThat(player.level())
-                .extracting(PlayerLevel::level, PlayerLevel::totalExp)
+                .extracting(Level::getLevel, Level::getTotalExp)
                 .contains(7, 1500L);
     }
 }

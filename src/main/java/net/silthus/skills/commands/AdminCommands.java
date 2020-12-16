@@ -2,14 +2,18 @@ package net.silthus.skills.commands;
 
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.*;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandCompletion;
+import co.aikar.commands.annotation.CommandPermission;
+import co.aikar.commands.annotation.Default;
+import co.aikar.commands.annotation.Description;
+import co.aikar.commands.annotation.Subcommand;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
 import net.silthus.skills.Messages;
 import net.silthus.skills.SkillsPlugin;
 import net.silthus.skills.actions.AddSkillAction;
 import net.silthus.skills.entities.ConfiguredSkill;
-import net.silthus.skills.entities.PlayerLevel;
 import net.silthus.skills.entities.PlayerSkill;
 import net.silthus.skills.entities.SkilledPlayer;
 
@@ -49,9 +53,8 @@ public class AdminCommands extends BaseCommand {
         @CommandPermission("rcskills.admin.add.level")
         public void addLevel(SkilledPlayer player, int level) {
 
-            PlayerLevel playerLevel = player.level().addLevel(level);
-            playerLevel.save();
-            Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.addLevel(playerLevel, level));
+            player.addLevel(level).save();
+            Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.addLevel(player, level));
         }
 
         @Subcommand("exp|xp")
@@ -61,9 +64,8 @@ public class AdminCommands extends BaseCommand {
         @CommandPermission("rcskills.admin.add.exp")
         public void addExp(SkilledPlayer player, int exp) {
 
-            PlayerLevel playerLevel = player.level().addExp(exp, "admin:command");
-            playerLevel.save();
-            Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.addExp(playerLevel, exp));
+            player.addExp(exp, "admin:command").save();
+            Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.addExp(player, exp));
         }
 
         @Subcommand("skillpoints|sp")
@@ -73,9 +75,8 @@ public class AdminCommands extends BaseCommand {
         @CommandPermission("rcskills.admin.add.skillpoints")
         public void addSkillpoints(SkilledPlayer player, int skillpoints) {
 
-            PlayerLevel playerLevel = player.level().addSkillPoints(skillpoints);
-            playerLevel.save();
-            Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.addSkillpoints(playerLevel, skillpoints));
+            player.addSkillPoints(skillpoints).save();
+            Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.addSkillpoints(player, skillpoints));
         }
     }
 
@@ -89,9 +90,8 @@ public class AdminCommands extends BaseCommand {
         @CommandPermission("rcskills.admin.set.level")
         public void setLevel(SkilledPlayer player, int level) {
 
-            PlayerLevel playerLevel = player.level().level(level);
-            playerLevel.save();
-            Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.setLevel(playerLevel, level));
+            player.setLevel(level).save();
+            Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.setLevel(player, level));
         }
 
         @Subcommand("exp|xp")
@@ -101,9 +101,8 @@ public class AdminCommands extends BaseCommand {
         @CommandPermission("rcskills.admin.set.exp")
         public void setExp(SkilledPlayer player, int exp) {
 
-            PlayerLevel playerLevel = player.level().exp(exp);
-            playerLevel.save();
-            Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.setExp(playerLevel, exp));
+            player.setExp(exp).save();
+            Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.setExp(player, exp));
         }
 
         @Subcommand("skillpoints|sp")
@@ -113,9 +112,8 @@ public class AdminCommands extends BaseCommand {
         @CommandPermission("rcskills.admin.set.skillpoints")
         public void setSkillpoints(SkilledPlayer player, int skillpoints) {
 
-            PlayerLevel playerLevel = player.level().skillPoints(skillpoints);
-            playerLevel.save();
-            Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.setSkillpoints(playerLevel, skillpoints));
+            player.setSkillPoints(skillpoints).save();
+            Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.setSkillpoints(player, skillpoints));
         }
     }
 

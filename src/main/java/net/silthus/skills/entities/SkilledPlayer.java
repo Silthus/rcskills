@@ -7,12 +7,23 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.silthus.ebean.BaseEntity;
 import net.silthus.skills.actions.AddSkillAction;
+import net.silthus.skills.events.SetPlayerExpEvent;
+import net.silthus.skills.events.SetPlayerLevelEvent;
+import net.silthus.skills.events.SetPlayerSkillPointsEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import javax.persistence.*;
-import java.util.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Entity
@@ -37,25 +48,21 @@ public class SkilledPlayer extends BaseEntity {
         return Optional.ofNullable(find.byId(player.getUniqueId()))
                 .orElseGet(() -> {
                     SkilledPlayer skilledPlayer = new SkilledPlayer(player);
-                    skilledPlayer.save();
-                    skilledPlayer.level(PlayerLevel.getOrCreate(skilledPlayer));
-                    skilledPlayer.save();
+                    skilledPlayer.insert();
                     return skilledPlayer;
                 });
     }
 
     private String name;
+    private int skillPoints = 0;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private PlayerLevel level;
-
-    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "player")
-    private Set<PlayerSkill> skills = new HashSet<>();
+    @OneToOne(optional = false, cascade = CascadeType.ALL)
+    private Level level = new Level();
 
     @OneToMany(cascade = CascadeType.REMOVE)
-    private List<PlayerHistory> history = new ArrayList<>();
+    private Set<PlayerSkill> skills = new HashSet<>();
 
-    private SkilledPlayer(OfflinePlayer player) {
+    SkilledPlayer(OfflinePlayer player) {
 
         id(player.getUniqueId());
         name(player.getName());
@@ -119,5 +126,67 @@ public class SkilledPlayer extends BaseEntity {
         return skills().stream()
                 .filter(PlayerSkill::unlocked)
                 .collect(Collectors.toList());
+    }
+
+    public SkilledPlayer setLevel(int level) {
+
+        Level playerLevel = level();
+        SetPlayerLevelEvent event = new SetPlayerLevelEvent(this, playerLevel.getLevel(), level, playerLevel.getTotalExp());
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isCancelled()) return this;
+
+        playerLevel.setLevel(event.getNewLevel());
+
+        if (event.getExp() != playerLevel.getTotalExp()) {
+            playerLevel.setTotalExp(event.getExp());
+        }
+
+        return this;
+    }
+
+    public SkilledPlayer addLevel(int level) {
+
+        return setLevel(this.level.getLevel() + level);
+    }
+
+    public SkilledPlayer setExp(long exp) {
+
+        return setExp(exp, null);
+    }
+
+    public SkilledPlayer setExp(long exp, String reason) {
+
+        SetPlayerExpEvent event = new SetPlayerExpEvent(this, level.getTotalExp(), exp, level.getLevel(), reason);
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isCancelled()) return this;
+
+        level.setTotalExp(event.getNewExp());
+        if (event.getLevel() != level.getLevel()) {
+            level.setLevel(event.getLevel());
+        }
+        return this;
+    }
+
+    public SkilledPlayer addExp(long exp, String reason) {
+
+        return this.setExp(level().getTotalExp() + exp, reason);
+    }
+
+    public SkilledPlayer setSkillPoints(int skillPoints) {
+
+        SetPlayerSkillPointsEvent event = new SetPlayerSkillPointsEvent(this, this.skillPoints, skillPoints);
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isCancelled()) return this;
+
+        this.skillPoints = skillPoints;
+        return this;
+    }
+
+    public SkilledPlayer addSkillPoints(int skillPoints) {
+
+        return this.setSkillPoints(this.skillPoints + skillPoints);
     }
 }

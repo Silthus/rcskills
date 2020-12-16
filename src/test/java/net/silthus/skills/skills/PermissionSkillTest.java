@@ -20,11 +20,11 @@ class PermissionSkillTest {
 
     private static final String TEST_SKILL = "test";
 
-    private static ServerMock server;
-    private static SkillsPlugin plugin;
+    private ServerMock server;
+    private SkillsPlugin plugin;
 
-    @BeforeAll
-    static void setUp() {
+    @BeforeEach
+    void setUp() {
 
         server = MockBukkit.mock();
         plugin = MockBukkit.load(SkillsPlugin.class);
@@ -35,8 +35,8 @@ class PermissionSkillTest {
         plugin.getSkillManager().loadSkill(TEST_SKILL, cfg);
     }
 
-    @AfterAll
-    static void tearDown() {
+    @AfterEach
+    void tearDown() {
 
         MockBukkit.unmock();
     }
