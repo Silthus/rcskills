@@ -1,5 +1,6 @@
 package net.silthus.skills;
 
+import co.aikar.commands.ConditionFailedException;
 import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.PaperCommandManager;
 import com.google.common.base.Strings;
@@ -14,7 +15,11 @@ import net.silthus.ebean.Config;
 import net.silthus.ebean.EbeanWrapper;
 import net.silthus.skills.commands.AdminCommands;
 import net.silthus.skills.commands.SkillsCommand;
-import net.silthus.skills.entities.*;
+import net.silthus.skills.entities.ConfiguredSkill;
+import net.silthus.skills.entities.Level;
+import net.silthus.skills.entities.LevelHistory;
+import net.silthus.skills.entities.PlayerSkill;
+import net.silthus.skills.entities.SkilledPlayer;
 import net.silthus.skills.listener.PlayerListener;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -29,6 +34,8 @@ import java.util.stream.Collectors;
 
 @PluginMain
 public class SkillsPlugin extends JavaPlugin {
+
+    public static final String PERMISSION_PREFIX = "rcskills.";
 
     @Getter
     @Accessors(fluent = true)
@@ -128,8 +135,10 @@ public class SkillsPlugin extends JavaPlugin {
     private void setupCommands() {
 
         this.commandManager = new PaperCommandManager(this);
+
         registerSkilledPlayerContext(commandManager);
         registerSkillContext(commandManager);
+        registerOthersCondition(commandManager);
 
         commandManager.getCommandCompletions().registerAsyncCompletion("skills", context -> ConfiguredSkill.find
                 .query().findSet().stream()
@@ -164,6 +173,19 @@ public class SkillsPlugin extends JavaPlugin {
                 throw new InvalidCommandArgument("Der Spieler " + playerName + " wurde nicht gefunden.");
             }
             return SkilledPlayer.getOrCreate(player);
+        });
+    }
+
+    private void registerOthersCondition(PaperCommandManager commandManager) {
+
+        commandManager.getCommandConditions().addCondition(SkilledPlayer.class, "others", (context, execContext, value) -> {
+            if (context.getIssuer().hasPermission(PERMISSION_PREFIX + context.getConfigValue("perm", "cmd") + ".others")) {
+                return;
+            }
+            if (context.getIssuer().getUniqueId().equals(value.id())) {
+                return;
+            }
+            throw new ConditionFailedException("Du hast nicht genügend Rechte um Befehle im Namen von anderen Spielern auszuführen.");
         });
     }
 

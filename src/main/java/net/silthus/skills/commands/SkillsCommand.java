@@ -16,11 +16,11 @@ public class SkillsCommand extends BaseCommand {
     }
 
     @Default
-    @Subcommand("list")
+    @Subcommand("info")
     @CommandCompletion("@players")
-    @CommandPermission("rcskills.cmd.skills.list")
-    @Description("Zeigt alle Skills des Spielers an.")
-    public void list(SkilledPlayer skilledPlayer) {
+    @CommandPermission("rcskills.player.info")
+    @Description("Zeigt Informationen über den Spieler an.")
+    public void info(@Conditions("others:perm=player.info") SkilledPlayer skilledPlayer) {
 
         Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.playerInfo(skilledPlayer));
     }
