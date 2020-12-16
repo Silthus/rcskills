@@ -10,7 +10,9 @@ import lombok.experimental.Accessors;
 import net.silthus.ebean.BaseEntity;
 import net.silthus.skills.*;
 import net.silthus.skills.requirements.LevelRequirement;
+import net.silthus.skills.requirements.MoneyRequirement;
 import net.silthus.skills.requirements.PermissionRequirement;
+import net.silthus.skills.requirements.SkillPointRequirement;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 
@@ -54,8 +56,6 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
     private String name;
     private String type;
     private String description;
-    private double moneyCost = 0d;
-    private int skillPointCost = 0;
     @DbJson
     private Map<String, Object> config = new HashMap<>();
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "skill")
@@ -119,8 +119,6 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
             this.name = config.getString("name", alias());
             this.type = config.getString("type", "permission");
             this.description = config.getString("description");
-            this.moneyCost = config.getDouble("money", 0d);
-            this.skillPointCost = config.getInt("skillpoints", 0);
 
             ConfigurationSection with = config.getConfigurationSection("with");
             skill.load(Objects.requireNonNullElseGet(with, () -> config.createSection("with")));
@@ -130,6 +128,18 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
                 LevelRequirement levelRequirement = new LevelRequirement();
                 levelRequirement.setLevel(config.getInt("level"));
                 requirements.add(levelRequirement);
+            }
+
+            if (config.isSet("money")) {
+                MoneyRequirement moneyRequirement = new MoneyRequirement();
+                moneyRequirement.setAmount(config.getDouble("money", 0d));
+                requirements.add(moneyRequirement);
+            }
+
+            if (config.isSet("skillpoints")) {
+                SkillPointRequirement skillPointRequirement = new SkillPointRequirement();
+                skillPointRequirement.setSkillpoints(config.getInt("skillpoints", 0));
+                requirements.add(skillPointRequirement);
             }
 
             requirements.add(new PermissionRequirement().add(SkillsPlugin.SKILL_PERMISSION_PREFIX + alias));
@@ -152,11 +162,9 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
 
     public TestResult test(SkilledPlayer player) {
 
-        TestResult testResult = requirements().stream()
+        return requirements().stream()
                 .map(requirement -> requirement.test(player))
                 .reduce(TestResult::merge)
                 .orElse(TestResult.ofSuccess());
-
-        return testResult;
     }
 }

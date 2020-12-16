@@ -7,8 +7,6 @@
             <column name="name" type="varchar"/>
             <column name="type" type="varchar"/>
             <column name="description" type="varchar"/>
-            <column name="money_cost" type="double" notnull="true"/>
-            <column name="skill_point_cost" type="integer" notnull="true"/>
             <column name="config" type="json"/>
             <column name="version" type="bigint" notnull="true"/>
             <column name="when_created" type="timestamp" notnull="true"/>

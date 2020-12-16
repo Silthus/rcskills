@@ -8,9 +8,7 @@ import lombok.extern.java.Log;
 import net.silthus.skills.entities.ConfiguredSkill;
 import net.silthus.skills.entities.PlayerSkill;
 import net.silthus.skills.entities.SkilledPlayer;
-import net.silthus.skills.requirements.LevelRequirement;
-import net.silthus.skills.requirements.PermissionRequirement;
-import net.silthus.skills.requirements.SkillRequirement;
+import net.silthus.skills.requirements.*;
 import net.silthus.skills.skills.PermissionSkill;
 import net.silthus.skills.util.ConfigUtil;
 import org.bukkit.Bukkit;
@@ -56,6 +54,8 @@ public final class SkillManager {
         registerRequirement(PermissionRequirement.class, PermissionRequirement::new);
         registerRequirement(SkillRequirement.class, SkillRequirement::new);
         registerRequirement(LevelRequirement.class, LevelRequirement::new);
+        registerRequirement(MoneyRequirement.class, MoneyRequirement::new);
+        registerRequirement(SkillPointRequirement.class, SkillPointRequirement::new);
         registerSkill(PermissionSkill.class, () -> new PermissionSkill(plugin));
     }
 

@@ -61,6 +61,8 @@ repositories {
 dependencies {
     compileOnly spigot(mcVersion)
 
+    implementation 'de.raidcraft.economy:wrapper:1.5.2'
+
     implementation 'net.silthus:ebean-wrapper:2.8.1'
     implementation 'net.silthus.configlib:configlib-bukkit:2.6.0'
     implementation 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
@@ -102,6 +104,7 @@ shadowJar {
         include(dependency('com.github.Slikey:EffectLib:'))
         include(dependency('net.kyori::'))
         include(dependency('org.codehaus.janino::'))
+        include(dependency('de.raidcraft.economy:wrapper:'))
     }
     relocate 'co.aikar.commands', "shadow.${pluginName}.acf"
     relocate 'co.aikar.locales', "shadow.${pluginName}.locales"
@@ -109,6 +112,7 @@ shadowJar {
     relocate 'de.slikey.effectlib', "shadow.${pluginName}.effectlib"
     relocate 'net.kyori.adventure', "shadow.${pluginName}.adventure"
     relocate 'org.codehaus', "shadow.${pluginName}.codehaus"
+    relocate 'de.raidcraft.economy', "shadow.${pluginName}.economy"
 }
 
 tasks.build.dependsOn(shadowJar)

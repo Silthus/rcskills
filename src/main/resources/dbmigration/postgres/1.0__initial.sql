@@ -5,8 +5,6 @@ create table rcs_skills (
   name                          varchar(255),
   type                          varchar(255),
   description                   varchar(255),
-  money_cost                    float not null,
-  skill_point_cost              integer not null,
   config                        json,
   version                       bigint not null,
   when_created                  timestamptz not null,
