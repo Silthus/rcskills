@@ -28,7 +28,7 @@ public class PlayerActivateSkillEvent extends PlayerEvent implements Cancellable
 
     public ConfiguredSkill getSkill() {
 
-        return playerSkill.skill();
+        return playerSkill.configuredSkill();
     }
 
     @Override

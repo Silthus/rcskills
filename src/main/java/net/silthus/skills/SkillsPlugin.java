@@ -18,6 +18,7 @@ import net.silthus.skills.commands.SkillsCommand;
 import net.silthus.skills.entities.*;
 import net.silthus.skills.listener.PlayerListener;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -46,6 +47,7 @@ public class SkillsPlugin extends JavaPlugin {
     @Getter
     @Setter(AccessLevel.PACKAGE)
     private SkillPluginConfig pluginConfig;
+    private Messages messages;
     private PlayerListener playerListener;
     private PaperCommandManager commandManager;
     @Getter
@@ -93,9 +95,15 @@ public class SkillsPlugin extends JavaPlugin {
 
     private void loadConfig() {
 
-        getDataFolder().mkdirs();
-        pluginConfig = new SkillPluginConfig(new File(getDataFolder(), "config.yml").toPath());
-        pluginConfig.loadAndSave();
+        try {
+            getDataFolder().mkdirs();
+            pluginConfig = new SkillPluginConfig(new File(getDataFolder(), "config.yml").toPath());
+            pluginConfig.loadAndSave();
+            saveResource("messages.yml", false);
+            messages = new Messages(new File(getDataFolder(), "messages.yml"));
+        } catch (InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
     }
 
     private void setupSkillManager() {

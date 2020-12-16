@@ -56,10 +56,18 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
     private String name;
     private String type;
     private String description;
+
     @DbJson
     private Map<String, Object> config = new HashMap<>();
-    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "skill")
+    @OneToMany(cascade = CascadeType.REMOVE)
     private List<PlayerSkill> playerSkills = new ArrayList<>();
+
+    @Transient
+    private int level = 0;
+    @Transient
+    private double cost = 0d;
+    @Transient
+    private int skillpoints = 0;
 
     @Transient
     private Skill skill;
@@ -80,7 +88,7 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
         return requirements;
     }
 
-    public Optional<Skill> getSkill() {
+    public Optional<Skill> skill() {
 
         if (skill == null) {
             load();
@@ -125,20 +133,23 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
             this.requirements = skillManager.loadRequirements(config.getConfigurationSection("requirements"));
 
             if (config.isSet("level")) {
+                this.level = config.getInt("level", 0);
                 LevelRequirement levelRequirement = new LevelRequirement();
-                levelRequirement.setLevel(config.getInt("level"));
+                levelRequirement.setLevel(level);
                 requirements.add(levelRequirement);
             }
 
             if (config.isSet("money")) {
+                this.cost = config.getDouble("money", 0d);
                 MoneyRequirement moneyRequirement = new MoneyRequirement();
-                moneyRequirement.setAmount(config.getDouble("money", 0d));
+                moneyRequirement.setAmount(cost);
                 requirements.add(moneyRequirement);
             }
 
             if (config.isSet("skillpoints")) {
+                this.skillpoints = config.getInt("skillpoints", 0);
                 SkillPointRequirement skillPointRequirement = new SkillPointRequirement();
-                skillPointRequirement.setSkillpoints(config.getInt("skillpoints", 0));
+                skillPointRequirement.setSkillpoints(this.skillpoints);
                 requirements.add(skillPointRequirement);
             }
 
@@ -148,12 +159,12 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
 
     @Override
     public void apply(SkilledPlayer player) {
-        getSkill().ifPresent(skill -> skill.apply(player));
+        skill().ifPresent(skill -> skill.apply(player));
     }
 
     @Override
     public void remove(SkilledPlayer player) {
-        getSkill().ifPresent(skill -> skill.remove(player));
+        skill().ifPresent(skill -> skill.remove(player));
     }
 
     public void addRequirement(Requirement... requirements) {

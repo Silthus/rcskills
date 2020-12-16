@@ -16,6 +16,12 @@ public interface Requirement {
 
     String description();
 
+    default boolean visible() {
+        return !hidden();
+    }
+
+    boolean hidden();
+
     default Requirement load(ConfigurationSection config) {
 
         return this;

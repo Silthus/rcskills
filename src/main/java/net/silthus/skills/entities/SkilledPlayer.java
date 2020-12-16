@@ -122,6 +122,8 @@ public class SkilledPlayer extends BaseEntity {
 
     public SkilledPlayer setLevel(int level) {
 
+        if (this.level.getLevel() == level) return this;
+
         Level playerLevel = level();
         SetPlayerLevelEvent event = new SetPlayerLevelEvent(this, playerLevel.getLevel(), level, playerLevel.getTotalExp());
         Bukkit.getPluginManager().callEvent(event);
@@ -149,6 +151,8 @@ public class SkilledPlayer extends BaseEntity {
 
     public SkilledPlayer setExp(long exp, String reason) {
 
+        if (this.level.getTotalExp() == exp) return this;
+
         SetPlayerExpEvent event = new SetPlayerExpEvent(this, level.getTotalExp(), exp, level.getLevel(), reason);
         Bukkit.getPluginManager().callEvent(event);
 
@@ -168,10 +172,14 @@ public class SkilledPlayer extends BaseEntity {
 
     public SkilledPlayer setSkillPoints(int skillPoints) {
 
+        if (this.skillPoints == skillPoints) return this;
+
         SetPlayerSkillPointsEvent event = new SetPlayerSkillPointsEvent(this, this.skillPoints, skillPoints);
         Bukkit.getPluginManager().callEvent(event);
 
         if (event.isCancelled()) return this;
+
+        if (skillPoints < 0) skillPoints = 0;
 
         this.skillPoints = skillPoints;
         return this;
@@ -180,5 +188,11 @@ public class SkilledPlayer extends BaseEntity {
     public SkilledPlayer addSkillPoints(int skillPoints) {
 
         return this.setSkillPoints(this.skillPoints + skillPoints);
+    }
+
+    public SkilledPlayer removeSkillPoints(int skillPoints) {
+
+        int points = this.skillPoints - skillPoints;
+        return this.setSkillPoints(points);
     }
 }

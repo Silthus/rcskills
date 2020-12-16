@@ -7,3 +7,12 @@ requirements:
     name: 'Permission'
     description: 'Du benötigst die Permission %s um den Skill freizuschalten.'
     error: 'Du hast nicht genügend Rechte um den Skill freizuschalten.'
+  level:
+    name: 'Level'
+    description: 'Du benötigst mindestens Level %s um diesen Skill freizuschalten.'
+  money:
+    name: 'Geld'
+    description: 'Du benötigst mindestens %s um diesen Skill kaufen zu können.'
+  skillpoints:
+    name: 'Skillpoints'
+    description: 'Du benötigst mindestens %s Skillpunkte um den Skill freizuschalten.'

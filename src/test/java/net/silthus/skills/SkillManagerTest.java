@@ -187,7 +187,7 @@ class SkillManagerTest {
         }
     }
 
-    @RequirementType("test")
+    @RequirementInfo("test")
     static class CustomRequirement extends AbstractRequirement {
 
         @Override
@@ -202,7 +202,7 @@ class SkillManagerTest {
         }
     }
 
-    @RequirementType("test")
+    @RequirementInfo("test")
     static class SecondRequirement extends AbstractRequirement {
 
         @Override
@@ -216,7 +216,7 @@ class SkillManagerTest {
         }
     }
 
-    @RequirementType("test3")
+    @RequirementInfo("test3")
     static class ThirdRequirement extends AbstractRequirement {
         @Override
         public TestResult test(@NonNull SkilledPlayer target) {

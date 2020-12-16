@@ -3,32 +3,33 @@ package net.silthus.skills.events;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import net.silthus.skills.actions.AddSkillAction;
+import net.silthus.skills.actions.BuySkillAction;
 import net.silthus.skills.entities.ConfiguredSkill;
-import net.silthus.skills.entities.PlayerSkill;
-import net.silthus.skills.entities.SkilledPlayer;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
-public class PlayerUnlockSkillEvent extends PlayerEvent implements Cancellable {
+public class BuyPlayerSkillEvent extends PlayerEvent implements Cancellable {
 
     @Getter
     private static final HandlerList handlerList = new HandlerList();
 
-    private final PlayerSkill playerSkill;
-    private boolean playEffect = true;
+    private final BuySkillAction action;
+    private boolean bypassChecks;
     private boolean cancelled;
 
-    public PlayerUnlockSkillEvent(SkilledPlayer player, PlayerSkill playerSkill) {
-        super(player);
-        this.playerSkill = playerSkill;
+    public BuyPlayerSkillEvent(BuySkillAction action, boolean bypassChecks) {
+        super(action.player());
+        this.action = action;
+        this.bypassChecks = bypassChecks;
     }
 
     public ConfiguredSkill getSkill() {
 
-        return playerSkill.configuredSkill();
+        return getAction().skill();
     }
 
     @Override

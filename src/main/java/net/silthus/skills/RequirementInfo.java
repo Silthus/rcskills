@@ -7,7 +7,9 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface RequirementType {
+public @interface RequirementInfo {
 
     String value();
+
+    boolean hidden() default false;
 }

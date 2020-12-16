@@ -1,14 +1,17 @@
 package net.silthus.skills;
 
 import co.aikar.commands.CommandIssuer;
+import de.raidcraft.economy.Economy;
 import lombok.AccessLevel;
 import lombok.Setter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TextReplacementConfig;
+import net.kyori.adventure.text.feature.pagination.Pagination;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.silthus.skills.entities.ConfiguredSkill;
 import net.silthus.skills.entities.Level;
 import net.silthus.skills.entities.PlayerSkill;
 import net.silthus.skills.entities.SkilledPlayer;
@@ -17,16 +20,15 @@ import org.bukkit.command.RemoteConsoleCommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static net.kyori.adventure.text.Component.newline;
-import static net.kyori.adventure.text.Component.text;
+import static net.kyori.adventure.text.Component.*;
 import static net.kyori.adventure.text.event.HoverEvent.showText;
 import static net.kyori.adventure.text.format.NamedTextColor.*;
 import static net.kyori.adventure.text.format.TextDecoration.BOLD;
@@ -75,18 +77,43 @@ public final class Messages {
         sender.sendMessage(PlainComponentSerializer.plain().serialize(message));
     }
 
+    public static Component buySkill(SkilledPlayer player, PlayerSkill skill) {
+
+        TextComponent.Builder builder = text().append(player(player))
+                .append(text(" hat den Skill ", GREEN))
+                .append(playerSkill(skill))
+                .append(text(" gekauft.", GREEN)).append(newline());
+
+        int skillpoints = skill.configuredSkill().skillpoints();
+        if (skillpoints > 0) {
+            builder.append(text("  - Skillpunkte: ", YELLOW))
+                    .append(text("-", DARK_RED, BOLD))
+                    .append(text(skillpoints, RED)).append(newline());
+        }
+
+        double cost = skill.configuredSkill().cost();
+        if (cost > 0d) {
+            String currencyNamePlural = Economy.get().currencyNamePlural();
+            builder.append(text("  - " + currencyNamePlural + ": ", YELLOW))
+                    .append(text("-", DARK_RED, BOLD))
+                    .append(text(cost, RED)).append(newline());
+        }
+
+        return builder.build();
+    }
+
     public static Component addSkill(SkilledPlayer player, PlayerSkill skill) {
 
         return text().append(player(player))
                 .append(text(" hat den Skill ", GREEN))
-                .append(skill(skill))
+                .append(playerSkill(skill))
                 .append(text(" erhalten.", GREEN)).build();
     }
 
     public static Component removeSkill(PlayerSkill playerSkill) {
 
         return text("Der Skill ", RED)
-                .append(skill(playerSkill))
+                .append(playerSkill(playerSkill))
                 .append(text(" wurde von ", RED))
                 .append(player(playerSkill.player()))
                 .append(text(" entfernt.", RED));
@@ -203,22 +230,60 @@ public final class Messages {
                 .append(text(player.name(), GOLD))
                 .append(text(" ] ---", DARK_AQUA)).append(newline())
                 .append(level(player.level())).append(newline())
-                .append(skillPoints(player)).append(newline()).append(newline())
+                .append(skillPoints(player)).append(newline())
                 .append(text("Freigeschaltete Skills: ", YELLOW)).append(newline())
                 .append(skills(player.skills().stream().filter(PlayerSkill::unlocked).collect(Collectors.toList())))
                 .build();
     }
 
+    public static List<Component> skills(SkilledPlayer player, int page) {
+
+        List<ConfiguredSkill> allSkills = ConfiguredSkill.find.all().stream()
+                .sorted(Comparator.comparingInt(ConfiguredSkill::level))
+                .collect(Collectors.toUnmodifiableList());
+
+        TextComponent header = text("Skills von ", DARK_AQUA).append(player(player));
+        Pagination<ConfiguredSkill> pagination = Pagination.builder()
+                .width(Pagination.WIDTH - 6)
+                .build(header, new Pagination.Renderer.RowRenderer<>() {
+                    @Override
+                    public @NonNull Collection<Component> renderRow(ConfiguredSkill value, int index) {
+
+                        if (value == null) return Collections.singletonList(empty());
+                        if (player.hasSkill(value)) {
+                            return Collections.singletonList(playerSkill(player.getSkill(value)));
+                        }
+                        return Collections.singletonList(skill(value, player));
+                    }
+                }, p -> "/rcskills skills " + player.name() + " " + p);
+        return pagination.render(allSkills, page);
+    }
+
     public static Component skills(Collection<PlayerSkill> skills) {
+
+        if (skills.isEmpty()) return empty();
 
         TextComponent.Builder builder = text();
         for (PlayerSkill skill : skills) {
-            builder.append(skill(skill));
+            builder.append(playerSkill(skill));
         }
         return builder.build();
     }
 
-    public static Component skill(PlayerSkill skill) {
+    public static Component skill(ConfiguredSkill skill, SkilledPlayer player) {
+
+        TextColor color = GRAY;
+        if (player != null) {
+            color = skill.test(player).success() ? GREEN : RED;
+        }
+        TextComponent.Builder builder = text().append(text(skill.name(), color, BOLD));
+        if (player != null) {
+            builder.hoverEvent(skillInfo(PlayerSkill.getOrCreate(player, skill)));
+        }
+        return builder.build();
+    }
+
+    public static Component playerSkill(PlayerSkill skill) {
 
 
         return text(skill.name(), skill.active() ? GREEN : RED, BOLD)
@@ -227,19 +292,28 @@ public final class Messages {
 
     public static Component skillInfo(PlayerSkill skill) {
 
+        return skillInfo(skill.configuredSkill())
+                .append(requirements(skill));
+    }
+
+    public static Component skillInfo(ConfiguredSkill skill) {
+
         return text("--- [ ", DARK_AQUA)
-                .append(text(skill.name(), skillColor(skill), BOLD))
+                .append(text(skill.name(), YELLOW, BOLD))
                 .append(text(" (" + skill.alias() + ")", GRAY, ITALIC))
                 .append(text(" ] ---", DARK_AQUA)).append(newline())
-                .append(text(skill.description(), GRAY, ITALIC)).append(newline()).append(newline())
-                .append(text("Vorraussetzungen:", YELLOW)).append(newline())
-                .append(requirements(skill));
+                .append(text(skill.description(), GRAY, ITALIC)).append(newline());
     }
 
     public static Component requirements(PlayerSkill skill) {
 
-        TextComponent.Builder text = text();
-        for (Requirement requirement : skill.skill().requirements()) {
+        List<Requirement> requirements = skill.configuredSkill().requirements().stream()
+                .filter(Requirement::visible)
+                .collect(Collectors.toUnmodifiableList());
+        if (requirements.isEmpty()) return empty();
+
+        TextComponent.Builder text = text().append(text("Vorraussetzungen: ", YELLOW)).append(newline());
+        for (Requirement requirement : requirements) {
             text.append(text(" - ", YELLOW))
                     .append(text(requirement.name(), requirementColor(requirement, skill.player()), BOLD))
                     .hoverEvent(showText(requirement(requirement, skill.player())))
@@ -311,13 +385,13 @@ public final class Messages {
 
         return msg(key, "");
     }
-
     public static String msg(String key, String defaultValue) {
         if (instance == null) {
             return "";
         }
         return instance.getMessage(key, defaultValue);
     }
+
     private final File file;
 
     private final YamlConfiguration config;
@@ -328,6 +402,7 @@ public final class Messages {
             this.file = file;
             this.config = new YamlConfiguration();
             this.config.load(file);
+            instance = this;
         } catch (IOException | InvalidConfigurationException e) {
             throw new InvalidConfigurationException(e);
         }

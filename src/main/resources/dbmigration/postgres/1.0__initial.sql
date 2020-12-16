@@ -39,7 +39,7 @@ create table rcs_level_history (
 create table rcs_player_skills (
   id                            uuid not null,
   player_id                     uuid,
-  skill_id                      uuid,
+  configured_skill_id           uuid,
   status                        varchar(8),
   version                       bigint not null,
   when_created                  timestamptz not null,
@@ -62,15 +62,15 @@ create table rcs_players (
 
 create index ix_rcs_skills_alias on rcs_skills (alias);
 create index ix_rcs_skills_name on rcs_skills (name);
-create index ix_rcs_player_skills_player_id_skill_id on rcs_player_skills (player_id,skill_id);
+create index ix_rcs_player_skills_player_id_configured_skill_id on rcs_player_skills (player_id,configured_skill_id);
 create index ix_rcs_level_history_level_id on rcs_level_history (level_id);
 alter table rcs_level_history add constraint fk_rcs_level_history_level_id foreign key (level_id) references rcs_levels (id) on delete restrict on update restrict;
 
 create index ix_rcs_player_skills_player_id on rcs_player_skills (player_id);
 alter table rcs_player_skills add constraint fk_rcs_player_skills_player_id foreign key (player_id) references rcs_players (id) on delete restrict on update restrict;
 
-create index ix_rcs_player_skills_skill_id on rcs_player_skills (skill_id);
-alter table rcs_player_skills add constraint fk_rcs_player_skills_skill_id foreign key (skill_id) references rcs_skills (id) on delete restrict on update restrict;
+create index ix_rcs_player_skills_configured_skill_id on rcs_player_skills (configured_skill_id);
+alter table rcs_player_skills add constraint fk_rcs_player_skills_configured_skill_id foreign key (configured_skill_id) references rcs_skills (id) on delete restrict on update restrict;
 
 alter table rcs_players add constraint fk_rcs_players_level_id foreign key (level_id) references rcs_levels (id) on delete restrict on update restrict;
 

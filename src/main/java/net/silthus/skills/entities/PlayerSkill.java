@@ -24,7 +24,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Table(name = "rcs_player_skills")
-@Index(columnNames = {"player_id", "skill_id"})
+@Index(columnNames = {"player_id", "configured_skill_id"})
 @Accessors(fluent = true)
 public class PlayerSkill extends BaseEntity {
 
@@ -32,7 +32,7 @@ public class PlayerSkill extends BaseEntity {
 
         return find.query()
                 .where().eq("player_id", player.id())
-                .and().eq("skill_id", skill.id())
+                .and().eq("configured_skill_id", skill.id())
                 .findOneOrEmpty()
                 .orElseGet(() -> {
                     PlayerSkill playerSkill = new PlayerSkill(player, skill);
@@ -43,27 +43,27 @@ public class PlayerSkill extends BaseEntity {
 
     public static final Finder<UUID, PlayerSkill> find = new Finder<>(PlayerSkill.class);
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     private SkilledPlayer player;
-    @ManyToOne(fetch = FetchType.EAGER)
-    private ConfiguredSkill skill;
+    @ManyToOne
+    private ConfiguredSkill configuredSkill;
     private SkillStatus status = SkillStatus.REMOVED;
 
-    PlayerSkill(SkilledPlayer player, ConfiguredSkill skill) {
+    PlayerSkill(SkilledPlayer player, ConfiguredSkill configuredSkill) {
         this.player = player;
-        this.skill = skill;
+        this.configuredSkill = configuredSkill;
     }
 
     public String alias() {
-        return skill.alias();
+        return configuredSkill.alias();
     }
 
     public String name() {
-        return skill.name();
+        return configuredSkill.name();
     }
 
     public String description() {
-        return skill.description();
+        return configuredSkill.description();
     }
 
     /**
@@ -90,7 +90,7 @@ public class PlayerSkill extends BaseEntity {
 
         if (event.isCancelled()) return false;
 
-        skill().getSkill().ifPresent(s -> s.apply(player()));
+        configuredSkill().skill().ifPresent(s -> s.apply(player()));
         status(SkillStatus.ACTIVE);
         save();
 
@@ -109,7 +109,7 @@ public class PlayerSkill extends BaseEntity {
         status(SkillStatus.INACTIVE);
         save();
 
-        skill.getSkill().ifPresent(s -> s.remove(player()));
+        configuredSkill.skill().ifPresent(s -> s.remove(player()));
     }
 
     public boolean unlock() {
@@ -144,7 +144,7 @@ public class PlayerSkill extends BaseEntity {
     public boolean delete() {
 
         status(SkillStatus.REMOVED);
-        skill().getSkill().ifPresent(skill -> skill.remove(player()));
+        configuredSkill().skill().ifPresent(skill -> skill.remove(player()));
         save();
 
         return true;

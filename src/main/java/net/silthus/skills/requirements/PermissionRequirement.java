@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import net.silthus.skills.AbstractRequirement;
-import net.silthus.skills.RequirementType;
+import net.silthus.skills.RequirementInfo;
 import net.silthus.skills.TestResult;
 import net.silthus.skills.entities.SkilledPlayer;
 import org.bukkit.configuration.ConfigurationSection;
@@ -15,21 +15,22 @@ import java.util.List;
 import static net.silthus.skills.Messages.msg;
 
 @Data
-@RequirementType("permission")
+@RequirementInfo(value = "permission", hidden = true)
 @EqualsAndHashCode(callSuper = true)
 public class PermissionRequirement extends AbstractRequirement {
 
-    private final List<String> permissions = new ArrayList<>();
+    private List<String> permissions = new ArrayList<>();
 
     @Override
     public String description() {
 
-        return String.format(msg(msgIdentifier("description"), "Requires the %1$s permission to unlock this skill."), permissions);
+        return String.format(msg(msgIdentifier("description"), "Requires the %s permission to unlock this skill."), permissions);
     }
 
     @Override
     public void loadConfig(ConfigurationSection config) {
 
+        if (permissions == null) permissions = new ArrayList<>();
         permissions.clear();
         permissions.addAll(config.getStringList("permissions"));
     }

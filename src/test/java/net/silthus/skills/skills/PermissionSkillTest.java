@@ -47,7 +47,7 @@ class PermissionSkillTest {
         assertThat(ConfiguredSkill.findByAliasOrName(TEST_SKILL))
                 .isPresent()
                 .get()
-                .extracting(ConfiguredSkill::getSkill)
+                .extracting(ConfiguredSkill::skill)
                 .asInstanceOf(optional(Skill.class))
                 .isPresent()
                 .get()

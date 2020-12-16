@@ -40,7 +40,7 @@ create table rcs_level_history (
 create table rcs_player_skills (
   id                            varchar(40) not null,
   player_id                     varchar(40),
-  skill_id                      varchar(40),
+  configured_skill_id           varchar(40),
   status                        varchar(8),
   version                       integer not null,
   when_created                  timestamp not null,
@@ -48,7 +48,7 @@ create table rcs_player_skills (
   constraint ck_rcs_player_skills_status check ( status in ('ENABLED','DISABLED','ACTIVE','UNLOCKED','INACTIVE','REMOVED')),
   constraint pk_rcs_player_skills primary key (id),
   foreign key (player_id) references rcs_players (id) on delete restrict on update restrict,
-  foreign key (skill_id) references rcs_skills (id) on delete restrict on update restrict
+  foreign key (configured_skill_id) references rcs_skills (id) on delete restrict on update restrict
 );
 
 create table rcs_players (
@@ -66,4 +66,4 @@ create table rcs_players (
 
 create index ix_rcs_skills_alias on rcs_skills (alias);
 create index ix_rcs_skills_name on rcs_skills (name);
-create index ix_rcs_player_skills_player_id_skill_id on rcs_player_skills (player_id,skill_id);
+create index ix_rcs_player_skills_player_id_configured_skill_id on rcs_player_skills (player_id,configured_skill_id);

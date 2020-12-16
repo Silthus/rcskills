@@ -25,7 +25,7 @@ public class PlayerActivatedSkillEvent extends PlayerEvent {
 
     public ConfiguredSkill getSkill() {
 
-        return playerSkill.skill();
+        return playerSkill.configuredSkill();
     }
 
     @Override

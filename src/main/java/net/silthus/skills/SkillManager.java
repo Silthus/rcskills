@@ -146,7 +146,7 @@ public final class SkillManager {
     /**
      * Registers a new requirement type with this skill manager.
      * <p>Requirement types are used to instantiate and load {@link Requirement}s as they are needed.
-     * <p>Make sure your requirement is tagged with a @{@link RequirementType} annotation and has a unique type identifier.
+     * <p>Make sure your requirement is tagged with a @{@link RequirementInfo} annotation and has a unique type identifier.
      *
      * @param requirementClass the class of the requirement type
      * @param supplier the supplier that can create the requirement
@@ -155,12 +155,12 @@ public final class SkillManager {
      */
     public <TRequirement extends Requirement> SkillManager registerRequirement(Class<TRequirement> requirementClass, Supplier<TRequirement> supplier) {
 
-        if (!requirementClass.isAnnotationPresent(RequirementType.class)) {
+        if (!requirementClass.isAnnotationPresent(RequirementInfo.class)) {
             log.severe("Cannot register requirement " + requirementClass.getCanonicalName() + " without a @RequirementType annotation.");
             return this;
         }
 
-        String type = requirementClass.getAnnotation(RequirementType.class).value().toLowerCase();
+        String type = requirementClass.getAnnotation(RequirementInfo.class).value().toLowerCase();
         if (requirements().containsKey(type)) {
             log.severe("Cannot register requirement: " + requirementClass.getCanonicalName()
                     + "! A requirement with the same type identifier '"
