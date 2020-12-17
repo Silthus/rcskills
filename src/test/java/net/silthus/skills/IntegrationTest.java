@@ -9,6 +9,7 @@ import org.junit.jupiter.api.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+@Disabled
 public class IntegrationTest {
 
     private static final String TEST_SKILL = "test";
@@ -19,8 +20,9 @@ public class IntegrationTest {
     @BeforeEach
     void setUp() {
 
-        this.server = MockBukkit.mock(new ServerMock());
+        this.server = MockBukkit.mock(new net.silthus.skills.ServerMock());
         this.plugin = MockBukkit.load(SkillsPlugin.class);
+        plugin.setupCommands();
 
         MemoryConfiguration cfg = new MemoryConfiguration();
         cfg.set("type", "permission");

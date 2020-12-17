@@ -75,8 +75,8 @@ public class SkillsPlugin extends JavaPlugin {
         setupSkillManager();
         setupLevelManager();
         setupEffectManager();
-        if (!testing) {
-            setupListener();
+        setupListener();
+        if (!isTesting()) {
             setupCommands();
         }
     }
@@ -137,7 +137,7 @@ public class SkillsPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(playerListener, this);
     }
 
-    private void setupCommands() {
+    void setupCommands() {
 
         this.commandManager = new PaperCommandManager(this);
         if (isTesting()) {

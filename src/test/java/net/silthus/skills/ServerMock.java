@@ -1,3 +1,5 @@
+package net.silthus.skills;
+
 import be.seeseemelk.mockbukkit.MockCommandMap;
 import be.seeseemelk.mockbukkit.help.HelpMapMock;
 import org.bukkit.command.Command;
