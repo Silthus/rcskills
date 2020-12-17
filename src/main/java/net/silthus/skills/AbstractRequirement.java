@@ -3,7 +3,6 @@ package net.silthus.skills;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.MemoryConfiguration;
 
 import java.util.Objects;
 
@@ -27,7 +26,6 @@ public abstract class AbstractRequirement implements Requirement {
         RequirementInfo annotation = getClass().getAnnotation(RequirementInfo.class);
         this.type = annotation.value().toLowerCase();
         this.hidden = annotation.hidden();
-        load(new MemoryConfiguration());
     }
 
     @Override

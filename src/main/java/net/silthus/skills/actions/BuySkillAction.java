@@ -2,13 +2,13 @@ package net.silthus.skills.actions;
 
 import com.google.common.base.Strings;
 import de.raidcraft.economy.Economy;
+import io.ebean.annotation.Transactional;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import net.silthus.skills.TestResult;
 import net.silthus.skills.entities.ConfiguredSkill;
 import net.silthus.skills.entities.PlayerSkill;
 import net.silthus.skills.entities.SkilledPlayer;
-import net.silthus.skills.events.AddPlayerSkillEvent;
 import net.silthus.skills.events.BuyPlayerSkillEvent;
 import org.bukkit.Bukkit;
 
@@ -28,6 +28,7 @@ public class BuySkillAction {
      * @param bypassChecks true to bypass any requirement and cost checks
      * @return the result of the buy action
      */
+    @Transactional
     public Result execute(boolean bypassChecks) {
 
         if (player.hasActiveSkill(skill)) {
@@ -48,7 +49,7 @@ public class BuySkillAction {
 
         if (!bypassChecks) {
             player.removeSkillPoints(skill.skillpoints());
-            Economy.get().withdrawPlayer(player.getOfflinePlayer(), skill.cost(), "Skill gekauft: " + skill.name(), Map.of(
+            Economy.get().withdrawPlayer(player.getOfflinePlayer(), skill.money(), "Skill gekauft: " + skill.name(), Map.of(
                     "skill", skill.alias(),
                     "skill_id", skill.id()
             ));

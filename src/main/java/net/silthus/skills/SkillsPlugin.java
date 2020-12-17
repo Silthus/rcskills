@@ -140,6 +140,12 @@ public class SkillsPlugin extends JavaPlugin {
     private void setupCommands() {
 
         this.commandManager = new PaperCommandManager(this);
+        if (isTesting()) {
+            commandManager.setDefaultExceptionHandler((command, registeredCommand, sender, args, t) -> {
+                t.printStackTrace();
+                return true;
+            });
+        }
 
         registerSkilledPlayerContext(commandManager);
         registerSkillContext(commandManager);

@@ -20,6 +20,7 @@ import javax.persistence.*;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 @Entity
 @Getter
@@ -56,23 +57,22 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
     private String name;
     private String type;
     private String description;
+    private int level = 1;
+    private double money = 0d;
+    private int skillpoints = 0;
 
     @DbJson
     private Map<String, Object> config = new HashMap<>();
     @OneToMany(cascade = CascadeType.REMOVE)
     private List<PlayerSkill> playerSkills = new ArrayList<>();
 
-    @Transient
-    private int level = 0;
-    @Transient
-    private double cost = 0d;
-    @Transient
-    private int skillpoints = 0;
 
     @Transient
     private Skill skill;
     @Transient
-    private List<Requirement> requirements;
+    private List<Requirement> requirements = new ArrayList<>();
+    @Transient
+    private List<Requirement> costRequirements = new ArrayList<>();
 
     ConfiguredSkill(UUID id, Skill skill) {
         this.id(id);
@@ -127,30 +127,34 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
             this.name = config.getString("name", alias());
             this.type = config.getString("type", "permission");
             this.description = config.getString("description");
+            this.level = config.getInt("level", 1);
+            this.money = config.getDouble("money", 0d);
+            this.skillpoints = config.getInt("skillpoints", 0);
 
             ConfigurationSection with = config.getConfigurationSection("with");
             skill.load(Objects.requireNonNullElseGet(with, () -> config.createSection("with")));
             this.requirements = skillManager.loadRequirements(config.getConfigurationSection("requirements"));
 
-            if (config.isSet("level")) {
-                this.level = config.getInt("level", 0);
+            if (level > 0) {
                 LevelRequirement levelRequirement = new LevelRequirement();
+                levelRequirement.load(new MemoryConfiguration());
                 levelRequirement.setLevel(level);
                 requirements.add(levelRequirement);
             }
 
-            if (config.isSet("money")) {
-                this.cost = config.getDouble("money", 0d);
+            this.costRequirements = new ArrayList<>();
+            if (money > 0) {
                 MoneyRequirement moneyRequirement = new MoneyRequirement();
-                moneyRequirement.setAmount(cost);
-                requirements.add(moneyRequirement);
+                moneyRequirement.load(new MemoryConfiguration());
+                moneyRequirement.setAmount(money);
+                costRequirements.add(moneyRequirement);
             }
 
-            if (config.isSet("skillpoints")) {
-                this.skillpoints = config.getInt("skillpoints", 0);
+            if (skillpoints > 0) {
                 SkillPointRequirement skillPointRequirement = new SkillPointRequirement();
+                skillPointRequirement.load(new MemoryConfiguration());
                 skillPointRequirement.setSkillpoints(this.skillpoints);
-                requirements.add(skillPointRequirement);
+                costRequirements.add(skillPointRequirement);
             }
 
             requirements.add(new PermissionRequirement().add(SkillsPlugin.SKILL_PERMISSION_PREFIX + alias));
@@ -173,7 +177,23 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
 
     public TestResult test(SkilledPlayer player) {
 
-        return requirements().stream()
+        return Stream.concat(requirements.stream(), costRequirements.stream())
+                .map(requirement -> requirement.test(player))
+                .reduce(TestResult::merge)
+                .orElse(TestResult.ofSuccess());
+    }
+
+    public TestResult testRequirements(SkilledPlayer player) {
+
+        return requirements.stream()
+                .map(requirement -> requirement.test(player))
+                .reduce(TestResult::merge)
+                .orElse(TestResult.ofSuccess());
+    }
+
+    public TestResult testCosts(SkilledPlayer player) {
+
+        return costRequirements.stream()
                 .map(requirement -> requirement.test(player))
                 .reduce(TestResult::merge)
                 .orElse(TestResult.ofSuccess());

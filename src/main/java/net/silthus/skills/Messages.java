@@ -81,7 +81,7 @@ public final class Messages {
 
         TextComponent.Builder builder = text().append(player(player))
                 .append(text(" hat den Skill ", GREEN))
-                .append(playerSkill(skill))
+                .append(skill(skill))
                 .append(text(" gekauft.", GREEN)).append(newline());
 
         int skillpoints = skill.configuredSkill().skillpoints();
@@ -91,7 +91,7 @@ public final class Messages {
                     .append(text(skillpoints, RED)).append(newline());
         }
 
-        double cost = skill.configuredSkill().cost();
+        double cost = skill.configuredSkill().money();
         if (cost > 0d) {
             String currencyNamePlural = Economy.get().currencyNamePlural();
             builder.append(text("  - " + currencyNamePlural + ": ", YELLOW))
@@ -106,14 +106,14 @@ public final class Messages {
 
         return text().append(player(player))
                 .append(text(" hat den Skill ", GREEN))
-                .append(playerSkill(skill))
+                .append(skill(skill))
                 .append(text(" erhalten.", GREEN)).build();
     }
 
     public static Component removeSkill(PlayerSkill playerSkill) {
 
         return text("Der Skill ", RED)
-                .append(playerSkill(playerSkill))
+                .append(skill(playerSkill))
                 .append(text(" wurde von ", RED))
                 .append(player(playerSkill.player()))
                 .append(text(" entfernt.", RED));
@@ -250,9 +250,6 @@ public final class Messages {
                     public @NonNull Collection<Component> renderRow(ConfiguredSkill value, int index) {
 
                         if (value == null) return Collections.singletonList(empty());
-                        if (player.hasSkill(value)) {
-                            return Collections.singletonList(playerSkill(player.getSkill(value)));
-                        }
                         return Collections.singletonList(skill(value, player));
                     }
                 }, p -> "/rcskills skills " + player.name() + " " + p);
@@ -265,35 +262,42 @@ public final class Messages {
 
         TextComponent.Builder builder = text();
         for (PlayerSkill skill : skills) {
-            builder.append(playerSkill(skill));
+            builder.append(skill(skill.configuredSkill(), skill.player()));
         }
         return builder.build();
+    }
+
+    public static Component skill(PlayerSkill skill) {
+
+        return skill(skill.configuredSkill(), skill.player());
     }
 
     public static Component skill(ConfiguredSkill skill, SkilledPlayer player) {
 
         TextColor color = GRAY;
         if (player != null) {
-            color = skill.test(player).success() ? GREEN : RED;
+            if (player.hasActiveSkill(skill)) {
+                color = GREEN;
+            } else {
+                color = skill.test(player).success() ? AQUA : RED;
+            }
         }
-        TextComponent.Builder builder = text().append(text(skill.name(), color, BOLD));
+
+        return text()
+                .append(text("[", YELLOW))
+                .append(text(skill.level(), AQUA))
+                .append(text("] ", YELLOW))
+                .append(text(skill.name(), color, BOLD).hoverEvent(skillInfo(skill, player)))
+                .build();
+    }
+
+    public static Component skillInfo(ConfiguredSkill skill, SkilledPlayer player) {
+
+        Component component = skillInfo(skill);
         if (player != null) {
-            builder.hoverEvent(skillInfo(PlayerSkill.getOrCreate(player, skill)));
+            component.append(requirements(PlayerSkill.getOrCreate(player, skill)));
         }
-        return builder.build();
-    }
-
-    public static Component playerSkill(PlayerSkill skill) {
-
-
-        return text(skill.name(), skill.active() ? GREEN : RED, BOLD)
-                .hoverEvent(skillInfo(skill));
-    }
-
-    public static Component skillInfo(PlayerSkill skill) {
-
-        return skillInfo(skill.configuredSkill())
-                .append(requirements(skill));
+        return component;
     }
 
     public static Component skillInfo(ConfiguredSkill skill) {
@@ -354,7 +358,7 @@ public final class Messages {
     public static TextReplacementConfig replaceSkill(PlayerSkill skill) {
 
         return TextReplacementConfig.builder()
-                .matchLiteral("{skill}").replacement(skillInfo(skill))
+                .matchLiteral("{skill}").replacement(skill(skill))
                 .matchLiteral("{skill_name}").replacement(skill.name())
                 .matchLiteral("{skill_alias}").replacement(skill.alias())
                 .build();

@@ -44,7 +44,7 @@ public class SkillsCommand extends BaseCommand {
     @Description("Kauft den agegebenen Skill, falls möglich.")
     public void buy(ConfiguredSkill skill, @Conditions("others:perm=skill.buy") SkilledPlayer player) {
 
-        BuySkillAction.Result result = new BuySkillAction(player, skill).execute(false);
+        BuySkillAction.Result result = player.buySkill(skill);
         if (result.success()) {
             Messages.send(getCurrentCommandIssuer(), Messages.buySkill(player, result.playerSkill()));
         } else {

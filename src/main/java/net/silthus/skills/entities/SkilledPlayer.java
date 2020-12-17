@@ -1,12 +1,12 @@
 package net.silthus.skills.entities;
 
 import io.ebean.Finder;
-import io.ebean.annotation.Transactional;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.silthus.ebean.BaseEntity;
 import net.silthus.skills.actions.AddSkillAction;
+import net.silthus.skills.actions.BuySkillAction;
 import net.silthus.skills.events.SetPlayerExpEvent;
 import net.silthus.skills.events.SetPlayerLevelEvent;
 import net.silthus.skills.events.SetPlayerSkillPointsEvent;
@@ -14,8 +14,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import javax.persistence.*;
-import java.util.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Entity
@@ -74,10 +82,27 @@ public class SkilledPlayer extends BaseEntity {
         return addSkill(skill, false);
     }
 
-    @Transactional
+    /**
+     * Adds the given skill to the player without subtracting potential costs.
+     * <p>Use the {@link #buySkill(ConfiguredSkill)} method to subtract the costs.
+     *
+     * @param skill the skill to buy
+     * @param bypassChecks set to true to bypass all checks and force add the skill
+     * @return the result of the add operation
+     */
     public AddSkillAction.Result addSkill(ConfiguredSkill skill, boolean bypassChecks) {
 
         return new AddSkillAction(this, skill).execute(bypassChecks);
+    }
+
+    public BuySkillAction.Result buySkill(ConfiguredSkill skill) {
+
+        return buySkill(skill, false);
+    }
+
+    public BuySkillAction.Result buySkill(ConfiguredSkill skill, boolean bypassChecks) {
+
+        return new BuySkillAction(this, skill).execute(bypassChecks);
     }
 
     public Optional<PlayerSkill> getSkill(String alias) {
@@ -96,6 +121,11 @@ public class SkilledPlayer extends BaseEntity {
         PlayerSkill playerSkill = getSkill(skill);
         playerSkill.delete();
         return playerSkill;
+    }
+
+    public boolean hasActiveSkill(String alias) {
+
+        return getSkill(alias).map(PlayerSkill::active).orElse(false);
     }
 
     public boolean hasActiveSkill(ConfiguredSkill skill) {

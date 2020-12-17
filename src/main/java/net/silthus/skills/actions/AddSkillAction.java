@@ -1,6 +1,7 @@
 package net.silthus.skills.actions;
 
 import com.google.common.base.Strings;
+import io.ebean.annotation.Transactional;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import net.silthus.skills.TestResult;
@@ -17,6 +18,7 @@ public class AddSkillAction {
     SkilledPlayer player;
     ConfiguredSkill skill;
 
+    @Transactional
     public Result execute(boolean bypassChecks) {
 
         if (player.hasActiveSkill(skill)) {
@@ -30,7 +32,7 @@ public class AddSkillAction {
             return new Result(this, "Das Hinzufügen des Skills " + skill.alias() + " wurde durch ein Plugin verhindert.");
         }
 
-        TestResult testResult = skill.test(player);
+        TestResult testResult = skill.testRequirements(player);
         if (!testResult.success() && !event.isBypassChecks()) {
             return new Result(this, testResult, "Die Vorraussetzungen für den Skill " + skill.alias() + " sind nicht erfüllt.");
         }

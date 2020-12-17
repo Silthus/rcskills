@@ -19,7 +19,7 @@ public class IntegrationTest {
     @BeforeEach
     void setUp() {
 
-        this.server = MockBukkit.mock();
+        this.server = MockBukkit.mock(new ServerMock());
         this.plugin = MockBukkit.load(SkillsPlugin.class);
 
         MemoryConfiguration cfg = new MemoryConfiguration();
@@ -43,6 +43,7 @@ public class IntegrationTest {
         @BeforeEach
         void setUp() {
             player = server.addPlayer();
+            player.setOp(true);
         }
 
         @Nested
@@ -58,7 +59,25 @@ public class IntegrationTest {
                 void shouldAddSkillToPlayer() {
 
                     server.dispatchCommand(server.getConsoleSender(),"rcs:admin add skill " + player.getName() + " " + TEST_SKILL);
-                    assertThat(SkilledPlayer.getOrCreate(player).hasSkill(TEST_SKILL));
+                    assertThat(SkilledPlayer.getOrCreate(player).hasSkill(TEST_SKILL)).isTrue();
+                }
+            }
+        }
+
+        @Nested
+        @DisplayName("/rcs")
+        class PlayerCommands {
+
+            @Nested
+            @DisplayName("buy <skill> [player]")
+            class buy {
+
+                @Test
+                @DisplayName("player should be able to buy skills when all requirements are met")
+                void shouldBuySkillIfAllRequirementsAreMet() {
+
+                    server.dispatchCommand(player, "rcs buy " + TEST_SKILL);
+                    assertThat(SkilledPlayer.getOrCreate(player).hasActiveSkill(TEST_SKILL)).isTrue();
                 }
             }
         }
