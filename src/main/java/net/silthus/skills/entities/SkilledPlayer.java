@@ -190,7 +190,7 @@ public class SkilledPlayer extends BaseEntity {
 
         level.setTotalExp(event.getNewExp());
         if (event.getLevel() != level.getLevel()) {
-            level.setLevel(event.getLevel());
+            setLevel(event.getLevel());
         }
         return this;
     }

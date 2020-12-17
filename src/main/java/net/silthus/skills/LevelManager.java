@@ -63,14 +63,13 @@ public final class LevelManager implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onLevelUp(SetPlayerLevelEvent event) {
 
+        int minExp = calculateTotalExpForLevel(event.getNewLevel());
+        int maxExp = calculateTotalExpForLevel(event.getNewLevel() + 1);
+        if (event.getExp() < minExp || event.getExp() >= maxExp) {
+            event.setExp(minExp);
+        }
+
         event.getPlayer().getBukkitPlayer().ifPresent(player -> {
-
-            int minExp = calculateTotalExpForLevel(event.getNewLevel());
-            int maxExp = calculateTotalExpForLevel(event.getNewLevel() + 1);
-            if (event.getExp() < minExp || event.getExp() >= maxExp) {
-                event.setExp(minExp);
-            }
-
             if (event.getNewLevel() > event.getOldLevel()) {
                 Messages.send(player, Messages.levelUpSelf(event.getPlayer(), event.getNewLevel()));
                 Bukkit.getOnlinePlayers().stream()

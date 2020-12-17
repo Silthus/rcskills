@@ -1,7 +1,7 @@
 package net.silthus.skills.actions;
 
 import com.google.common.base.Strings;
-import de.raidcraft.economy.Economy;
+import de.raidcraft.economy.wrapper.Economy;
 import io.ebean.annotation.Transactional;
 import lombok.Value;
 import lombok.experimental.Accessors;

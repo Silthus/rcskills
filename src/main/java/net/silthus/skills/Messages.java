@@ -1,7 +1,7 @@
 package net.silthus.skills;
 
 import co.aikar.commands.CommandIssuer;
-import de.raidcraft.economy.Economy;
+import de.raidcraft.economy.wrapper.Economy;
 import lombok.AccessLevel;
 import lombok.Setter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -302,11 +302,25 @@ public final class Messages {
 
     public static Component skillInfo(ConfiguredSkill skill) {
 
-        return text("--- [ ", DARK_AQUA)
+        TextComponent.Builder builder = text().append(text("--- [ ", DARK_AQUA))
                 .append(text(skill.name(), YELLOW, BOLD))
                 .append(text(" (" + skill.alias() + ")", GRAY, ITALIC))
                 .append(text(" ] ---", DARK_AQUA)).append(newline())
-                .append(text(skill.description(), GRAY, ITALIC)).append(newline());
+                .append(text("Level: ", YELLOW).append(text(skill.level(), AQUA))).append(newline());
+        if (skill.money() > 0d) {
+            builder.append(text("Kosten: ", YELLOW))
+                    .append(text(Economy.get().format(skill.money()), AQUA))
+                    .append(newline());
+        }
+        if (skill.skillpoints() > 0) {
+            builder.append(text("Skillpunkte: ", YELLOW))
+                    .append(text(skill.skillpoints(), AQUA))
+                    .append(newline());
+        }
+        return builder
+                .append(text("Beschreibung: ", YELLOW))
+                .append(text(skill.description(), GRAY, ITALIC)).append(newline())
+                .build();
     }
 
     public static Component requirements(PlayerSkill skill) {

@@ -1,6 +1,6 @@
 package net.silthus.skills.requirements;
 
-import de.raidcraft.economy.Economy;
+import de.raidcraft.economy.wrapper.Economy;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;

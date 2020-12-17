@@ -61,7 +61,7 @@ repositories {
 dependencies {
     compileOnly spigot(mcVersion)
 
-    implementation 'de.raidcraft.economy:wrapper:1.5.2'
+    implementation 'de.raidcraft.economy:wrapper:2.0.0'
 
     implementation 'net.silthus:ebean-wrapper:2.8.1'
     implementation 'net.silthus.configlib:configlib-bukkit:2.6.0'
@@ -112,7 +112,7 @@ shadowJar {
     relocate 'de.slikey.effectlib', "shadow.${pluginName}.effectlib"
     relocate 'net.kyori.adventure', "shadow.${pluginName}.adventure"
     relocate 'org.codehaus', "shadow.${pluginName}.codehaus"
-    relocate 'de.raidcraft.economy', "shadow.${pluginName}.economy"
+    relocate 'de.raidcraft.economy.wrapper', "shadow.${pluginName}.economy"
 }
 
 tasks.build.dependsOn(shadowJar)
