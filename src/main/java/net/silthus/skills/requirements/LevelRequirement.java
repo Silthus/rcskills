@@ -21,6 +21,12 @@ public class LevelRequirement extends AbstractRequirement {
     private int level = 1;
 
     @Override
+    public String name() {
+
+        return String.format(msg(msgIdentifier("name"), "Level %s"), level);
+    }
+
+    @Override
     public String description() {
 
         return String.format(msg(msgIdentifier("description"), "Du musst mind. Level %s sein um diesen Skill zu freizuschalten."), level);

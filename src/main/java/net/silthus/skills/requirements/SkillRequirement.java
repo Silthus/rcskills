@@ -15,6 +15,12 @@ public class SkillRequirement extends AbstractRequirement {
     private String skill;
 
     @Override
+    public String name() {
+
+        return String.format(msg(msgIdentifier("name"), "%s Skill"), skill);
+    }
+
+    @Override
     public String description() {
 
         return String.format(msg(msgIdentifier("description"), "Requires the %s skill to unlock this skill."), skill);

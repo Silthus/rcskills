@@ -27,6 +27,7 @@ import org.codehaus.commons.compiler.CompileException;
 
 import java.io.File;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @PluginMain
@@ -164,11 +165,16 @@ public class SkillsPlugin extends JavaPlugin {
 
         commandManager.getCommandContexts().registerContext(ConfiguredSkill.class, context -> {
             String skillName = context.popFirstArg();
-            Optional<ConfiguredSkill> skill = ConfiguredSkill.findByAliasOrName(skillName);
-            if (skill.isEmpty()) {
-                throw new InvalidCommandArgument("Der Skill " + skillName + " wurde nicht gefunden.");
+            try {
+                UUID uuid = UUID.fromString(skillName);
+                return ConfiguredSkill.find.byId(uuid);
+            } catch (Exception e) {
+                Optional<ConfiguredSkill> skill = ConfiguredSkill.findByAliasOrName(skillName);
+                if (skill.isEmpty()) {
+                    throw new InvalidCommandArgument("Der Skill " + skillName + " wurde nicht gefunden.");
+                }
+                return skill.get();
             }
-            return skill.get();
         });
     }
 

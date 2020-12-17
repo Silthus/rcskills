@@ -89,6 +89,15 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
         return requirements;
     }
 
+    public List<Requirement> costRequirements() {
+
+        if (costRequirements == null) {
+            this.costRequirements = new ArrayList<>();
+            load();
+        }
+        return costRequirements;
+    }
+
     public Optional<Skill> skill() {
 
         if (skill == null) {
@@ -134,7 +143,11 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
 
             ConfigurationSection with = config.getConfigurationSection("with");
             skill.load(Objects.requireNonNullElseGet(with, () -> config.createSection("with")));
+
             this.requirements = skillManager.loadRequirements(config.getConfigurationSection("requirements"));
+            this.costRequirements = new ArrayList<>();
+
+            requirements.add(new PermissionRequirement().add(SkillsPlugin.SKILL_PERMISSION_PREFIX + alias));
 
             if (level > 0) {
                 LevelRequirement levelRequirement = new LevelRequirement();
@@ -143,7 +156,6 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
                 requirements.add(levelRequirement);
             }
 
-            this.costRequirements = new ArrayList<>();
             if (money > 0) {
                 MoneyRequirement moneyRequirement = new MoneyRequirement();
                 moneyRequirement.load(new MemoryConfiguration());
@@ -158,7 +170,6 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
                 costRequirements.add(skillPointRequirement);
             }
 
-            requirements.add(new PermissionRequirement().add(SkillsPlugin.SKILL_PERMISSION_PREFIX + alias));
         }
     }
 
@@ -178,7 +189,7 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
 
     public TestResult test(SkilledPlayer player) {
 
-        return Stream.concat(requirements.stream(), costRequirements.stream())
+        return Stream.concat(requirements().stream(), costRequirements().stream())
                 .map(requirement -> requirement.test(player))
                 .reduce(TestResult::merge)
                 .orElse(TestResult.ofSuccess());
@@ -186,7 +197,7 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
 
     public TestResult testRequirements(SkilledPlayer player) {
 
-        return requirements.stream()
+        return requirements().stream()
                 .map(requirement -> requirement.test(player))
                 .reduce(TestResult::merge)
                 .orElse(TestResult.ofSuccess());
@@ -194,7 +205,7 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
 
     public TestResult testCosts(SkilledPlayer player) {
 
-        return costRequirements.stream()
+        return costRequirements().stream()
                 .map(requirement -> requirement.test(player))
                 .reduce(TestResult::merge)
                 .orElse(TestResult.ofSuccess());

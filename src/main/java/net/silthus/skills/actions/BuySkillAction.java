@@ -31,7 +31,7 @@ public class BuySkillAction {
     @Transactional
     public Result execute(boolean bypassChecks) {
 
-        if (player.hasActiveSkill(skill)) {
+        if (player.hasSkill(skill)) {
             return new Result(this, player.name() + " hat bereits den Skill: " + skill.alias());
         }
 
@@ -49,7 +49,7 @@ public class BuySkillAction {
 
         if (!bypassChecks) {
             player.removeSkillPoints(skill.skillpoints());
-            Economy.get().withdrawPlayer(player.getOfflinePlayer(), skill.money(), "Skill gekauft: " + skill.name(), Map.of(
+            Economy.get().withdrawPlayer(player.getOfflinePlayer(), skill.money(), "Skill \"" + skill.name() + "\" gekauft.", Map.of(
                     "skill", skill.alias(),
                     "skill_id", skill.id()
             ));
@@ -77,7 +77,7 @@ public class BuySkillAction {
             this.action = action;
             this.testResult = testResult;
             this.error = error;
-            playerSkill = null;
+            playerSkill = PlayerSkill.getOrCreate(action.player, action.skill);
         }
 
         public Result(BuySkillAction action, PlayerSkill playerSkill, TestResult testResult) {
@@ -91,7 +91,7 @@ public class BuySkillAction {
             this.action = action;
             this.testResult = null;
             this.error = error;
-            playerSkill = null;
+            playerSkill = PlayerSkill.getOrCreate(action.player, action.skill);
         }
 
         public boolean success() {

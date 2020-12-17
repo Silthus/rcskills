@@ -270,10 +270,7 @@ public final class SkillManager {
      */
     public void unload(@NonNull Player player) {
 
-        List<PlayerSkill> skills = loadedPlayerSkills.remove(player.getUniqueId());
-        if (skills != null) {
-            skills.forEach(PlayerSkill::deactivate);
-        }
+        SkilledPlayer.getOrCreate(player).activeSkills().forEach(PlayerSkill::deactivate);
     }
 
     /**

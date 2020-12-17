@@ -8,6 +8,7 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TextReplacementConfig;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.feature.pagination.Pagination;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
@@ -26,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static net.kyori.adventure.text.Component.*;
@@ -81,7 +83,7 @@ public final class Messages {
 
         TextComponent.Builder builder = text().append(player(player))
                 .append(text(" hat den Skill ", GREEN))
-                .append(skill(skill))
+                .append(skill(skill, false))
                 .append(text(" gekauft.", GREEN)).append(newline());
 
         int skillpoints = skill.configuredSkill().skillpoints();
@@ -106,14 +108,14 @@ public final class Messages {
 
         return text().append(player(player))
                 .append(text(" hat den Skill ", GREEN))
-                .append(skill(skill))
+                .append(skill(skill, false))
                 .append(text(" erhalten.", GREEN)).build();
     }
 
     public static Component removeSkill(PlayerSkill playerSkill) {
 
         return text("Der Skill ", RED)
-                .append(skill(playerSkill))
+                .append(skill(playerSkill, true))
                 .append(text(" wurde von ", RED))
                 .append(player(playerSkill.player()))
                 .append(text(" entfernt.", RED));
@@ -231,14 +233,21 @@ public final class Messages {
                 .append(text(" ] ---", DARK_AQUA)).append(newline())
                 .append(level(player.level())).append(newline())
                 .append(skillPoints(player)).append(newline())
-                .append(text("Freigeschaltete Skills: ", YELLOW)).append(newline())
-                .append(skills(player.skills().stream().filter(PlayerSkill::unlocked).collect(Collectors.toList())))
+                .append(text("aktive/freigeschaltete Skills: ", YELLOW))
+                .append(text(player.activeSkills().size(), GREEN)).append(text("/", DARK_AQUA))
+                .append(text(player.unlockedSkills().size(), AQUA))
                 .build();
     }
 
     public static List<Component> skills(SkilledPlayer player, int page) {
 
+        return skills(player, page, skill -> true);
+    }
+
+    public static List<Component> skills(SkilledPlayer player, int page, Predicate<ConfiguredSkill> predicate) {
+
         List<ConfiguredSkill> allSkills = ConfiguredSkill.find.all().stream()
+                .filter(predicate)
                 .sorted(Comparator.comparingInt(ConfiguredSkill::level))
                 .collect(Collectors.toUnmodifiableList());
 
@@ -267,12 +276,17 @@ public final class Messages {
         return builder.build();
     }
 
-    public static Component skill(PlayerSkill skill) {
+    public static Component skill(PlayerSkill skill, boolean showBuy) {
 
         return skill(skill.configuredSkill(), skill.player());
     }
 
     public static Component skill(ConfiguredSkill skill, SkilledPlayer player) {
+
+        return skill(skill, player, true);
+    }
+
+    public static Component skill(ConfiguredSkill skill, SkilledPlayer player, boolean showBuy) {
 
         TextColor color = GRAY;
         if (player != null) {
@@ -283,21 +297,31 @@ public final class Messages {
             }
         }
 
-        return text()
+        TextComponent.Builder builder = text()
                 .append(text("[", YELLOW))
                 .append(text(skill.level(), AQUA))
                 .append(text("] ", YELLOW))
-                .append(text(skill.name(), color, BOLD).hoverEvent(skillInfo(skill, player)))
-                .build();
+                .append(text(skill.name(), color, BOLD).hoverEvent(skillInfo(skill, player)));
+
+        if (showBuy && player != null && player.canBuy(skill)) {
+            builder.append(text(" [$]", GREEN, ITALIC)
+                    .hoverEvent(costs(PlayerSkill.getOrCreate(player, skill)).append(text("Klicken um den Skill zu kaufen.", GRAY, ITALIC)))
+                    .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/rcskills buy " + skill.id()))
+            );
+        }
+
+        return builder.build();
     }
 
     public static Component skillInfo(ConfiguredSkill skill, SkilledPlayer player) {
 
-        Component component = skillInfo(skill);
+        TextComponent.Builder builder = text().append(skillInfo(skill));
         if (player != null) {
-            component.append(requirements(PlayerSkill.getOrCreate(player, skill)));
+            PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
+            builder.append(costs(playerSkill)).append(newline())
+                    .append(requirements(playerSkill));
         }
-        return component;
+        return builder.build();
     }
 
     public static Component skillInfo(ConfiguredSkill skill) {
@@ -323,28 +347,57 @@ public final class Messages {
                 .build();
     }
 
+    public static Component allRequirements(PlayerSkill skill) {
+
+        return text().append(costs(skill)).append(requirements(skill)).build();
+    }
+
     public static Component requirements(PlayerSkill skill) {
 
+        TextComponent.Builder builder = text();
         List<Requirement> requirements = skill.configuredSkill().requirements().stream()
                 .filter(Requirement::visible)
                 .collect(Collectors.toUnmodifiableList());
-        if (requirements.isEmpty()) return empty();
 
-        TextComponent.Builder text = text().append(text("Vorraussetzungen: ", YELLOW)).append(newline());
-        for (Requirement requirement : requirements) {
-            text.append(text(" - ", YELLOW))
-                    .append(text(requirement.name(), requirementColor(requirement, skill.player()), BOLD))
-                    .hoverEvent(showText(requirement(requirement, skill.player())))
-                    .append(newline());
+        if (!requirements.isEmpty()) {
+            builder.append(text("Vorraussetzungen: ", YELLOW)).append(newline());
+            for (Requirement requirement : requirements) {
+                builder.append(text(" - ", YELLOW))
+                        .append(text(requirement.name(), requirementColor(requirement, skill.player()), BOLD)
+                        .hoverEvent(showText(requirement(requirement, skill.player()))))
+                        .append(newline());
+            }
         }
-        return text.build();
+
+        return builder.build();
+    }
+
+    public static Component costs(PlayerSkill skill) {
+
+        TextComponent.Builder builder = text();
+        List<Requirement> costs = skill.configuredSkill().costRequirements();
+
+        if (!costs.isEmpty()) {
+            builder.append(text("Kosten:", YELLOW)).append(newline());
+            for (Requirement cost : costs) {
+                builder.append(text(" - ", YELLOW))
+                        .append(text(cost.name(), requirementColor(cost, skill.player()), BOLD)
+                                .hoverEvent(showText(requirement(cost, skill.player()))))
+                        .append(newline());
+            }
+        }
+
+        return builder.build();
     }
 
     public static Component requirement(Requirement requirement, SkilledPlayer player) {
 
-        return text("--- [ ", AQUA).append(text(requirement.name(), requirementColor(requirement, player)))
+        return text().append(text("--- [ ", DARK_AQUA))
+                .append(text(requirement.name(), requirementColor(requirement, player)))
+                .append(text(" ] ---", DARK_AQUA))
                 .append(newline())
-                .append(text(requirement.description(), GRAY, ITALIC));
+                .append(text(requirement.description(), GRAY, ITALIC))
+                .build();
     }
 
     public static TextColor requirementColor(Requirement requirement, SkilledPlayer player) {
@@ -372,7 +425,7 @@ public final class Messages {
     public static TextReplacementConfig replaceSkill(PlayerSkill skill) {
 
         return TextReplacementConfig.builder()
-                .matchLiteral("{skill}").replacement(skill(skill))
+                .matchLiteral("{skill}").replacement(skill(skill, true))
                 .matchLiteral("{skill_name}").replacement(skill.name())
                 .matchLiteral("{skill_alias}").replacement(skill.alias())
                 .build();

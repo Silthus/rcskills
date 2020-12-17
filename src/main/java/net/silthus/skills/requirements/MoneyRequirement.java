@@ -22,6 +22,12 @@ public class MoneyRequirement extends AbstractRequirement {
     private double amount = 0d;
 
     @Override
+    public String name() {
+
+        return String.format(msg(msgIdentifier("name"), "%s"), Economy.get().format(amount));
+    }
+
+    @Override
     public String description() {
 
         return String.format(msg(msgIdentifier("description"), "Du benötigst mindestens %s um diesen Skill kaufen zu können."), Economy.get().format(amount));

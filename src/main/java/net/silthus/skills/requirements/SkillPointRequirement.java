@@ -13,12 +13,18 @@ import org.bukkit.configuration.ConfigurationSection;
 import static net.silthus.skills.Messages.msg;
 
 @Data
-@RequirementInfo("skillpoint")
+@RequirementInfo("skillpoints")
 @EqualsAndHashCode(callSuper = true)
 public class SkillPointRequirement extends AbstractRequirement {
 
     @ConfigOption(required = true)
     private int skillpoints = 0;
+
+    @Override
+    public String name() {
+
+        return String.format(msg(msgIdentifier("name"), "%s Skillpunkt(e)"), skillpoints);
+    }
 
     @Override
     public String description() {

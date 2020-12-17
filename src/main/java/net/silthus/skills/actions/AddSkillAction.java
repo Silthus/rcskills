@@ -21,7 +21,7 @@ public class AddSkillAction {
     @Transactional
     public Result execute(boolean bypassChecks) {
 
-        if (player.hasActiveSkill(skill)) {
+        if (player.hasSkill(skill)) {
             return new Result(this, player.name() + " hat bereits den Skill: " + skill.alias());
         }
 

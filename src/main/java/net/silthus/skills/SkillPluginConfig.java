@@ -17,6 +17,8 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
     private String skillsPath = "skills";
     @Comment("Set to false if you want to disable broadcasting players leveling up to everyone.")
     private boolean broadcastLevelup = true;
+    @Comment("The time in ticks until the /rcs buy command confirmation times out.")
+    private long buyCommandTimeout = 600L;
     private DatabaseConfig database = new DatabaseConfig();
     @Comment("Define the expression that calculates the required exp for each level here.")
     private LevelConfig levelConfig = new LevelConfig();

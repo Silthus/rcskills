@@ -19,11 +19,7 @@ import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
@@ -75,6 +71,13 @@ public class SkilledPlayer extends BaseEntity {
 
     public Optional<Player> getBukkitPlayer() {
         return Optional.ofNullable(Bukkit.getPlayer(id()));
+    }
+
+    public List<PlayerSkill> activeSkills() {
+
+        return skills.stream()
+                .filter(PlayerSkill::active)
+                .collect(Collectors.toUnmodifiableList());
     }
 
     public AddSkillAction.Result addSkill(ConfiguredSkill skill) {
@@ -224,5 +227,10 @@ public class SkilledPlayer extends BaseEntity {
 
         int points = this.skillPoints - skillPoints;
         return this.setSkillPoints(points);
+    }
+
+    public boolean canBuy(ConfiguredSkill skill) {
+
+        return !hasSkill(skill) && skill.test(this).success();
     }
 }
