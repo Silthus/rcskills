@@ -78,11 +78,11 @@ class SkilledPlayerTest {
         bukkitPlayer.setOp(true);
 
         SkilledPlayer player = SkilledPlayer.getOrCreate(bukkitPlayer);
-        player.skillSlots(100);
-        player.addSkill(skill1).playerSkill().activate();
-        player.addSkill(skill2).playerSkill().activate();
-        player.addSkill(skill3).playerSkill().activate();
+        player.setSkillSlots(100);
+        player.addSkill(skill1, true).playerSkill().activate();
+        player.addSkill(skill2, true).playerSkill().activate();
+        player.addSkill(skill3, true).playerSkill().activate();
 
-        assertThat(player.freeSkillSlots()).isEqualTo(93);
+        assertThat(SkilledPlayer.getOrCreate(bukkitPlayer).freeSkillSlots()).isEqualTo(93);
     }
 }
