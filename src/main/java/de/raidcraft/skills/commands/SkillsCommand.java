@@ -1,6 +1,7 @@
 package de.raidcraft.skills.commands;
 
 import co.aikar.commands.BaseCommand;
+import co.aikar.commands.CommandHelp;
 import co.aikar.commands.ConditionFailedException;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandCompletion;
@@ -8,6 +9,7 @@ import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Conditions;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Description;
+import co.aikar.commands.annotation.HelpCommand;
 import co.aikar.commands.annotation.Subcommand;
 import de.raidcraft.skills.Messages;
 import de.raidcraft.skills.SkillsPlugin;
@@ -18,6 +20,7 @@ import de.raidcraft.skills.entities.SkilledPlayer;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +31,7 @@ import static de.raidcraft.skills.Messages.send;
 import static de.raidcraft.skills.Messages.skill;
 import static net.kyori.adventure.text.Component.newline;
 import static net.kyori.adventure.text.Component.text;
+import static net.kyori.adventure.text.format.NamedTextColor.DARK_AQUA;
 import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
 import static net.kyori.adventure.text.format.NamedTextColor.YELLOW;
@@ -51,6 +55,15 @@ public class SkillsCommand extends BaseCommand {
     public void info(@Conditions("others:perm=player.info") SkilledPlayer skilledPlayer) {
 
         Messages.send(getCurrentCommandIssuer(), Messages.playerInfo(skilledPlayer));
+    }
+
+    @HelpCommand
+    public void help(CommandSender sender, CommandHelp help) {
+        send(sender, text(" ----- [ ", DARK_AQUA)
+                .append(text("RCSkills", YELLOW))
+                .append(text(" ] -----", DARK_AQUA))
+        );
+        help.showHelp();
     }
 
     @Subcommand("skills|list")

@@ -146,6 +146,7 @@ public class SkillsPlugin extends JavaPlugin {
     void setupCommands() {
 
         this.commandManager = new PaperCommandManager(this);
+        commandManager.enableUnstableAPI("help");
         if (isTesting()) {
             commandManager.setDefaultExceptionHandler((command, registeredCommand, sender, args, t) -> {
                 t.printStackTrace();
