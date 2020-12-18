@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.extern.java.Log;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -72,6 +73,9 @@ public final class LevelManager implements Listener {
         event.getPlayer().getBukkitPlayer().ifPresent(player -> {
             if (event.getNewLevel() > event.getOldLevel()) {
                 Messages.send(player, Messages.levelUpSelf(event.getPlayer(), event.getNewLevel()));
+                BukkitAudiences.create(plugin)
+                        .player(player)
+                        .showTitle(Messages.levelUpTitle(event.getNewLevel()));
                 Bukkit.getOnlinePlayers().stream()
                         .filter(p -> !p.equals(player))
                         .forEach(p -> Messages.send(p, Messages.levelUp(event.getPlayer())));

@@ -16,6 +16,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.feature.pagination.Pagination;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.title.Title;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.RemoteConsoleCommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -212,6 +213,14 @@ public final class Messages {
                 .append(text(" wurde auf ", YELLOW))
                 .append(text("Level " + level, AQUA))
                 .append(text(" gesetzt.", YELLOW));
+    }
+
+    public static Title levelUpTitle(int level) {
+
+        TextComponent headline = text("Level Aufstieg!", GOLD);
+        TextComponent subline = text("Du hast ", YELLOW).append(text(" Level " + level, GREEN))
+                .append(text(" erreicht.", YELLOW));
+        return Title.title(headline, subline);
     }
 
     public static Component levelUpSelf(SkilledPlayer player, int level) {
