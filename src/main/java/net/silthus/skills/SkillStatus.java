@@ -9,7 +9,8 @@ public enum SkillStatus {
     ACTIVE,
     UNLOCKED,
     INACTIVE,
-    REMOVED;
+    REMOVED,
+    NOT_PRESENT;
 
     public boolean isActive() {
 

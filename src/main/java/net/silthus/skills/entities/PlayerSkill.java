@@ -15,7 +15,6 @@ import net.silthus.skills.util.Effects;
 import org.bukkit.Bukkit;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.util.UUID;
@@ -47,7 +46,7 @@ public class PlayerSkill extends BaseEntity {
     private SkilledPlayer player;
     @ManyToOne
     private ConfiguredSkill configuredSkill;
-    private SkillStatus status = SkillStatus.REMOVED;
+    private SkillStatus status = SkillStatus.NOT_PRESENT;
 
     PlayerSkill(SkilledPlayer player, ConfiguredSkill configuredSkill) {
         this.player = player;

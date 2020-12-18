@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<migration xmlns="http://ebean-orm.github.io/xml/ns/dbmigration">
+    <changeSet type="apply">
+        <alterColumn columnName="status" tableName="rcs_player_skills" type="varchar(11)" currentType="varchar(8)" currentNotnull="false" checkConstraint="check ( status in ('ENABLED','DISABLED','ACTIVE','UNLOCKED','INACTIVE','REMOVED','NOT_PRESENT'))" checkConstraintName="ck_rcs_player_skills_status"/>
+    </changeSet>
+</migration>

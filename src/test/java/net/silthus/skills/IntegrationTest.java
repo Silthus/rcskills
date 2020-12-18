@@ -2,17 +2,24 @@ package net.silthus.skills;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
+import net.silthus.skills.entities.PlayerSkill;
 import net.silthus.skills.entities.SkilledPlayer;
+import net.silthus.skills.util.RandomString;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-@Disabled
+@SuppressWarnings("ALL")
 public class IntegrationTest {
 
     private static final String TEST_SKILL = "test";
+    private static final RandomString random = new RandomString();
 
     private ServerMock server;
     private SkillsPlugin plugin;
@@ -36,6 +43,15 @@ public class IntegrationTest {
         MockBukkit.unmock();
     }
 
+    private void assertSkillIsActive(Player player, String skill) {
+
+        assertThat(SkilledPlayer.getOrCreate(player).getSkill(TEST_SKILL))
+                .isPresent()
+                .get()
+                .extracting(PlayerSkill::status, PlayerSkill::active, PlayerSkill::unlocked)
+                .contains(SkillStatus.ACTIVE, true, true);
+    }
+
     @Nested
     @DisplayName("Commands")
     class Commands {
@@ -44,7 +60,7 @@ public class IntegrationTest {
 
         @BeforeEach
         void setUp() {
-            player = server.addPlayer();
+            player = server.addPlayer(random.nextString());
             player.setOp(true);
         }
 
@@ -60,8 +76,8 @@ public class IntegrationTest {
                 @DisplayName("should add the given skill to the player")
                 void shouldAddSkillToPlayer() {
 
-                    server.dispatchCommand(server.getConsoleSender(),"rcs:admin add skill " + player.getName() + " " + TEST_SKILL);
-                    assertThat(SkilledPlayer.getOrCreate(player).hasSkill(TEST_SKILL)).isTrue();
+                    server.dispatchCommand(player,"rcsa add skill " + player.getName() + " " + TEST_SKILL);
+                    assertSkillIsActive(player, TEST_SKILL);
                 }
             }
         }
@@ -79,7 +95,8 @@ public class IntegrationTest {
                 void shouldBuySkillIfAllRequirementsAreMet() {
 
                     server.dispatchCommand(player, "rcs buy " + TEST_SKILL);
-                    assertThat(SkilledPlayer.getOrCreate(player).hasActiveSkill(TEST_SKILL)).isTrue();
+                    server.dispatchCommand(player, "rcs buyconfirm");
+                    assertSkillIsActive(player, TEST_SKILL);
                 }
             }
         }
