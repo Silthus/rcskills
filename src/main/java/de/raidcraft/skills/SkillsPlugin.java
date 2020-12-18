@@ -127,7 +127,9 @@ public class SkillsPlugin extends JavaPlugin {
         this.skillManager = new SkillManager(this, pluginConfig);
         skillManager.registerDefaults();
 
-        skillManager.load();
+        // delay the loading of skills by one tick to wait for all plugins to load
+        // this is needed to properly auto detect all skill factories inside the other plugins
+        Bukkit.getScheduler().runTaskLater(this, () -> skillManager.load(), 1L);
     }
 
     private void setupEffectManager() {
