@@ -43,7 +43,7 @@ import java.util.stream.Stream;
 @Setter
 @Table(name = "rcs_skills")
 @Accessors(fluent = true)
-public class ConfiguredSkill extends BaseEntity implements Skill {
+public class ConfiguredSkill extends BaseEntity {
 
     static {
         try {
@@ -60,9 +60,9 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
                 .findOneOrEmpty();
     }
 
-    public static ConfiguredSkill getOrCreate(UUID id, Skill skill) {
+    public static ConfiguredSkill getOrCreate(UUID id) {
 
-        return Optional.ofNullable(find.byId(id)).orElse(new ConfiguredSkill(id, skill));
+        return Optional.ofNullable(find.byId(id)).orElse(new ConfiguredSkill(id));
     }
 
     public static final Finder<UUID, ConfiguredSkill> find = new Finder<>(ConfiguredSkill.class);
@@ -76,23 +76,21 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
     private int level = 1;
     private double money = 0d;
     private int skillpoints = 0;
+    private boolean hidden = false;
+    private boolean enabled = true;
 
     @DbJson
     private Map<String, Object> config = new HashMap<>();
     @OneToMany(cascade = CascadeType.REMOVE)
     private List<PlayerSkill> playerSkills = new ArrayList<>();
 
-
-    @Transient
-    private Skill skill;
     @Transient
     private List<Requirement> requirements = new ArrayList<>();
     @Transient
     private List<Requirement> costRequirements = new ArrayList<>();
 
-    ConfiguredSkill(UUID id, Skill skill) {
+    ConfiguredSkill(UUID id) {
         this.id(id);
-        this.skill = skill;
     }
 
     public List<Requirement> requirements() {
@@ -113,16 +111,6 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
         return costRequirements;
     }
 
-    public Optional<Skill> skill() {
-
-        if (skill == null) {
-            load();
-        }
-
-        return Optional.ofNullable(skill);
-    }
-
-    @Override
     public void load(ConfigurationSection config) {
         this.config = new HashMap<>();
         config.getKeys(true).forEach(key -> this.config.put(key, config.get(key)));
@@ -155,6 +143,8 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
             this.level = config.getInt("level", 1);
             this.money = config.getDouble("money", 0d);
             this.skillpoints = config.getInt("skillpoints", 0);
+            this.hidden = config.getBoolean("hidden", false);
+            this.enabled = config.getBoolean("enabled", true);
 
             ConfigurationSection with = config.getConfigurationSection("with");
             skill.load(Objects.requireNonNullElseGet(with, () -> config.createSection("with")));
@@ -188,14 +178,16 @@ public class ConfiguredSkill extends BaseEntity implements Skill {
         }
     }
 
-    @Override
-    public void apply(SkilledPlayer player) {
-        skill().ifPresent(skill -> skill.apply(player));
-    }
+    public ConfiguredSkill enabled(boolean enabled) {
 
-    @Override
-    public void remove(SkilledPlayer player) {
-        skill().ifPresent(skill -> skill.remove(player));
+        if (enabled == this.enabled) return this;
+        this.enabled = enabled;
+        if (enabled()) {
+            playerSkills().forEach(PlayerSkill::activate);
+        } else {
+            playerSkills().forEach(PlayerSkill::disable);
+        }
+        return this;
     }
 
     public void addRequirement(Requirement... requirements) {

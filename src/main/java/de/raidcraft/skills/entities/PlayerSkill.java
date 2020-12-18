@@ -11,6 +11,7 @@ import io.ebean.annotation.Index;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import lombok.extern.java.Log;
 import net.silthus.ebean.BaseEntity;
 import org.bukkit.Bukkit;
 
@@ -25,6 +26,7 @@ import java.util.UUID;
 @Table(name = "rcs_player_skills")
 @Index(columnNames = {"player_id", "configured_skill_id"})
 @Accessors(fluent = true)
+@Log(topic = "RCSkills")
 public class PlayerSkill extends BaseEntity {
 
     public static PlayerSkill getOrCreate(SkilledPlayer player, ConfiguredSkill skill) {
@@ -81,34 +83,51 @@ public class PlayerSkill extends BaseEntity {
         return status != null && status.isActive();
     }
 
-    public boolean activate() {
-        if (active()) return false;
+    public void disable() {
 
-        PlayerActivateSkillEvent event = new PlayerActivateSkillEvent(player(), this);
-        Bukkit.getPluginManager().callEvent(event);
+        if (!active()) return;
 
-        if (event.isCancelled()) return false;
+        configuredSkill().remove(player());
+        configuredSkill().enabled(false).save();
+    }
 
-        configuredSkill().skill().ifPresent(s -> s.apply(player()));
-        status(SkillStatus.ACTIVE);
-        save();
+    public void activate() {
 
-        if (event.isPlayEffect()) {
-            player().getBukkitPlayer().ifPresent(Effects::playerActivateSkill);
+        if (active()) return;
+
+        try {
+            PlayerActivateSkillEvent event = new PlayerActivateSkillEvent(player(), this);
+            Bukkit.getPluginManager().callEvent(event);
+
+            if (event.isCancelled()) return;
+
+            configuredSkill().apply(player());
+            status(SkillStatus.ACTIVE);
+            save();
+
+            if (event.isPlayEffect()) {
+                player().getBukkitPlayer().ifPresent(Effects::playerActivateSkill);
+            }
+
+            Bukkit.getPluginManager().callEvent(new PlayerActivatedSkillEvent(player(), this));
+        } catch (Exception e) {
+            log.severe("An error occured while activating the skill " + alias() + " of " + player().name() + ": " + e.getMessage());
+            e.printStackTrace();
         }
-
-        Bukkit.getPluginManager().callEvent(new PlayerActivatedSkillEvent(player(), this));
-
-        return true;
     }
 
     public void deactivate() {
         if (!active()) return;
 
-        status(SkillStatus.INACTIVE);
-        save();
+        try {
+            status(SkillStatus.INACTIVE);
+            save();
 
-        configuredSkill.skill().ifPresent(s -> s.remove(player()));
+            configuredSkill.remove(player());
+        } catch (Exception e) {
+            log.severe("An error occured while deactivating the skill " + alias() + " of " + player().name() + ": " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public boolean unlock() {

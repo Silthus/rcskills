@@ -1,28 +1,29 @@
 package de.raidcraft.skills.skills;
 
-import de.raidcraft.skills.Skill;
+import de.raidcraft.skills.AbstractSkill;
 import de.raidcraft.skills.SkillInfo;
 import de.raidcraft.skills.SkillsPlugin;
-import de.raidcraft.skills.entities.SkilledPlayer;
+import de.raidcraft.skills.entities.PlayerSkill;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.permissions.PermissionAttachment;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @SkillInfo("permission")
-public class PermissionSkill implements Skill {
+public class PermissionSkill extends AbstractSkill {
 
     private final SkillsPlugin plugin;
     private final List<String> permissions = new ArrayList<>();
-    private final Map<UUID, List<PermissionAttachment>> attachments = new HashMap<>();
+    private final Set<PermissionAttachment> attachments = new HashSet<>();
 
-    public PermissionSkill(SkillsPlugin plugin) {
+    public PermissionSkill(PlayerSkill playerSkill, SkillsPlugin plugin) {
+
+        super(playerSkill);
         this.plugin = plugin;
     }
 
@@ -34,22 +35,19 @@ public class PermissionSkill implements Skill {
     }
 
     @Override
-    public void apply(SkilledPlayer player) {
+    public void apply() {
 
-        List<PermissionAttachment> attachments = this.attachments.getOrDefault(player.id(), new ArrayList<>());
-        attachments
+        getPlayer().ifPresent(player -> attachments
                 .addAll(permissions.stream()
-                        .map(permission -> player.getBukkitPlayer()
-                                .map(p -> p.addAttachment(plugin, permission, true)).orElse(null))
+                        .map(permission -> player.addAttachment(plugin, permission, true))
                         .filter(Objects::nonNull)
-                        .collect(Collectors.toList()));
-        this.attachments.put(player.id(), attachments);
+                        .collect(Collectors.toList())));
     }
 
     @Override
-    public void remove(SkilledPlayer player) {
+    public void remove() {
 
-        attachments.getOrDefault(player.id(), new ArrayList<>())
-                .forEach(permissionAttachment -> player.getBukkitPlayer().ifPresent(p -> p.removeAttachment(permissionAttachment)));
+        getPlayer().ifPresent(player -> attachments.forEach(player::removeAttachment));
+        attachments.clear();
     }
 }

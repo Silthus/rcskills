@@ -4,12 +4,8 @@ import io.ebean.annotation.DbEnumValue;
 
 public enum SkillStatus {
 
-    ENABLED,
-    DISABLED,
     ACTIVE,
     UNLOCKED,
-    INACTIVE,
-    REMOVED,
     NOT_PRESENT;
 
     public boolean isActive() {

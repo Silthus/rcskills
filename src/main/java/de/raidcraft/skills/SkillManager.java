@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -66,7 +67,7 @@ public final class SkillManager {
         registerRequirement(LevelRequirement.class, LevelRequirement::new);
         registerRequirement(MoneyRequirement.class, MoneyRequirement::new);
         registerRequirement(SkillPointRequirement.class, SkillPointRequirement::new);
-        registerSkill(PermissionSkill.class, () -> new PermissionSkill(plugin));
+        registerSkill(PermissionSkill.class, (skill) -> new PermissionSkill(skill, plugin));
     }
 
     public void reload() {
@@ -210,7 +211,7 @@ public final class SkillManager {
      * @param <TSkill> the type of the skill
      * @return this skill manager
      */
-    public <TSkill extends Skill> SkillManager registerSkill(Class<TSkill> skillClass, Supplier<TSkill> supplier) {
+    public <TSkill extends Skill> SkillManager registerSkill(Class<TSkill> skillClass, Function<PlayerSkill, TSkill> supplier) {
 
         if (!skillClass.isAnnotationPresent(SkillInfo.class)) {
             log.severe("Cannot register skill " + skillClass.getCanonicalName() + " without a @SkillType annotation.");
