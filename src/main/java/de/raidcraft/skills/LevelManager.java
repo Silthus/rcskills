@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.extern.java.Log;
+import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -59,6 +60,13 @@ public final class LevelManager implements Listener {
                 .newLevel(event.getLevel())
                 .reason(event.getReason())
                 .save();
+
+        event.getPlayer().getBukkitPlayer().ifPresent(player -> {
+            BossBar bossBar = Messages.levelProgressBar(level, event.getNewExp(), calculateExpForNextLevel(level + 1));
+            BukkitAudiences.create(plugin)
+                    .player(player)
+                    .showBossBar(bossBar);
+        });
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)

@@ -8,6 +8,7 @@ import de.raidcraft.skills.entities.PlayerSkill;
 import de.raidcraft.skills.entities.SkilledPlayer;
 import lombok.AccessLevel;
 import lombok.Setter;
+import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -213,6 +214,19 @@ public final class Messages {
                 .append(text(" wurde auf ", YELLOW))
                 .append(text("Level " + level, AQUA))
                 .append(text(" gesetzt.", YELLOW));
+    }
+
+    public static BossBar levelProgressBar(int level, long exp, long expToNextLevel) {
+
+        TextComponent title = text("Level " + (level + 1), GOLD, BOLD)
+                .append(text("  -  ", DARK_AQUA))
+                .append(text(exp, GREEN))
+                .append(text("/", YELLOW))
+                .append(text(expToNextLevel, AQUA))
+                .append(text(" EXP", YELLOW));
+
+        long progreess = exp / expToNextLevel;
+        return BossBar.bossBar(title, progreess, BossBar.Color.BLUE, BossBar.Overlay.NOTCHED_20);
     }
 
     public static Title levelUpTitle(int level) {
