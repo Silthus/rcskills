@@ -1,8 +1,6 @@
 package de.raidcraft.skills.entities;
 
 import de.raidcraft.skills.Requirement;
-import de.raidcraft.skills.Skill;
-import de.raidcraft.skills.SkillManager;
 import de.raidcraft.skills.SkillsPlugin;
 import de.raidcraft.skills.TestResult;
 import de.raidcraft.skills.requirements.LevelRequirement;
@@ -35,7 +33,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 @Entity
@@ -111,70 +108,74 @@ public class ConfiguredSkill extends BaseEntity {
         return costRequirements;
     }
 
-    public void load(ConfigurationSection config) {
+    public ConfiguredSkill load(ConfigurationSection config) {
         this.config = new HashMap<>();
         config.getKeys(true).forEach(key -> this.config.put(key, config.get(key)));
 
         load();
         save();
+
+        return this;
+    }
+
+    private ConfigurationSection createConfig() {
+
+        if (this.config == null) return new MemoryConfiguration();
+
+        MemoryConfiguration config = new MemoryConfiguration();
+        for (Map.Entry<String, Object> entry : this.config.entrySet()) {
+            config.set(entry.getKey(), entry.getValue());
+        }
+
+        return config;
+    }
+
+    public ConfigurationSection getSkillConfig() {
+
+        ConfigurationSection config = createConfig();
+        return Objects.requireNonNullElse(config.getConfigurationSection("with"), config.createSection("with"));
     }
 
     @PostLoad
     public void load() {
 
-        SkillManager skillManager = SkillsPlugin.instance().getSkillManager();
-        if (skill == null) {
-            skill = skillManager.getSkillType(type)
-                    .map(Registration::supplier)
-                    .map(Supplier::get)
-                    .orElse(null);
+        ConfigurationSection config = createConfig();
+
+        this.alias = config.getString("alias");
+        this.name = config.getString("name", alias());
+        this.type = config.getString("type", "permission");
+        this.description = config.getString("description");
+        this.level = config.getInt("level", 1);
+        this.money = config.getDouble("money", 0d);
+        this.skillpoints = config.getInt("skillpoints", 0);
+        this.hidden = config.getBoolean("hidden", false);
+        this.enabled = config.getBoolean("enabled", true);
+
+        this.requirements = SkillsPlugin.instance().getSkillManager()
+                .loadRequirements(config.getConfigurationSection("requirements"));
+        this.costRequirements = new ArrayList<>();
+
+        requirements.add(new PermissionRequirement().add(SkillsPlugin.SKILL_PERMISSION_PREFIX + alias));
+
+        if (level > 0) {
+            LevelRequirement levelRequirement = new LevelRequirement();
+            levelRequirement.load(new MemoryConfiguration());
+            levelRequirement.setLevel(level);
+            requirements.add(levelRequirement);
         }
 
-        if (skill != null && this.config != null) {
-            MemoryConfiguration config = new MemoryConfiguration();
-            for (Map.Entry<String, Object> entry : this.config.entrySet()) {
-                config.set(entry.getKey(), entry.getValue());
-            }
+        if (money > 0) {
+            MoneyRequirement moneyRequirement = new MoneyRequirement();
+            moneyRequirement.load(new MemoryConfiguration());
+            moneyRequirement.setAmount(money);
+            costRequirements.add(moneyRequirement);
+        }
 
-            this.alias = config.getString("alias");
-            this.name = config.getString("name", alias());
-            this.type = config.getString("type", "permission");
-            this.description = config.getString("description");
-            this.level = config.getInt("level", 1);
-            this.money = config.getDouble("money", 0d);
-            this.skillpoints = config.getInt("skillpoints", 0);
-            this.hidden = config.getBoolean("hidden", false);
-            this.enabled = config.getBoolean("enabled", true);
-
-            ConfigurationSection with = config.getConfigurationSection("with");
-            skill.load(Objects.requireNonNullElseGet(with, () -> config.createSection("with")));
-
-            this.requirements = skillManager.loadRequirements(config.getConfigurationSection("requirements"));
-            this.costRequirements = new ArrayList<>();
-
-            requirements.add(new PermissionRequirement().add(SkillsPlugin.SKILL_PERMISSION_PREFIX + alias));
-
-            if (level > 0) {
-                LevelRequirement levelRequirement = new LevelRequirement();
-                levelRequirement.load(new MemoryConfiguration());
-                levelRequirement.setLevel(level);
-                requirements.add(levelRequirement);
-            }
-
-            if (money > 0) {
-                MoneyRequirement moneyRequirement = new MoneyRequirement();
-                moneyRequirement.load(new MemoryConfiguration());
-                moneyRequirement.setAmount(money);
-                costRequirements.add(moneyRequirement);
-            }
-
-            if (skillpoints > 0) {
-                SkillPointRequirement skillPointRequirement = new SkillPointRequirement();
-                skillPointRequirement.load(new MemoryConfiguration());
-                skillPointRequirement.setSkillpoints(this.skillpoints);
-                costRequirements.add(skillPointRequirement);
-            }
-
+        if (skillpoints > 0) {
+            SkillPointRequirement skillPointRequirement = new SkillPointRequirement();
+            skillPointRequirement.load(new MemoryConfiguration());
+            skillPointRequirement.setSkillpoints(this.skillpoints);
+            costRequirements.add(skillPointRequirement);
         }
     }
 

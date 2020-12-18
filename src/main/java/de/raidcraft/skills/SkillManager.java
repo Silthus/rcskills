@@ -15,6 +15,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
 import lombok.extern.java.Log;
+import net.silthus.configmapper.ConfigurationException;
+import net.silthus.configmapper.bukkit.BukkitConfigMap;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -47,7 +49,7 @@ public final class SkillManager {
     private final Map<String, Requirement.Registration<?>> requirements = new HashMap<>();
     private final Map<String, Skill.Registration<?>> skillTypes = new HashMap<>();
 
-    private final Map<UUID, List<PlayerSkill>> loadedPlayerSkills = new HashMap<>();
+    private final Map<UUID, Map<UUID, Skill>> cachedPlayerSkills = new HashMap<>();
 
     private final SkillsPlugin plugin;
     private final SkillPluginConfig config;
@@ -67,6 +69,7 @@ public final class SkillManager {
         registerRequirement(LevelRequirement.class, LevelRequirement::new);
         registerRequirement(MoneyRequirement.class, MoneyRequirement::new);
         registerRequirement(SkillPointRequirement.class, SkillPointRequirement::new);
+
         registerSkill(PermissionSkill.class, (skill) -> new PermissionSkill(skill, plugin));
     }
 
@@ -257,20 +260,8 @@ public final class SkillManager {
      */
     public void load(@NonNull Player player) {
 
-        if (loadedPlayerSkills.containsKey(player.getUniqueId())) {
-            return;
-        }
-
-        List<PlayerSkill> skills = new ArrayList<>();
-        final SkilledPlayer skilledPlayer = SkilledPlayer.getOrCreate(player);
-        skilledPlayer.skills().stream()
-                .filter(PlayerSkill::unlocked)
-                .filter(PlayerSkill::active)
-                .forEach(skill -> {
-                    skill.activate();
-                    skills.add(skill);
-                });
-        this.loadedPlayerSkills.put(player.getUniqueId(), skills);
+        SkilledPlayer.getOrCreate(player).activeSkills()
+                .forEach(PlayerSkill::enable);
     }
 
     /**
@@ -339,23 +330,22 @@ public final class SkillManager {
             return Optional.empty();
         }
 
+        String skillType = config.getString("type", "permission");
+
+        if (!hasType(skillType)) {
+            log.severe("Unable to load skill " + identifier + ": skill type " + skillType + " does not exist!");
+            return Optional.empty();
+        }
+
         final UUID id = UUID.fromString(Objects.requireNonNull(config.getString("id", UUID.randomUUID().toString())));
+        config.set("alias", config.getString("alias", identifier));
+        String alias = config.getString("alias");
 
-        Optional<ConfiguredSkill> loadedSkill = getSkillType(config.getString("type", "permission"))
-                .map(Skill.Registration::supplier)
-                .map(Supplier::get)
-                .map(skill -> ConfiguredSkill.findByAliasOrName(identifier)
-                        .orElseGet(() -> ConfiguredSkill.getOrCreate(id, skill)));
+        ConfiguredSkill skill = Optional.ofNullable(ConfiguredSkill.find.byId(id))
+                .or(() -> ConfiguredSkill.findByAliasOrName(alias))
+                .orElseGet(() -> ConfiguredSkill.getOrCreate(id));
 
-        loadedSkill.ifPresent(skill -> {
-
-            config.set("id", skill.id().toString());
-            config.set("alias", config.getString("alias", identifier));
-
-            skill.load(config);
-        });
-
-        return loadedSkill;
+        return Optional.of(skill.load(config));
     }
 
     /**
@@ -372,6 +362,62 @@ public final class SkillManager {
         if (Strings.isNullOrEmpty(type)) {
             return Optional.empty();
         }
+
         return Optional.ofNullable(skillTypes().get(type.toLowerCase()));
+    }
+
+    /**
+     * Checks if the given skill type exists.
+     *
+     * @param type the skill type to check. can be null.
+     * @return true if the skill type exists and is loaded
+     */
+    public boolean hasType(String type) {
+
+        return !Strings.isNullOrEmpty(type) && skillTypes().containsKey(type.toLowerCase());
+    }
+
+    /**
+     * Loads the given skill from the cache or creates a new unique instance for the given player skill.
+     * <p>This will create an instance of the skill with the provided supplier and load any config
+     * options defined inside the skill class.
+     * <p>The result of the load operation will be cached and retrieved on subsequent calls.
+     *
+     * @param playerSkill the player skill that should be loaded
+     * @return the loaded skill.
+     *         null if the skill type does not exist
+     *         or null if the load of the configuration failed.
+     */
+    public Skill loadSkill(@NonNull PlayerSkill playerSkill) {
+
+        UUID playerId = playerSkill.player().id();
+        Map<UUID, Skill> cachedSkills = cachedPlayerSkills.getOrDefault(playerId, new HashMap<>());
+        if (cachedSkills.containsKey(playerSkill.id())) {
+            return cachedSkills.get(playerSkill.id());
+        }
+
+        Skill loadedSkill = getSkillType(playerSkill.configuredSkill().type())
+                .map(registration -> {
+                    try {
+                        Skill skill = registration.supplier().apply(playerSkill);
+                        ConfigurationSection skillConfig = playerSkill.configuredSkill().getSkillConfig();
+                        skill = BukkitConfigMap.of(skill)
+                                .with(skillConfig)
+                                .applyTo(skill);
+                        skill.load(skillConfig);
+                        return skill;
+                    } catch (ConfigurationException e) {
+                        log.severe("Failed to load skill " + registration.skillClass().getCanonicalName() + ": " + e.getMessage());
+                        e.printStackTrace();
+                        return null;
+                    }
+                }).orElse(null);
+
+        if (loadedSkill != null) {
+            cachedSkills.put(playerSkill.id(), loadedSkill);
+            cachedPlayerSkills.put(playerId, cachedSkills);
+        }
+
+        return loadedSkill;
     }
 }

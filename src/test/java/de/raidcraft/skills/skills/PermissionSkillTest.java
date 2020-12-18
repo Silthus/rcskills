@@ -3,8 +3,8 @@ package de.raidcraft.skills.skills;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import de.raidcraft.skills.Skill;
 import de.raidcraft.skills.SkillsPlugin;
+import de.raidcraft.skills.actions.AddSkillAction;
 import de.raidcraft.skills.entities.ConfiguredSkill;
 import de.raidcraft.skills.entities.SkilledPlayer;
 import org.bukkit.configuration.MemoryConfiguration;
@@ -17,8 +17,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.InstanceOfAssertFactories.list;
-import static org.assertj.core.api.InstanceOfAssertFactories.optional;
 
 class PermissionSkillTest {
 
@@ -49,15 +47,7 @@ class PermissionSkillTest {
     void testSkillShouldExist() {
 
         assertThat(ConfiguredSkill.findByAliasOrName(TEST_SKILL))
-                .isPresent()
-                .get()
-                .extracting(ConfiguredSkill::skill)
-                .asInstanceOf(optional(Skill.class))
-                .isPresent()
-                .get()
-                .extracting("permissions")
-                .asInstanceOf(list(String.class))
-                .contains("foobar");
+                .isPresent();
     }
 
     @Test
@@ -68,8 +58,12 @@ class PermissionSkillTest {
         player.addAttachment(plugin, SkillsPlugin.SKILL_PERMISSION_PREFIX + TEST_SKILL, true);
         assertThat(player.hasPermission("foobar")).isFalse();
 
-        SkilledPlayer.getOrCreate(player)
+        AddSkillAction.Result result = SkilledPlayer.getOrCreate(player)
                 .addSkill(ConfiguredSkill.findByAliasOrName(TEST_SKILL).get());
+
+        assertThat(result.success()).isTrue();
+
+        result.playerSkill().activate();
 
         assertThat(player.hasPermission("foobar")).isTrue();
     }
