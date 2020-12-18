@@ -9,6 +9,7 @@ import de.raidcraft.skills.requirements.MoneyRequirement;
 import de.raidcraft.skills.requirements.PermissionRequirement;
 import de.raidcraft.skills.requirements.SkillPointRequirement;
 import de.raidcraft.skills.requirements.SkillRequirement;
+import de.raidcraft.skills.requirements.SkillSlotRequirement;
 import de.raidcraft.skills.skills.PermissionSkill;
 import de.raidcraft.skills.util.ConfigUtil;
 import lombok.Getter;
@@ -69,6 +70,7 @@ public final class SkillManager {
         registerRequirement(LevelRequirement.class, LevelRequirement::new);
         registerRequirement(MoneyRequirement.class, MoneyRequirement::new);
         registerRequirement(SkillPointRequirement.class, SkillPointRequirement::new);
+        registerRequirement(SkillSlotRequirement.class, SkillSlotRequirement::new);
 
         registerSkill(PermissionSkill.class, (skill) -> new PermissionSkill(skill, plugin));
     }
@@ -307,7 +309,13 @@ public final class SkillManager {
             if (section == null) continue;
             String type = section.getString("type", requirementKey);
             if (requirements().containsKey(type)) {
-                requirements.add(requirements().get(type).supplier().get().load(section));
+                Requirement requirement = requirements().get(type).supplier().get();
+                try {
+                    BukkitConfigMap.of(requirement).with(section).applyTo(requirement);
+                } catch (ConfigurationException e) {
+                    log.severe("Failed to apply config to requirement " + requirementKey + ": " + e.getMessage());
+                }
+                requirements.add(requirement.load(section));
             } else {
                 log.warning("unable to find the requirement type " + type + " for " + requirementKey + " in " + config.getName() + "." + requirementKey);
             }

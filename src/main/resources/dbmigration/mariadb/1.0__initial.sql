@@ -8,6 +8,7 @@ create table rcs_skills (
   level                         integer not null,
   money                         double not null,
   skillpoints                   integer not null,
+  skillslots                    integer not null,
   hidden                        tinyint(1) default 0 not null,
   enabled                       tinyint(1) default 0 not null,
   config                        json,

@@ -24,6 +24,8 @@ import net.silthus.ebean.EbeanWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
@@ -40,6 +42,7 @@ public class SkillsPlugin extends JavaPlugin {
     public static final String PERMISSION_PREFIX = "rcskills.";
     public static final String SKILL_PERMISSION_PREFIX = PERMISSION_PREFIX + "skill.";
     public static final String BYPASS_ACTIVE_SKILL_LIMIT = PERMISSION_PREFIX + "slots.bypass";
+    public static final String BYPASS_REQUIREMENT_CHECKS = PERMISSION_PREFIX + "requirements.bypass";
 
     @Getter
     @Accessors(fluent = true)
@@ -84,7 +87,14 @@ public class SkillsPlugin extends JavaPlugin {
         setupListener();
         if (!isTesting()) {
             setupCommands();
+            registerPermissions();
         }
+    }
+
+    private void registerPermissions() {
+
+        Bukkit.getPluginManager().addPermission(new Permission(BYPASS_ACTIVE_SKILL_LIMIT, PermissionDefault.FALSE));
+        Bukkit.getPluginManager().addPermission(new Permission(BYPASS_REQUIREMENT_CHECKS, PermissionDefault.FALSE));
     }
 
     public void reload() {

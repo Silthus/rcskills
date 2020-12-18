@@ -10,6 +10,7 @@
             <column name="level" type="integer" notnull="true"/>
             <column name="money" type="double" notnull="true"/>
             <column name="skillpoints" type="integer" notnull="true"/>
+            <column name="skillslots" type="integer" notnull="true"/>
             <column name="hidden" type="boolean" defaultValue="false" notnull="true"/>
             <column name="enabled" type="boolean" defaultValue="false" notnull="true"/>
             <column name="config" type="json"/>

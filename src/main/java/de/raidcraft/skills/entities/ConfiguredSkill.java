@@ -7,6 +7,7 @@ import de.raidcraft.skills.requirements.LevelRequirement;
 import de.raidcraft.skills.requirements.MoneyRequirement;
 import de.raidcraft.skills.requirements.PermissionRequirement;
 import de.raidcraft.skills.requirements.SkillPointRequirement;
+import de.raidcraft.skills.requirements.SkillSlotRequirement;
 import io.ebean.Finder;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.Index;
@@ -73,6 +74,7 @@ public class ConfiguredSkill extends BaseEntity {
     private int level = 1;
     private double money = 0d;
     private int skillpoints = 0;
+    private int skillslots = 1;
     private boolean hidden = false;
     private boolean enabled = true;
 
@@ -148,6 +150,7 @@ public class ConfiguredSkill extends BaseEntity {
         this.level = config.getInt("level", 1);
         this.money = config.getDouble("money", 0d);
         this.skillpoints = config.getInt("skillpoints", 0);
+        this.skillslots = config.getInt("skillslots", 1);
         this.hidden = config.getBoolean("hidden", false);
         this.enabled = config.getBoolean("enabled", true);
 
@@ -176,6 +179,13 @@ public class ConfiguredSkill extends BaseEntity {
             skillPointRequirement.load(new MemoryConfiguration());
             skillPointRequirement.setSkillpoints(this.skillpoints);
             costRequirements.add(skillPointRequirement);
+        }
+
+        if (skillslots > 0) {
+            SkillSlotRequirement slotRequirement = new SkillSlotRequirement();
+            slotRequirement.load(new MemoryConfiguration());
+            slotRequirement.setSlots(this.skillslots);
+            costRequirements.add(slotRequirement);
         }
     }
 

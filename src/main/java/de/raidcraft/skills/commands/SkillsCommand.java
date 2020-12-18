@@ -96,7 +96,7 @@ public class SkillsCommand extends BaseCommand {
             throw new ConditionFailedException("Du besitzt den Skill " + skill.name() + " bereits.");
         }
 
-        if (!player.canBuy(skill)) {
+        if (!getCurrentCommandIssuer().hasPermission(SkillsPlugin.BYPASS_REQUIREMENT_CHECKS) && !player.canBuy(skill)) {
             PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
             Messages.send(getCurrentCommandIssuer(), text("Du kannst den Skill ", RED)
                     .append(skill(playerSkill, false))
@@ -144,7 +144,7 @@ public class SkillsCommand extends BaseCommand {
         if (buySkillAction == null) {
             getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Der Zeitraum zum Kaufen des Skills ist abgelaufen bitte gebe den Befehl erneut ein.");
         } else {
-            BuySkillAction.Result result = buySkillAction.execute(false);
+            BuySkillAction.Result result = buySkillAction.execute(getCurrentCommandIssuer().hasPermission(SkillsPlugin.BYPASS_REQUIREMENT_CHECKS));
             if (result.success()) {
                 Messages.send(getCurrentCommandIssuer(), Messages.buySkill(buySkillAction.player(), result.playerSkill()));
             } else {

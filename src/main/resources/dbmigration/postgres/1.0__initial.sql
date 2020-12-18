@@ -8,6 +8,7 @@ create table rcs_skills (
   level                         integer not null,
   money                         float not null,
   skillpoints                   integer not null,
+  skillslots                    integer not null,
   hidden                        boolean default false not null,
   enabled                       boolean default false not null,
   config                        json,
