@@ -38,7 +38,7 @@ public class AddSkillAction {
         }
 
         PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
-
+        player.skills().add(playerSkill);
         playerSkill.unlock();
 
         player.save();
