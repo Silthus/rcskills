@@ -10,7 +10,6 @@ import org.bukkit.permissions.PermissionAttachment;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,7 +39,6 @@ public class PermissionSkill extends AbstractSkill {
         getPlayer().ifPresent(player -> attachments
                 .addAll(permissions.stream()
                         .map(permission -> player.addAttachment(plugin, permission, true))
-                        .filter(Objects::nonNull)
                         .collect(Collectors.toList())));
     }
 

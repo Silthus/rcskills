@@ -1,6 +1,8 @@
 package de.raidcraft.skills.entities;
 
+import de.raidcraft.skills.Skill;
 import de.raidcraft.skills.SkillStatus;
+import de.raidcraft.skills.SkillsPlugin;
 import de.raidcraft.skills.events.PlayerActivateSkillEvent;
 import de.raidcraft.skills.events.PlayerActivatedSkillEvent;
 import de.raidcraft.skills.events.PlayerUnlockSkillEvent;
@@ -18,6 +20,7 @@ import org.bukkit.Bukkit;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.util.Optional;
 import java.util.UUID;
 
 @Entity
@@ -37,16 +40,16 @@ public class PlayerSkill extends BaseEntity {
                 .findOneOrEmpty()
                 .orElseGet(() -> {
                     PlayerSkill playerSkill = new PlayerSkill(player, skill);
-                    playerSkill.save();
+                    playerSkill.insert();
                     return playerSkill;
                 });
     }
 
     public static final Finder<UUID, PlayerSkill> find = new Finder<>(PlayerSkill.class);
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     private SkilledPlayer player;
-    @ManyToOne
+    @ManyToOne(optional = false)
     private ConfiguredSkill configuredSkill;
     private SkillStatus status = SkillStatus.NOT_PRESENT;
 
@@ -67,6 +70,11 @@ public class PlayerSkill extends BaseEntity {
         return configuredSkill.description();
     }
 
+    public Optional<Skill> skill() {
+
+        return Optional.ofNullable(SkillsPlugin.instance().getSkillManager().loadSkill(this));
+    }
+
     /**
      * Checks if this skill is unlocked or active.
      *
@@ -83,12 +91,18 @@ public class PlayerSkill extends BaseEntity {
         return status != null && status.isActive();
     }
 
+    public void enable() {
+
+        if (!active()) return;
+
+        skill().ifPresent(Skill::apply);
+    }
+
     public void disable() {
 
         if (!active()) return;
 
-        configuredSkill().remove(player());
-        configuredSkill().enabled(false).save();
+        skill().ifPresent(Skill::remove);
     }
 
     public void activate() {
@@ -101,13 +115,14 @@ public class PlayerSkill extends BaseEntity {
 
             if (event.isCancelled()) return;
 
-            configuredSkill().apply(player());
             status(SkillStatus.ACTIVE);
             save();
 
             if (event.isPlayEffect()) {
                 player().getBukkitPlayer().ifPresent(Effects::playerActivateSkill);
             }
+
+            enable();
 
             Bukkit.getPluginManager().callEvent(new PlayerActivatedSkillEvent(player(), this));
         } catch (Exception e) {
@@ -120,10 +135,10 @@ public class PlayerSkill extends BaseEntity {
         if (!active()) return;
 
         try {
-            status(SkillStatus.INACTIVE);
+            status(SkillStatus.UNLOCKED);
             save();
 
-            configuredSkill.remove(player());
+            disable();
         } catch (Exception e) {
             log.severe("An error occured while deactivating the skill " + alias() + " of " + player().name() + ": " + e.getMessage());
             e.printStackTrace();
@@ -161,9 +176,10 @@ public class PlayerSkill extends BaseEntity {
     @Override
     public boolean delete() {
 
-        status(SkillStatus.REMOVED);
-        configuredSkill().skill().ifPresent(skill -> skill.remove(player()));
+        status(SkillStatus.NOT_PRESENT);
         save();
+
+        disable();
 
         return true;
     }

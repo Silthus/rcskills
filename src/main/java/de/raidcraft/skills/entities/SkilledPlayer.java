@@ -69,11 +69,6 @@ public class SkilledPlayer extends BaseEntity {
         name(player.getName());
     }
 
-    public SkilledPlayer load() {
-
-
-    }
-
     public OfflinePlayer getOfflinePlayer() {
 
         return Bukkit.getOfflinePlayer(id());

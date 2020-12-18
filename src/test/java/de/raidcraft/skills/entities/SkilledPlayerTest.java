@@ -4,7 +4,6 @@ import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import de.raidcraft.skills.SkillsPlugin;
-import de.raidcraft.skills.skills.PermissionSkill;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,17 +46,16 @@ class SkilledPlayerTest {
         PlayerMock serverPlayer = server.addPlayer();
         serverPlayer.setOp(true);
         SkilledPlayer player = SkilledPlayer.getOrCreate(serverPlayer);
-        ConfiguredSkill skill = new ConfiguredSkill(UUID.randomUUID(), new PermissionSkill(plugin));
+        ConfiguredSkill skill = new ConfiguredSkill(UUID.randomUUID());
         skill.save();
 
         player.addSkill(skill);
-        assertThat(player.hasActiveSkill(skill)).isTrue();
+        assertThat(player.hasSkill(skill)).isTrue();
 
         player.removeSkill(skill);
-        assertThat(player.hasActiveSkill(skill)).isFalse();
         assertThat(player.hasSkill(skill)).isFalse();
 
         player.addSkill(skill);
-        assertThat(player.hasActiveSkill(skill)).isTrue();
+        assertThat(player.hasSkill(skill)).isTrue();
     }
 }

@@ -5,7 +5,6 @@ import be.seeseemelk.mockbukkit.ServerMock;
 import de.raidcraft.skills.entities.PlayerSkill;
 import de.raidcraft.skills.entities.SkilledPlayer;
 import de.raidcraft.skills.util.RandomString;
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.AfterEach;
@@ -13,6 +12,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressWarnings("ALL")
 public class IntegrationTest {
@@ -44,11 +45,21 @@ public class IntegrationTest {
 
     private void assertSkillIsActive(Player player, String skill) {
 
-        AssertionsForClassTypes.assertThat(SkilledPlayer.getOrCreate(player).getSkill(TEST_SKILL))
+        assertThat(SkilledPlayer.getOrCreate(player).getSkill(TEST_SKILL))
                 .isPresent()
                 .get()
                 .extracting(PlayerSkill::status, PlayerSkill::active, PlayerSkill::unlocked)
                 .contains(SkillStatus.ACTIVE, true, true);
+    }
+
+    private void assertSkillIsUnlocked(Player player, String skill) {
+
+        assertThat(SkilledPlayer.getOrCreate(player).getSkill(TEST_SKILL))
+                .isPresent()
+                .get()
+                .extracting(PlayerSkill::status, PlayerSkill::active, PlayerSkill::unlocked)
+                .contains(SkillStatus.UNLOCKED, false, true);
+
     }
 
     @Nested
@@ -76,7 +87,7 @@ public class IntegrationTest {
                 void shouldAddSkillToPlayer() {
 
                     server.dispatchCommand(player,"rcsa add skill " + player.getName() + " " + TEST_SKILL);
-                    assertSkillIsActive(player, TEST_SKILL);
+                    assertSkillIsUnlocked(player, TEST_SKILL);
                 }
             }
         }
@@ -95,7 +106,7 @@ public class IntegrationTest {
 
                     server.dispatchCommand(player, "rcs buy " + TEST_SKILL);
                     server.dispatchCommand(player, "rcs buyconfirm");
-                    assertSkillIsActive(player, TEST_SKILL);
+                    assertSkillIsUnlocked(player, TEST_SKILL);
                 }
             }
         }
