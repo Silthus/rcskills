@@ -8,6 +8,8 @@ create table rcs_skills (
   level                         integer not null,
   money                         double not null,
   skillpoints                   integer not null,
+  hidden                        boolean default false not null,
+  enabled                       boolean default false not null,
   config                        clob,
   version                       bigint not null,
   when_created                  timestamp not null,
@@ -41,13 +43,13 @@ create table rcs_level_history (
 
 create table rcs_player_skills (
   id                            uuid not null,
-  player_id                     uuid,
-  configured_skill_id           uuid,
-  status                        varchar(8),
+  player_id                     uuid not null,
+  configured_skill_id           uuid not null,
+  status                        varchar(11),
   version                       bigint not null,
   when_created                  timestamp not null,
   when_modified                 timestamp not null,
-  constraint ck_rcs_player_skills_status check ( status in ('ENABLED','DISABLED','ACTIVE','UNLOCKED','INACTIVE','REMOVED')),
+  constraint ck_rcs_player_skills_status check ( status in ('ACTIVE','UNLOCKED','NOT_PRESENT')),
   constraint pk_rcs_player_skills primary key (id)
 );
 
@@ -55,6 +57,7 @@ create table rcs_players (
   id                            uuid not null,
   name                          varchar(255),
   skill_points                  integer not null,
+  skill_slots                   integer not null,
   level_id                      uuid not null,
   version                       bigint not null,
   when_created                  timestamp not null,

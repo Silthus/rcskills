@@ -10,6 +10,8 @@
             <column name="level" type="integer" notnull="true"/>
             <column name="money" type="double" notnull="true"/>
             <column name="skillpoints" type="integer" notnull="true"/>
+            <column name="hidden" type="boolean" defaultValue="false" notnull="true"/>
+            <column name="enabled" type="boolean" defaultValue="false" notnull="true"/>
             <column name="config" type="json"/>
             <column name="version" type="bigint" notnull="true"/>
             <column name="when_created" type="timestamp" notnull="true"/>
@@ -37,9 +39,9 @@
         </createTable>
         <createTable name="rcs_player_skills" identityType="external" pkName="pk_rcs_player_skills">
             <column name="id" type="uuid" primaryKey="true" identity="true"/>
-            <column name="player_id" type="uuid" references="rcs_players.id" foreignKeyName="fk_rcs_player_skills_player_id" foreignKeyIndex="ix_rcs_player_skills_player_id"/>
-            <column name="configured_skill_id" type="uuid" references="rcs_skills.id" foreignKeyName="fk_rcs_player_skills_configured_skill_id" foreignKeyIndex="ix_rcs_player_skills_configured_skill_id"/>
-            <column name="status" type="varchar(8)" checkConstraint="check ( status in ('ENABLED','DISABLED','ACTIVE','UNLOCKED','INACTIVE','REMOVED'))" checkConstraintName="ck_rcs_player_skills_status"/>
+            <column name="player_id" type="uuid" notnull="true" references="rcs_players.id" foreignKeyName="fk_rcs_player_skills_player_id" foreignKeyIndex="ix_rcs_player_skills_player_id"/>
+            <column name="configured_skill_id" type="uuid" notnull="true" references="rcs_skills.id" foreignKeyName="fk_rcs_player_skills_configured_skill_id" foreignKeyIndex="ix_rcs_player_skills_configured_skill_id"/>
+            <column name="status" type="varchar(11)" checkConstraint="check ( status in ('ACTIVE','UNLOCKED','NOT_PRESENT'))" checkConstraintName="ck_rcs_player_skills_status"/>
             <column name="version" type="bigint" notnull="true"/>
             <column name="when_created" type="timestamp" notnull="true"/>
             <column name="when_modified" type="timestamp" notnull="true"/>
@@ -48,6 +50,7 @@
             <column name="id" type="uuid" primaryKey="true" identity="true"/>
             <column name="name" type="varchar"/>
             <column name="skill_points" type="integer" notnull="true"/>
+            <column name="skill_slots" type="integer" notnull="true"/>
             <column name="level_id" type="uuid" notnull="true" uniqueOneToOne="uq_rcs_players_level_id" references="rcs_levels.id" foreignKeyName="fk_rcs_players_level_id"/>
             <column name="version" type="bigint" notnull="true"/>
             <column name="when_created" type="timestamp" notnull="true"/>

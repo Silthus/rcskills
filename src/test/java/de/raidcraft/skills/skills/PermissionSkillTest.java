@@ -55,6 +55,7 @@ class PermissionSkillTest {
     void shouldHavePermissionWhenSkillIsApplied() {
 
         PlayerMock player = server.addPlayer();
+        player.addAttachment(plugin, SkillsPlugin.BYPASS_ACTIVE_SKILL_LIMIT, true);
         player.addAttachment(plugin, SkillsPlugin.SKILL_PERMISSION_PREFIX + TEST_SKILL, true);
         assertThat(player.hasPermission("foobar")).isFalse();
 

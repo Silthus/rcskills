@@ -81,6 +81,17 @@ public class AdminCommands extends BaseCommand {
             player.addSkillPoints(skillpoints).save();
             Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.addSkillpoints(player, skillpoints));
         }
+
+        @Subcommand("slots|skillslots")
+        @CommandAlias("addskillslots")
+        @CommandCompletion("@players")
+        @Description("Fügt dem Spieler Skill Slots hinzu.")
+        @CommandPermission("rcskills.admin.add.skillslots")
+        public void addSkillSlots(SkilledPlayer player, int slots) {
+
+            player.skillSlots(player.skillSlots() + slots).save();
+            Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.addSkillSlots(player, slots));
+        }
     }
 
     @Subcommand("set")
@@ -117,6 +128,17 @@ public class AdminCommands extends BaseCommand {
 
             player.setSkillPoints(skillpoints).save();
             Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.setSkillpoints(player, skillpoints));
+        }
+
+        @Subcommand("slots|skillslots")
+        @CommandAlias("setskillslots")
+        @CommandCompletion("@players")
+        @Description("Setzt die Skill Slots des Spielers auf den angegebenen Wert.")
+        @CommandPermission("rcskills.admin.set.skillslots")
+        public void setSkillSlots(SkilledPlayer player, int slots) {
+
+            player.skillSlots(slots).save();
+            Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.setSkillSlots(player, slots));
         }
     }
 

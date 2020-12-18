@@ -56,6 +56,7 @@ public class SkilledPlayer extends BaseEntity {
 
     private String name;
     private int skillPoints = 0;
+    private int skillSlots = 0;
 
     @OneToOne(optional = false, cascade = CascadeType.ALL)
     private Level level = new Level();
@@ -67,6 +68,18 @@ public class SkilledPlayer extends BaseEntity {
 
         id(player.getUniqueId());
         name(player.getName());
+    }
+
+    /**
+     * Returns the number of free skill slots the player has.
+     * <p>Free slots are based off the number of active skills and total skill slots.
+     *
+     * @return the number of free skill slots.
+     *         Can be negative if the player has too many active skills.
+     */
+    public int freeSkillSlots() {
+
+        return skillSlots - activeSkills().size();
     }
 
     public OfflinePlayer getOfflinePlayer() {

@@ -146,6 +146,18 @@ public final class Messages {
                 .append(text(" erhöht.", YELLOW));
     }
 
+    public static Component addSkillSlots(SkilledPlayer player, int slots) {
+
+        return text("Die Skill Slots von ", YELLOW)
+                .append(player(player))
+                .append(text(" wurden um ", YELLOW))
+                .append(text(slots, AQUA))
+                .append(text(" Slots auf ", YELLOW))
+                .append(text(player.skillSlots(), AQUA))
+                .append(text(" erhöht.", YELLOW));
+    }
+
+
     public static Component setSkillpoints(SkilledPlayer player, int skillpoints) {
 
         return text("Die Skillpunkte von ", YELLOW)
@@ -153,6 +165,15 @@ public final class Messages {
                 .append(text(" wurden auf ", YELLOW))
                 .append(text(skillpoints, AQUA))
                 .append(text(" Skillpunkt(e) gesetzt.", YELLOW));
+    }
+
+    public static Component setSkillSlots(SkilledPlayer player, int skillslots) {
+
+        return text("Die Skill Slots von ", YELLOW)
+                .append(player(player))
+                .append(text(" wurden auf ", YELLOW))
+                .append(text(skillslots, AQUA))
+                .append(text(" Slot(s) gesetzt.", YELLOW));
     }
 
     public static Component addExp(SkilledPlayer player, int exp) {
@@ -234,6 +255,14 @@ public final class Messages {
         return text("Skillpunkte: ", YELLOW).append(text(player.skillPoints(), AQUA));
     }
 
+    public static Component skillSlots(SkilledPlayer player) {
+
+        int slots = player.skillSlots();
+        return text("Skill Slots: ", YELLOW)
+                .append(text(slots - player.freeSkillSlots(), GREEN))
+                .append(text(slots, RED));
+    }
+
     public static Component player(SkilledPlayer player) {
 
         return text(player.name(), GOLD, BOLD)
@@ -247,6 +276,7 @@ public final class Messages {
                 .append(text(" ] ---", DARK_AQUA)).append(newline())
                 .append(level(player.level())).append(newline())
                 .append(skillPoints(player)).append(newline())
+                .append(skillSlots(player)).append(newline())
                 .append(text("aktive/freigeschaltete Skills: ", YELLOW))
                 .append(text(player.activeSkills().size(), GREEN)).append(text("/", DARK_AQUA))
                 .append(text(player.unlockedSkills().size(), AQUA))

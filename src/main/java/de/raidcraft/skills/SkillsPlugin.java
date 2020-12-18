@@ -39,6 +39,7 @@ public class SkillsPlugin extends JavaPlugin {
 
     public static final String PERMISSION_PREFIX = "rcskills.";
     public static final String SKILL_PERMISSION_PREFIX = PERMISSION_PREFIX + "skill.";
+    public static final String BYPASS_ACTIVE_SKILL_LIMIT = PERMISSION_PREFIX + "slots.bypass";
 
     @Getter
     @Accessors(fluent = true)
