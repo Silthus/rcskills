@@ -19,6 +19,8 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
     private boolean broadcastLevelup = true;
     @Comment("The time in ticks until the /rcs buy command confirmation times out.")
     private long buyCommandTimeout = 600L;
+    @Comment("The time in ticks how long the progress bar should be displayed.")
+    private long expProgressBarDuration = 120L;
     private DatabaseConfig database = new DatabaseConfig();
     @Comment("Define the expression that calculates the required exp for each level here.")
     private LevelConfig levelConfig = new LevelConfig();

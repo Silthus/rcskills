@@ -218,15 +218,16 @@ public final class Messages {
 
     public static BossBar levelProgressBar(int level, long exp, long expToNextLevel) {
 
-        TextComponent title = text("Level " + (level + 1), GOLD, BOLD)
+        TextComponent title = text("Level " + level, GOLD, BOLD)
                 .append(text("  -  ", DARK_AQUA))
                 .append(text(exp, GREEN))
                 .append(text("/", YELLOW))
                 .append(text(expToNextLevel, AQUA))
                 .append(text(" EXP", YELLOW));
 
-        long progreess = exp / expToNextLevel;
-        return BossBar.bossBar(title, progreess, BossBar.Color.BLUE, BossBar.Overlay.NOTCHED_20);
+        float progress = exp * 1.0f / expToNextLevel;
+        if (progress > 1f) progress = 1f;
+        return BossBar.bossBar(title, progress, BossBar.Color.BLUE, BossBar.Overlay.NOTCHED_20);
     }
 
     public static Title levelUpTitle(int level) {
@@ -283,6 +284,7 @@ public final class Messages {
         int slots = player.skillSlots();
         return text("Skill Slots: ", YELLOW)
                 .append(text(slots - player.freeSkillSlots(), GREEN))
+                .append(text("/", DARK_AQUA))
                 .append(text(slots, RED));
     }
 

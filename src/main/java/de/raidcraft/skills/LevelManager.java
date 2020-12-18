@@ -8,12 +8,14 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.extern.java.Log;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.scheduler.BukkitTask;
 import org.codehaus.commons.compiler.CompileException;
 import org.codehaus.commons.compiler.IExpressionEvaluator;
 import org.codehaus.janino.CompilerFactory;
@@ -31,6 +33,7 @@ public final class LevelManager implements Listener {
     private final SkillsPlugin plugin;
     private final Map<UUID, Map<Integer, Integer>> cache = new HashMap<>();
     private Map<Integer, Integer> levelToExpMap = new HashMap<>();
+    private Map<UUID, Map.Entry<BossBar, BukkitTask>> activeExpBars = new HashMap<>();
 
     @Getter(AccessLevel.PACKAGE)
     @Accessors(fluent = true)
@@ -62,10 +65,28 @@ public final class LevelManager implements Listener {
                 .save();
 
         event.getPlayer().getBukkitPlayer().ifPresent(player -> {
-            BossBar bossBar = Messages.levelProgressBar(level, event.getNewExp(), calculateExpForNextLevel(level + 1));
-            BukkitAudiences.create(plugin)
-                    .player(player)
-                    .showBossBar(bossBar);
+            Audience audience = BukkitAudiences.create(plugin)
+                    .player(player);
+
+            Map.Entry<BossBar, BukkitTask> expBar = activeExpBars.remove(player.getUniqueId());
+            if (expBar != null) {
+                audience.hideBossBar(expBar.getKey());
+                expBar.getValue().cancel();
+            }
+
+            BossBar bossBar = Messages.levelProgressBar(level, event.getNewExp() - calculateTotalExpForLevel(level), calculateExpForNextLevel(level + 1));
+            audience.showBossBar(bossBar);
+            BukkitTask bukkitTask = Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+                        Map.Entry<BossBar, BukkitTask> entry = activeExpBars.remove(player.getUniqueId());
+                        if (entry != null) {
+                            BukkitAudiences.create(plugin)
+                                    .player(player.getUniqueId())
+                                    .hideBossBar(entry.getKey());
+                        }
+            },
+            plugin.getPluginConfig().getExpProgressBarDuration());
+
+            activeExpBars.put(player.getUniqueId(), Map.entry(bossBar, bukkitTask));
         });
     }
 

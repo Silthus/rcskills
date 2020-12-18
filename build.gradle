@@ -107,6 +107,7 @@ shadowJar {
         include(dependency('org.codehaus.janino::'))
         include(dependency('de.raidcraft.economy:wrapper:'))
         include(dependency('com.github.stefvanschie.inventoryframework:IF:'))
+        include(dependency('net.silthus.config-mapper:bukkit:'))
     }
     relocate 'co.aikar.commands', "shadow.${pluginName}.acf"
     relocate 'co.aikar.locales', "shadow.${pluginName}.locales"
@@ -116,6 +117,7 @@ shadowJar {
     relocate 'org.codehaus', "shadow.${pluginName}.codehaus"
     relocate 'de.raidcraft.economy.wrapper', "shadow.${pluginName}.economy"
     relocate 'com.github.stefvanschie.inventoryframework', "shadow.${pluginName}.inventoryframework"
+    relocate 'net.silthus.configmapper', "shadow.${pluginName}.configmapper"
 }
 
 tasks.build.dependsOn(shadowJar)

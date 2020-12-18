@@ -52,9 +52,9 @@ public class SkillsCommand extends BaseCommand {
     @CommandCompletion("@players")
     @CommandPermission("rcskills.player.info")
     @Description("Zeigt Informationen über den Spieler an.")
-    public void info(@Conditions("others:perm=player.info") SkilledPlayer skilledPlayer) {
+    public void info(@Conditions("others:perm=player.info") SkilledPlayer player) {
 
-        Messages.send(getCurrentCommandIssuer(), Messages.playerInfo(skilledPlayer));
+        Messages.send(getCurrentCommandIssuer(), Messages.playerInfo(player));
     }
 
     @HelpCommand
