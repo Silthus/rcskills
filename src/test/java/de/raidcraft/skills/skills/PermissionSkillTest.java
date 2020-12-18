@@ -60,9 +60,8 @@ class PermissionSkillTest {
         assertThat(player.hasPermission("foobar")).isFalse();
 
         SkilledPlayer skilledPlayer = SkilledPlayer.getOrCreate(player);
-        skilledPlayer.skillSlots(1);
         AddSkillAction.Result result = skilledPlayer
-                .addSkill(ConfiguredSkill.findByAliasOrName(TEST_SKILL).get());
+                .addSkill(ConfiguredSkill.findByAliasOrName(TEST_SKILL).get(), true);
 
         assertThat(result.success()).isTrue();
 

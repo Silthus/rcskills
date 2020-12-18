@@ -1,8 +1,6 @@
 package de.raidcraft.skills.skills;
 
-import de.raidcraft.skills.AbstractSkill;
-import de.raidcraft.skills.SkillInfo;
-import de.raidcraft.skills.SkillsPlugin;
+import de.raidcraft.skills.*;
 import de.raidcraft.skills.entities.PlayerSkill;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.permissions.PermissionAttachment;
@@ -15,6 +13,21 @@ import java.util.stream.Collectors;
 
 @SkillInfo("permission")
 public class PermissionSkill extends AbstractSkill {
+
+    public static class PermissionSkillFactory implements SkillFactory<PermissionSkill> {
+
+        @Override
+        public Class<PermissionSkill> getSkillClass() {
+
+            return PermissionSkill.class;
+        }
+
+        @Override
+        public PermissionSkill create(PlayerSkill playerSkill) {
+
+            return new PermissionSkill(playerSkill, SkillsPlugin.instance());
+        }
+    }
 
     private final SkillsPlugin plugin;
     private final List<String> permissions = new ArrayList<>();

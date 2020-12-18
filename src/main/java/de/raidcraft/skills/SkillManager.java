@@ -11,6 +11,7 @@ import de.raidcraft.skills.requirements.SkillPointRequirement;
 import de.raidcraft.skills.requirements.SkillRequirement;
 import de.raidcraft.skills.skills.PermissionSkill;
 import de.raidcraft.skills.util.ConfigUtil;
+import de.raidcraft.skills.util.JarUtil;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
@@ -24,10 +25,14 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -70,7 +75,7 @@ public final class SkillManager {
         registerRequirement(MoneyRequirement.class, MoneyRequirement::new);
         registerRequirement(SkillPointRequirement.class, SkillPointRequirement::new);
 
-        registerSkill(PermissionSkill.class, (skill) -> new PermissionSkill(skill, plugin));
+        registerSkill(new PermissionSkill.PermissionSkillFactory());
     }
 
     public void reload() {
@@ -81,11 +86,50 @@ public final class SkillManager {
 
     public void load() {
 
+        loadSkillsFromPlugins();
         loadSkills(new File(plugin.getDataFolder(), config.getSkillsPath()).toPath());
     }
 
     public void unload() {
 
+    }
+
+    void loadSkillsFromPlugins() {
+
+        if (SkillsPlugin.isTesting()) return;
+
+        for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
+
+            if (plugin.equals(plugin())) continue;
+
+            try {
+                File jarFile = new File(plugin.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+                JarUtil.findClasses(plugin().getClass().getClassLoader(), jarFile, SkillFactory.class::isAssignableFrom).stream()
+                        .map(aClass -> {
+                            try {
+                                return aClass.getDeclaredConstructor();
+                            } catch (NoSuchMethodException e) {
+                                log.warning("unable to find a public no arguments constructor for skill factory " + aClass.getCanonicalName() + ": " + e.getMessage());
+                                log.warning("make sure you register your factory or skill manually with the SkillManager#registerSkill(...) method!");
+                                return null;
+                            }
+                        }).filter(Objects::nonNull)
+                        .map(constructor -> {
+                            try {
+                                return (SkillFactory<?>) constructor.newInstance();
+                            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                                log.severe("unable to create a new instance of the skill factory "
+                                        + constructor.getClass().getCanonicalName() + " --> " + constructor.getName() + ": " + e.getMessage());
+                                e.printStackTrace();
+                                return null;
+                            }
+                        }).filter(Objects::nonNull)
+                        .forEach(this::registerSkill);
+            } catch (URISyntaxException e) {
+                log.severe("unable to find valid jar file location of plugin " + plugin.getName() + ": " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -94,7 +138,7 @@ public final class SkillManager {
      *
      * @param path the path to the skill configs
      */
-    public List<ConfiguredSkill> loadSkills(Path path) {
+    List<ConfiguredSkill> loadSkills(Path path) {
 
         try {
             Files.createDirectories(path);
@@ -137,7 +181,7 @@ public final class SkillManager {
      * @param file the file to load the skill from
      * @return the loaded skill or an empty optional.
      */
-    public Optional<ConfiguredSkill> loadSkill(Path base, @NonNull File file) {
+    Optional<ConfiguredSkill> loadSkill(Path base, @NonNull File file) {
 
         if (!file.exists() || !(file.getName().endsWith(".yml") && !file.getName().endsWith(".yaml"))) {
             return Optional.empty();
@@ -204,6 +248,17 @@ public final class SkillManager {
     }
 
     /**
+     * Registers the given skill factory with this skill manager.
+     *
+     * @param factory the factory to register
+     * @param <TSkill> the type of the skill
+     */
+    public <TSkill extends Skill> void registerSkill(SkillFactory<TSkill> factory) {
+
+        registerSkill(factory.getSkillClass(), factory::create);
+    }
+
+    /**
      * Registers the given skill type with this skill manager.
      * <p>Make sure your skill class is annotated with @{@link SkillInfo} or the registration will fail.
      * <p>The provided supplier will be used to create instances of the given skill type which are then loaded
@@ -212,13 +267,12 @@ public final class SkillManager {
      * @param skillClass the class of the skill type to register
      * @param supplier the supplier that can create new instances of the skill
      * @param <TSkill> the type of the skill
-     * @return this skill manager
      */
-    public <TSkill extends Skill> SkillManager registerSkill(Class<TSkill> skillClass, Function<PlayerSkill, TSkill> supplier) {
+    public <TSkill extends Skill> void registerSkill(Class<TSkill> skillClass, Function<PlayerSkill, TSkill> supplier) {
 
         if (!skillClass.isAnnotationPresent(SkillInfo.class)) {
             log.severe("Cannot register skill " + skillClass.getCanonicalName() + " without a @SkillType annotation.");
-            return this;
+            return;
         }
 
         String type = skillClass.getAnnotation(SkillInfo.class).value().toLowerCase();
@@ -227,12 +281,11 @@ public final class SkillManager {
                     + "! A skill with the same type identifier '"
                     + type + "' is already registered: "
                     + skillTypes.get(type).skillClass().getCanonicalName());
-            return this;
+            return;
         }
 
         skillTypes.put(type, new Skill.Registration<>(type, skillClass, supplier));
         log.info("registered skill type: " + type + " [" + skillClass.getCanonicalName() + "]");
-        return this;
     }
 
     /**
