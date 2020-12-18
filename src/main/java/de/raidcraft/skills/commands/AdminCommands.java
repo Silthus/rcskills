@@ -89,7 +89,7 @@ public class AdminCommands extends BaseCommand {
         @CommandPermission("rcskills.admin.add.skillslots")
         public void addSkillSlots(SkilledPlayer player, int slots) {
 
-            player.skillSlots(player.skillSlots() + slots).save();
+            player.addSkillSlots(slots).save();
             Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.addSkillSlots(player, slots));
         }
     }
@@ -137,7 +137,7 @@ public class AdminCommands extends BaseCommand {
         @CommandPermission("rcskills.admin.set.skillslots")
         public void setSkillSlots(SkilledPlayer player, int slots) {
 
-            player.skillSlots(slots).save();
+            player.setSkillSlots(slots).save();
             Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.setSkillSlots(player, slots));
         }
     }

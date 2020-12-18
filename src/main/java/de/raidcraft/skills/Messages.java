@@ -139,6 +139,8 @@ public final class Messages {
 
     public static Component addSkillpoints(SkilledPlayer player, int skillpoints) {
 
+        if (skillpoints == 0) return empty();
+
         return text("Die Skillpunkte von ", YELLOW)
                 .append(player(player))
                 .append(text(" wurden um ", YELLOW))
@@ -149,6 +151,8 @@ public final class Messages {
     }
 
     public static Component addSkillSlots(SkilledPlayer player, int slots) {
+
+        if (slots == 0) return empty();
 
         return text("Die Skill Slots von ", YELLOW)
                 .append(player(player))
@@ -179,6 +183,8 @@ public final class Messages {
     }
 
     public static Component addExp(SkilledPlayer player, int exp) {
+
+        if (exp == 0) return empty();
 
         return text("Die Erfahrungspunkte von ", YELLOW)
                 .append(player(player))

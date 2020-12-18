@@ -2,10 +2,9 @@ package de.raidcraft.skills.entities;
 
 import de.raidcraft.skills.actions.AddSkillAction;
 import de.raidcraft.skills.actions.BuySkillAction;
-import de.raidcraft.skills.events.SetPlayerExpEvent;
-import de.raidcraft.skills.events.SetPlayerLevelEvent;
-import de.raidcraft.skills.events.SetPlayerSkillPointsEvent;
+import de.raidcraft.skills.events.*;
 import io.ebean.Finder;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -55,7 +54,9 @@ public class SkilledPlayer extends BaseEntity {
     }
 
     private String name;
+    @Setter(AccessLevel.NONE)
     private int skillPoints = 0;
+    @Setter(AccessLevel.NONE)
     private int skillSlots = 0;
 
     @OneToOne(optional = false, cascade = CascadeType.ALL)
@@ -190,6 +191,8 @@ public class SkilledPlayer extends BaseEntity {
             playerLevel.setTotalExp(event.getExp());
         }
 
+        Bukkit.getPluginManager().callEvent(new PlayerLeveledEvent(this, event.getOldLevel(), event.getNewLevel(), event.getExp()));
+
         return this;
     }
 
@@ -233,9 +236,9 @@ public class SkilledPlayer extends BaseEntity {
 
         if (event.isCancelled()) return this;
 
-        if (skillPoints < 0) skillPoints = 0;
+        if (event.getNewSkillPoints() < 0) event.setNewSkillPoints(0);
 
-        this.skillPoints = skillPoints;
+        this.skillPoints = event.getNewSkillPoints();
         return this;
     }
 
@@ -248,6 +251,29 @@ public class SkilledPlayer extends BaseEntity {
 
         int points = this.skillPoints - skillPoints;
         return this.setSkillPoints(points);
+    }
+
+    public SkilledPlayer setSkillSlots(int slots) {
+
+        if (this.skillSlots == slots) return this;
+
+        SetPlayerSkillSlotsEvent event = new SetPlayerSkillSlotsEvent(this, this.skillSlots, slots);
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isCancelled()) return this;
+
+        if (event.getNewSkillSlots() < 0) event.setNewSkillSlots(0);
+
+        this.skillSlots = event.getNewSkillSlots();
+
+        Bukkit.getPluginManager().callEvent(new PlayerSkillSlotsChangedEvent(this, event.getOldSkillSlots(), event.getNewSkillSlots()));
+
+        return this;
+    }
+
+    public SkilledPlayer addSkillSlots(int slots) {
+
+        return this.setSkillSlots(this.skillSlots + slots);
     }
 
     public boolean canBuy(ConfiguredSkill skill) {

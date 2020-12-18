@@ -96,7 +96,7 @@ public final class SkillManager {
 
     void loadSkillsFromPlugins() {
 
-        if (SkillsPlugin.isTesting()) return;
+        if (SkillsPlugin.isTesting() || !plugin.getPluginConfig().isLoadClassesFromPlugins()) return;
 
         for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
 

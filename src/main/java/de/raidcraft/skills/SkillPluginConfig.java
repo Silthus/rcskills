@@ -2,12 +2,17 @@ package de.raidcraft.skills;
 
 import de.exlll.configlib.annotation.Comment;
 import de.exlll.configlib.annotation.ConfigurationElement;
+import de.exlll.configlib.annotation.ElementType;
 import de.exlll.configlib.configs.yaml.BukkitYamlConfiguration;
 import de.exlll.configlib.format.FieldNameFormatters;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -15,6 +20,8 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
 
     @Comment("The relative path where your skill configs are located.")
     private String skillsPath = "skills";
+    @Comment("Set to true to automatically load skill classes and factories from other plugins.")
+    private boolean loadClassesFromPlugins = false;
     @Comment("Set to false if you want to disable broadcasting players leveling up to everyone.")
     private boolean broadcastLevelup = true;
     @Comment("The time in ticks until the /rcs buy command confirmation times out.")
@@ -24,6 +31,8 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
     private DatabaseConfig database = new DatabaseConfig();
     @Comment("Define the expression that calculates the required exp for each level here.")
     private LevelConfig levelConfig = new LevelConfig();
+    @Comment("Define what a player automatically gets when he levels up.")
+    private LevelUpConfig levelUpConfig = new LevelUpConfig();
 
     public SkillPluginConfig(Path path) {
 
@@ -58,5 +67,28 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
         private double x = 10.4;
         private double y = 0;
         private double z = 0;
+    }
+
+    @ConfigurationElement
+    @Getter
+    @Setter
+    public static class LevelUpConfig {
+
+        @Comment("The number of skillpoints a player should get each level")
+        private int skillPointsPerLevel = 1;
+        @Comment("The number of new skill slots a player should get each level")
+        private int slotsPerLevel = 0;
+        @ElementType(LevelUp.class)
+        private Map<Integer, LevelUp> levels = new HashMap<>();
+    }
+
+    @ConfigurationElement
+    @Getter
+    @Setter
+    public static class LevelUp {
+
+        private int skillpoints = 0;
+        private int slots = 0;
+        private List<String> commands = new ArrayList<>();
     }
 }

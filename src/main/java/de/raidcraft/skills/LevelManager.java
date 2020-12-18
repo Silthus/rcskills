@@ -2,6 +2,8 @@ package de.raidcraft.skills;
 
 import de.raidcraft.skills.entities.LevelHistory;
 import de.raidcraft.skills.entities.SkilledPlayer;
+import de.raidcraft.skills.events.PlayerLeveledEvent;
+import de.raidcraft.skills.events.PlayerSkillSlotsChangedEvent;
 import de.raidcraft.skills.events.SetPlayerExpEvent;
 import de.raidcraft.skills.events.SetPlayerLevelEvent;
 import lombok.AccessLevel;
@@ -12,6 +14,7 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -90,7 +93,7 @@ public final class LevelManager implements Listener {
         });
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onLevelUp(SetPlayerLevelEvent event) {
 
         int minExp = calculateTotalExpForLevel(event.getNewLevel());
@@ -98,6 +101,43 @@ public final class LevelManager implements Listener {
         if (event.getExp() < minExp || event.getExp() >= maxExp) {
             event.setExp(minExp);
         }
+    }
+
+    @EventHandler
+    public void onSkillSlotChange(PlayerSkillSlotsChangedEvent event) {
+
+        Messages.send(event.getPlayer().id(), Messages.addSkillSlots(event.getPlayer(), event.getNewSkillSlots() - event.getOldSkillSlots()));
+    }
+
+    @EventHandler
+    public void onLeveledUp(PlayerLeveledEvent event) {
+
+        SkillPluginConfig.LevelUpConfig config = getPlugin().getPluginConfig().getLevelUpConfig();
+
+        int levelDiff = event.getNewLevel() - event.getOldLevel();
+        if (levelDiff == 0) return;
+
+        int skillpoints = levelDiff * config.getSkillPointsPerLevel();
+        int skillslots = levelDiff * config.getSlotsPerLevel();
+
+        for (int i = 0; i < levelDiff; i++) {
+            int level = event.getOldLevel() + 1;
+            SkillPluginConfig.LevelUp levelUp = config.getLevels().get(level);
+            if (levelUp != null) {
+                skillpoints += levelUp.getSkillpoints();
+                skillslots += levelUp.getSlots();
+                levelUp.getCommands().stream()
+                        .map(s -> s.replace("{player}", event.getPlayer().name()))
+                        .map(s -> s.replace("{player_id}", event.getPlayer().id().toString()))
+                        .forEach(s -> Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), s));
+            }
+        }
+
+        event.getPlayer().addSkillPoints(skillpoints);
+        event.getPlayer().addSkillSlots(skillslots);
+
+        Messages.send(event.getPlayer().id(), Messages.addSkillpoints(event.getPlayer(), skillpoints));
+        Messages.send(event.getPlayer().id(), Messages.addSkillSlots(event.getPlayer(), skillslots));
 
         event.getPlayer().getBukkitPlayer().ifPresent(player -> {
             if (event.getNewLevel() > event.getOldLevel()) {
