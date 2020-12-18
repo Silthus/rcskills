@@ -79,7 +79,10 @@ public class SkilledPlayer extends BaseEntity {
      */
     public int freeSkillSlots() {
 
-        return skillSlots - activeSkills().size();
+        return skillSlots - activeSkills().stream()
+                .map(PlayerSkill::configuredSkill)
+                .mapToInt(ConfiguredSkill::skillslots)
+                .sum();
     }
 
     public OfflinePlayer getOfflinePlayer() {

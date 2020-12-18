@@ -6,6 +6,7 @@ import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import de.raidcraft.skills.SkillsPlugin;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -57,5 +58,31 @@ class SkilledPlayerTest {
 
         player.addSkill(skill);
         assertThat(player.hasSkill(skill)).isTrue();
+    }
+
+    @Test
+    @DisplayName("should sum up skillslots from active skills")
+    void shouldSumReturnCorrectFreeSkillSlots() {
+
+        ConfiguredSkill skill1 = new ConfiguredSkill(UUID.randomUUID());
+        skill1.skillslots(2);
+        skill1.save();
+        ConfiguredSkill skill2 = new ConfiguredSkill(UUID.randomUUID());
+        skill2.skillslots(5);
+        skill2.save();
+        ConfiguredSkill skill3 = new ConfiguredSkill(UUID.randomUUID());
+        skill3.skillslots(0);
+        skill3.save();
+
+        PlayerMock bukkitPlayer = server.addPlayer();
+        bukkitPlayer.setOp(true);
+
+        SkilledPlayer player = SkilledPlayer.getOrCreate(bukkitPlayer);
+        player.skillSlots(100);
+        player.addSkill(skill1).playerSkill().activate();
+        player.addSkill(skill2).playerSkill().activate();
+        player.addSkill(skill3).playerSkill().activate();
+
+        assertThat(player.freeSkillSlots()).isEqualTo(93);
     }
 }

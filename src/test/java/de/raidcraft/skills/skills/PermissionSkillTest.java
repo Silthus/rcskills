@@ -59,7 +59,9 @@ class PermissionSkillTest {
         player.addAttachment(plugin, SkillsPlugin.SKILL_PERMISSION_PREFIX + TEST_SKILL, true);
         assertThat(player.hasPermission("foobar")).isFalse();
 
-        AddSkillAction.Result result = SkilledPlayer.getOrCreate(player)
+        SkilledPlayer skilledPlayer = SkilledPlayer.getOrCreate(player);
+        skilledPlayer.skillSlots(1);
+        AddSkillAction.Result result = skilledPlayer
                 .addSkill(ConfiguredSkill.findByAliasOrName(TEST_SKILL).get());
 
         assertThat(result.success()).isTrue();

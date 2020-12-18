@@ -153,16 +153,16 @@ public class ConfiguredSkill extends BaseEntity {
 
         ConfigurationSection config = createConfig();
 
-        this.alias = config.getString("alias");
+        this.alias = config.getString("alias", alias);
         this.name = config.getString("name", alias());
         this.type = config.getString("type", "permission");
-        this.description = config.getString("description");
-        this.level = config.getInt("level", 1);
-        this.money = config.getDouble("money", 0d);
-        this.skillpoints = config.getInt("skillpoints", 0);
-        this.skillslots = config.getInt("skillslots", 1);
-        this.hidden = config.getBoolean("hidden", false);
-        this.enabled = config.getBoolean("enabled", true);
+        this.description = config.getString("description", description);
+        this.level = config.getInt("level", level);
+        this.money = config.getDouble("money", money);
+        this.skillpoints = config.getInt("skillpoints", skillpoints);
+        this.skillslots = config.getInt("skillslots", skillslots);
+        this.hidden = config.getBoolean("hidden", hidden);
+        this.enabled = config.getBoolean("enabled", enabled);
         if (config.isSet("categories"))
             this.categories = config.getStringList("categories");
 
