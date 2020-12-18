@@ -77,6 +77,7 @@ public class ConfiguredSkill extends BaseEntity {
     private int skillslots = 1;
     private boolean hidden = false;
     private boolean enabled = true;
+    private List<String> categories = new ArrayList<>();
 
     @DbJson
     private Map<String, Object> config = new HashMap<>();
@@ -90,6 +91,15 @@ public class ConfiguredSkill extends BaseEntity {
 
     ConfiguredSkill(UUID id) {
         this.id(id);
+    }
+
+    public List<String> categories() {
+
+        if (categories == null) {
+            this.categories = new ArrayList<>();
+            load();
+        }
+        return categories;
     }
 
     public List<Requirement> requirements() {
@@ -153,6 +163,8 @@ public class ConfiguredSkill extends BaseEntity {
         this.skillslots = config.getInt("skillslots", 1);
         this.hidden = config.getBoolean("hidden", false);
         this.enabled = config.getBoolean("enabled", true);
+        if (config.isSet("categories"))
+            this.categories = config.getStringList("categories");
 
         this.requirements = SkillsPlugin.instance().getSkillManager()
                 .loadRequirements(config.getConfigurationSection("requirements"));

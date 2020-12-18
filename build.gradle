@@ -68,6 +68,7 @@ dependencies {
     implementation 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.3'
     implementation 'com.github.Slikey:EffectLib:master-SNAPSHOT'
+    implementation 'com.github.stefvanschie.inventoryframework:IF:0.9.0'
 
     implementation 'org.codehaus.janino:janino:3.1.2'
     implementation group: 'org.codehaus.janino', name: 'commons-compiler', version: '3.1.2'
@@ -105,6 +106,7 @@ shadowJar {
         include(dependency('net.kyori::'))
         include(dependency('org.codehaus.janino::'))
         include(dependency('de.raidcraft.economy:wrapper:'))
+        include(dependency('com.github.stefvanschie.inventoryframework:IF:'))
     }
     relocate 'co.aikar.commands', "shadow.${pluginName}.acf"
     relocate 'co.aikar.locales', "shadow.${pluginName}.locales"
@@ -113,6 +115,7 @@ shadowJar {
     relocate 'net.kyori.adventure', "shadow.${pluginName}.adventure"
     relocate 'org.codehaus', "shadow.${pluginName}.codehaus"
     relocate 'de.raidcraft.economy.wrapper', "shadow.${pluginName}.economy"
+    relocate 'com.github.stefvanschie.inventoryframework', "shadow.${pluginName}.inventoryframework"
 }
 
 tasks.build.dependsOn(shadowJar)
