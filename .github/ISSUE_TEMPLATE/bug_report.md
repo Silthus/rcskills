@@ -1,32 +1,31 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Melde einen Fehler um uns zu unterstützen
 title: "[BUG]"
 labels: ''
 assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+**Beschreibe den Fehler**
+Eine kurze aussagekräftige Beschreibung welcher Fehler warum aufgetreten ist.
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+**Zum Reproduzieren**
+Schritte um den Fehler zu reproduzieren:
+1. Gehe nach '...'
+2. Klicke auf '....'
+3. Führe den Befehl aus '....'
+4. Der Fehler tritt auf
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+**Erwartetes Verhalten**
+Eine kurze aussagekräftige Beschreibung was das erwartete Ergebnis ist.
 
 **Screenshots**
-If applicable, add screenshots to help explain your problem.
+Falls möglich bitte Screenshots zum Fehler mit anhängen.
 
-**Server Information (please complete the following information):**
-- Server version (`/bukkit:version`): 
-- Installed plugins (`/bukkit:plugins`): 
-- WorldGuard Report Pastebin Link (`/wg report -p`): 
+**Server Information:**
+- Server & Location (`/whereami`): 
+- Uhrzeit wann der Bug aufgetreten ist: 
 
-**Additional context**
-Add any other context about the problem here.
+**Weitere Informationen**
+Gebe hier weitere zusätzliche Informationen an die wir wissen sollten.

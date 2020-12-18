@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<migration xmlns="http://ebean-orm.github.io/xml/ns/dbmigration">
+    <changeSet type="apply">
+        <createTable name="rcs_skills" identityType="external" pkName="pk_rcs_skills">
+            <column name="id" type="uuid" primaryKey="true" identity="true"/>
+            <column name="alias" type="varchar"/>
+            <column name="name" type="varchar"/>
+            <column name="type" type="varchar"/>
+            <column name="description" type="varchar"/>
+            <column name="level" type="integer" notnull="true"/>
+            <column name="money" type="double" notnull="true"/>
+            <column name="skillpoints" type="integer" notnull="true"/>
+            <column name="skillslots" type="integer" notnull="true"/>
+            <column name="hidden" type="boolean" defaultValue="false" notnull="true"/>
+            <column name="enabled" type="boolean" defaultValue="false" notnull="true"/>
+            <column name="config" type="json"/>
+            <column name="version" type="bigint" notnull="true"/>
+            <column name="when_created" type="timestamp" notnull="true"/>
+            <column name="when_modified" type="timestamp" notnull="true"/>
+        </createTable>
+        <createTable name="rcs_levels" identityType="external" pkName="pk_rcs_levels">
+            <column name="id" type="uuid" primaryKey="true" identity="true"/>
+            <column name="level" type="integer" notnull="true"/>
+            <column name="total_exp" type="bigint" notnull="true"/>
+            <column name="version" type="bigint" notnull="true"/>
+            <column name="when_created" type="timestamp" notnull="true"/>
+            <column name="when_modified" type="timestamp" notnull="true"/>
+        </createTable>
+        <createTable name="rcs_level_history" identityType="external" pkName="pk_rcs_level_history">
+            <column name="id" type="uuid" primaryKey="true" identity="true"/>
+            <column name="level_id" type="uuid" references="rcs_levels.id" foreignKeyName="fk_rcs_level_history_level_id" foreignKeyIndex="ix_rcs_level_history_level_id"/>
+            <column name="old_level" type="integer" notnull="true"/>
+            <column name="new_level" type="integer" notnull="true"/>
+            <column name="old_exp" type="bigint" notnull="true"/>
+            <column name="new_exp" type="bigint" notnull="true"/>
+            <column name="data" type="json"/>
+            <column name="version" type="bigint" notnull="true"/>
+            <column name="when_created" type="timestamp" notnull="true"/>
+            <column name="when_modified" type="timestamp" notnull="true"/>
+        </createTable>
+        <createTable name="rcs_player_skills" identityType="external" pkName="pk_rcs_player_skills">
+            <column name="id" type="uuid" primaryKey="true" identity="true"/>
+            <column name="player_id" type="uuid" notnull="true" references="rcs_players.id" foreignKeyName="fk_rcs_player_skills_player_id" foreignKeyIndex="ix_rcs_player_skills_player_id"/>
+            <column name="configured_skill_id" type="uuid" notnull="true" references="rcs_skills.id" foreignKeyName="fk_rcs_player_skills_configured_skill_id" foreignKeyIndex="ix_rcs_player_skills_configured_skill_id"/>
+            <column name="status" type="varchar(11)" checkConstraint="check ( status in ('ACTIVE','UNLOCKED','NOT_PRESENT'))" checkConstraintName="ck_rcs_player_skills_status"/>
+            <column name="version" type="bigint" notnull="true"/>
+            <column name="when_created" type="timestamp" notnull="true"/>
+            <column name="when_modified" type="timestamp" notnull="true"/>
+        </createTable>
+        <createTable name="rcs_players" identityType="external" pkName="pk_rcs_players">
+            <column name="id" type="uuid" primaryKey="true" identity="true"/>
+            <column name="name" type="varchar"/>
+            <column name="skill_points" type="integer" notnull="true"/>
+            <column name="skill_slots" type="integer" notnull="true"/>
+            <column name="level_id" type="uuid" notnull="true" uniqueOneToOne="uq_rcs_players_level_id" references="rcs_levels.id" foreignKeyName="fk_rcs_players_level_id"/>
+            <column name="version" type="bigint" notnull="true"/>
+            <column name="when_created" type="timestamp" notnull="true"/>
+            <column name="when_modified" type="timestamp" notnull="true"/>
+        </createTable>
+        <createIndex indexName="ix_rcs_skills_alias" tableName="rcs_skills" columns="alias"/>
+        <createIndex indexName="ix_rcs_skills_name" tableName="rcs_skills" columns="name"/>
+        <createIndex indexName="ix_rcs_player_skills_player_id_configured_skill_id" tableName="rcs_player_skills" columns="player_id,configured_skill_id"/>
+    </changeSet>
+</migration>
