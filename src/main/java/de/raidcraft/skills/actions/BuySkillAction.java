@@ -58,7 +58,6 @@ public class BuySkillAction {
         PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
 
         playerSkill.unlock();
-        playerSkill.activate();
 
         player.save();
         return new Result(this, playerSkill, testResult);
