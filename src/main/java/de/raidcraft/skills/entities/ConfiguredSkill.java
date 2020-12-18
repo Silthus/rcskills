@@ -7,7 +7,6 @@ import de.raidcraft.skills.requirements.LevelRequirement;
 import de.raidcraft.skills.requirements.MoneyRequirement;
 import de.raidcraft.skills.requirements.PermissionRequirement;
 import de.raidcraft.skills.requirements.SkillPointRequirement;
-import de.raidcraft.skills.requirements.SkillSlotRequirement;
 import io.ebean.Finder;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.Index;
@@ -192,13 +191,6 @@ public class ConfiguredSkill extends BaseEntity {
             skillPointRequirement.setSkillpoints(this.skillpoints);
             costRequirements.add(skillPointRequirement);
         }
-
-        if (skillslots > 0) {
-            SkillSlotRequirement slotRequirement = new SkillSlotRequirement();
-            slotRequirement.load(new MemoryConfiguration());
-            slotRequirement.setSlots(this.skillslots);
-            costRequirements.add(slotRequirement);
-        }
     }
 
     public ConfiguredSkill enabled(boolean enabled) {
@@ -206,7 +198,7 @@ public class ConfiguredSkill extends BaseEntity {
         if (enabled == this.enabled) return this;
         this.enabled = enabled;
         if (enabled()) {
-            playerSkills().forEach(PlayerSkill::activate);
+            playerSkills().forEach(PlayerSkill::enable);
         } else {
             playerSkills().forEach(PlayerSkill::disable);
         }

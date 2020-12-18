@@ -76,7 +76,7 @@ public class PlayerSkill extends BaseEntity {
         return configuredSkill.description();
     }
 
-    public Optional<Skill> skill() {
+    Optional<Skill> skill() {
 
         return Optional.ofNullable(SkillsPlugin.instance().getSkillManager().loadSkill(this));
     }
@@ -111,9 +111,19 @@ public class PlayerSkill extends BaseEntity {
         skill().ifPresent(Skill::remove);
     }
 
+    public boolean canActivate() {
+
+        boolean bypassSkillLimit = player().getBukkitPlayer()
+                .map(p -> p.hasPermission(SkillsPlugin.BYPASS_ACTIVE_SKILL_LIMIT))
+                .orElse(false);
+
+        return !active()
+                && (bypassSkillLimit || player().freeSkillSlots() >= configuredSkill().skillslots());
+    }
+
     public void activate() {
 
-        if (active()) return;
+        if (!canActivate()) return;
 
         try {
             PlayerActivateSkillEvent event = new PlayerActivateSkillEvent(player(), this);

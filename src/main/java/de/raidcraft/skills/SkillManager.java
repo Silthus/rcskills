@@ -9,7 +9,6 @@ import de.raidcraft.skills.requirements.MoneyRequirement;
 import de.raidcraft.skills.requirements.PermissionRequirement;
 import de.raidcraft.skills.requirements.SkillPointRequirement;
 import de.raidcraft.skills.requirements.SkillRequirement;
-import de.raidcraft.skills.requirements.SkillSlotRequirement;
 import de.raidcraft.skills.skills.PermissionSkill;
 import de.raidcraft.skills.util.ConfigUtil;
 import lombok.Getter;
@@ -70,7 +69,6 @@ public final class SkillManager {
         registerRequirement(LevelRequirement.class, LevelRequirement::new);
         registerRequirement(MoneyRequirement.class, MoneyRequirement::new);
         registerRequirement(SkillPointRequirement.class, SkillPointRequirement::new);
-        registerRequirement(SkillSlotRequirement.class, SkillSlotRequirement::new);
 
         registerSkill(PermissionSkill.class, (skill) -> new PermissionSkill(skill, plugin));
     }

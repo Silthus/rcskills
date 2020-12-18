@@ -169,4 +169,18 @@ public class SkillsCommand extends BaseCommand {
                     .append(text(" wurde abgebrochen.", RED)));
         }
     }
+
+    @Subcommand("activate|assign")
+    @CommandCompletion("@unlocked-skills")
+    @CommandPermission("rcskills.skill.activate")
+    @Description("Weist dem Skill einen Slot zu und aktiviert ihn.")
+    public void activate(@Conditions("unlocked|others:perm=skill.activate") PlayerSkill skill) {
+
+        if (!skill.canActivate()) {
+            throw new ConditionFailedException("Du kannst den Skill " + skill.name() + " nicht aktivieren. Du hast zu wenig freie Skill Slots.");
+        }
+
+        skill.activate();
+        getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + " Der Skill " + skill.name() + " wurde erfolgreich aktiviert.");
+    }
 }

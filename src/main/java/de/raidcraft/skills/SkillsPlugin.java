@@ -166,12 +166,24 @@ public class SkillsPlugin extends JavaPlugin {
 
         registerSkilledPlayerContext(commandManager);
         registerSkillContext(commandManager);
+        registerPlayerSkillContext(commandManager);
+
         registerOthersCondition(commandManager);
+        registerUnlockedCondition(commandManager);
+        registerActiveCondition(commandManager);
 
         commandManager.getCommandCompletions().registerAsyncCompletion("skills", context -> ConfiguredSkill.find
                 .query().findSet().stream()
                 .map(ConfiguredSkill::alias)
                 .collect(Collectors.toSet()));
+
+        commandManager.getCommandCompletions().registerAsyncCompletion("unlocked-skills", context -> PlayerSkill.find
+                .query().where()
+                .eq("player_id", context.getPlayer().getUniqueId())
+                .findSet().stream()
+                .map(PlayerSkill::alias)
+                .collect(Collectors.toSet())
+        );
 
         commandManager.registerCommand(new SkillsCommand(this));
         commandManager.registerCommand(new AdminCommands(this));
@@ -191,6 +203,40 @@ public class SkillsPlugin extends JavaPlugin {
                 }
                 return skill.get();
             }
+        });
+    }
+
+    private void registerPlayerSkillContext(PaperCommandManager commandManager) {
+
+        commandManager.getCommandContexts().registerIssuerAwareContext(PlayerSkill.class, context -> {
+            SkilledPlayer player = null;
+            ConfiguredSkill skill = null;
+            for (String arg : context.getArgs()) {
+                try {
+                    UUID id = UUID.fromString(arg);
+                    if (player == null)
+                        player = SkilledPlayer.find.byId(id);
+                    if (skill == null)
+                        skill = ConfiguredSkill.find.byId(id);
+                } catch (Exception ignored) {
+                    if (player == null)
+                        player = SkilledPlayer.find.query().where().eq("name", arg).findOne();
+                    if (skill == null)
+                        skill = ConfiguredSkill.findByAliasOrName(arg).orElse(null);
+                }
+            }
+
+            if (player == null && context.getPlayer() != null) {
+                player = SkilledPlayer.getOrCreate(context.getPlayer());
+            }
+
+            if (skill == null) {
+                throw new ConditionFailedException("Es konnte kein Skill mit einer ID oder Namen gefunden werden: " + String.join(",", context.getArgs()));
+            }
+            if (player == null) {
+                throw new ConditionFailedException("Es konnte kein Spieler mit einer ID oder Namen gefunden werden: " + String.join(",", context.getArgs()));
+            }
+            return PlayerSkill.getOrCreate(player, skill);
         });
     }
 
@@ -219,6 +265,24 @@ public class SkillsPlugin extends JavaPlugin {
                 return;
             }
             throw new ConditionFailedException("Du hast nicht genügend Rechte um Befehle im Namen von anderen Spielern auszuführen.");
+        });
+    }
+
+    private void registerUnlockedCondition(PaperCommandManager commandManager) {
+
+        commandManager.getCommandConditions().addCondition(PlayerSkill.class, "unlocked", (context, execContext, value) -> {
+            if (!value.unlocked()) {
+                throw new ConditionFailedException("Du hast den Skill " + value.name() + " noch nicht freigeschaltet.");
+            }
+        });
+    }
+
+    private void registerActiveCondition(PaperCommandManager commandManager) {
+
+        commandManager.getCommandConditions().addCondition(PlayerSkill.class, "active", (context, execContext, value) -> {
+            if (!value.active()) {
+                throw new ConditionFailedException("Der Skill " + value.name() + " ist nicht aktiv.");
+            }
         });
     }
 
