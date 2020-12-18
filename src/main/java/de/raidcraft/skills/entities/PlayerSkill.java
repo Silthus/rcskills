@@ -14,6 +14,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.java.Log;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.title.Title;
 import net.silthus.ebean.BaseEntity;
 import org.bukkit.Bukkit;
 
@@ -22,6 +26,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.util.Optional;
 import java.util.UUID;
+
+import static net.kyori.adventure.text.Component.text;
 
 @Entity
 @Getter
@@ -165,7 +171,17 @@ public class PlayerSkill extends BaseEntity {
 //                .save();
 
         if (event.isPlayEffect()) {
-            player().getBukkitPlayer().ifPresent(Effects::playerUnlockSkill);
+            player().getBukkitPlayer().ifPresent(player -> {
+                Effects.playerUnlockSkill(player);
+
+                TextComponent heading = text("Skill freigeschaltet", NamedTextColor.GOLD);
+                TextComponent subheading = text("Skill '", NamedTextColor.GREEN).append(text(name(), NamedTextColor.AQUA))
+                        .append(text("' freigeschaltet!", NamedTextColor.GREEN));
+                Title title = Title.title(heading, subheading);
+                BukkitAudiences.create(SkillsPlugin.instance())
+                        .player(player)
+                        .showTitle(title);
+            });
         }
 
         Bukkit.getPluginManager().callEvent(new PlayerUnlockedSkillEvent(player(), this));
