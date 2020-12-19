@@ -45,8 +45,13 @@ public interface Skill {
     @Accessors(fluent = true)
     class Registration<TSkill extends Skill> {
 
-        String type;
         Class<TSkill> skillClass;
+        SkillInfo info;
         Function<SkillContext, TSkill> supplier;
+
+        public String type() {
+
+            return info().value();
+        }
     }
 }

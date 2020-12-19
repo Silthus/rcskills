@@ -65,6 +65,14 @@ public class PlayerSkill extends BaseEntity {
         this.configuredSkill = configuredSkill;
     }
 
+    public DataStore data() {
+        if (data == null) {
+            data = new DataStore();
+            save();
+        }
+        return data;
+    }
+
     public String alias() {
         return configuredSkill.alias();
     }
@@ -132,9 +140,9 @@ public class PlayerSkill extends BaseEntity {
 
             if (event.isCancelled()) return;
 
+            status(SkillStatus.ACTIVE);
             enable();
 
-            status(SkillStatus.ACTIVE);
             save();
 
             if (event.isPlayEffect()) {

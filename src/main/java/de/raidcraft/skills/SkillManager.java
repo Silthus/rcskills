@@ -9,6 +9,7 @@ import de.raidcraft.skills.requirements.MoneyRequirement;
 import de.raidcraft.skills.requirements.PermissionRequirement;
 import de.raidcraft.skills.requirements.SkillPointRequirement;
 import de.raidcraft.skills.requirements.SkillRequirement;
+import de.raidcraft.skills.skills.OnlineTimeExpSkill;
 import de.raidcraft.skills.skills.PermissionSkill;
 import de.raidcraft.skills.util.ConfigUtil;
 import de.raidcraft.skills.util.JarUtil;
@@ -30,7 +31,6 @@ import org.bukkit.plugin.PluginManager;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -54,7 +54,8 @@ public final class SkillManager {
     private final Map<String, Requirement.Registration<?>> requirements = new HashMap<>();
     private final Map<String, Skill.Registration<?>> skillTypes = new HashMap<>();
 
-    private final Map<UUID, Map<UUID, Skill>> cachedPlayerSkills = new HashMap<>();
+    // player_id -> player_skill_id -> context
+    private final Map<UUID, Map<UUID, SkillContext>> cachedPlayerSkills = new HashMap<>();
 
     private final SkillsPlugin plugin;
     private final SkillPluginConfig config;
@@ -76,6 +77,7 @@ public final class SkillManager {
         registerRequirement(SkillPointRequirement.class, SkillPointRequirement::new);
 
         registerSkill(new PermissionSkill.PermissionSkillFactory());
+        registerSkill(new OnlineTimeExpSkill.Factory());
     }
 
     public void reload() {
@@ -275,7 +277,8 @@ public final class SkillManager {
             return;
         }
 
-        String type = skillClass.getAnnotation(SkillInfo.class).value().toLowerCase();
+        SkillInfo info = skillClass.getAnnotation(SkillInfo.class);
+        String type = info.value().toLowerCase();
         if (skillTypes.containsKey(type)) {
             log.severe("Cannot register skill: " + skillClass.getCanonicalName()
                     + "! A skill with the same type identifier '"
@@ -284,7 +287,7 @@ public final class SkillManager {
             return;
         }
 
-        skillTypes.put(type, new Skill.Registration<>(type, skillClass, supplier));
+        skillTypes.put(type, new Skill.Registration<>(skillClass, info, supplier));
         log.info("registered skill type: " + type + " [" + skillClass.getCanonicalName() + "]");
     }
 
@@ -325,7 +328,16 @@ public final class SkillManager {
      */
     public void unload(@NonNull Player player) {
 
-        SkilledPlayer.getOrCreate(player).activeSkills().forEach(PlayerSkill::deactivate);
+        clearPlayerCache(player);
+    }
+
+    private void clearPlayerCache(Player player) {
+
+        Map<UUID, SkillContext> cache = cachedPlayerSkills.remove(player.getUniqueId());
+        if (cache != null) {
+            cache.values().forEach(SkillContext::disable);
+            cache.clear();
+        }
     }
 
     /**
@@ -447,24 +459,18 @@ public final class SkillManager {
      *         null if the skill type does not exist
      *         or null if the load of the configuration failed.
      */
-    public Skill loadSkill(@NonNull PlayerSkill playerSkill) {
+    public SkillContext loadSkill(@NonNull PlayerSkill playerSkill) {
 
         UUID playerId = playerSkill.player().id();
-        Map<UUID, Skill> cachedSkills = cachedPlayerSkills.getOrDefault(playerId, new HashMap<>());
+        Map<UUID, SkillContext> cachedSkills = cachedPlayerSkills.getOrDefault(playerId, new HashMap<>());
         if (cachedSkills.containsKey(playerSkill.id())) {
             return cachedSkills.get(playerSkill.id());
         }
 
-        Skill loadedSkill = getSkillType(playerSkill.configuredSkill().type())
+        DefaultSkillContext context = getSkillType(playerSkill.configuredSkill().type())
                 .map(registration -> {
                     try {
-                        Skill skill = registration.supplier().apply(new DefaultSkillContext(playerSkill));
-                        ConfigurationSection skillConfig = playerSkill.configuredSkill().getSkillConfig();
-                        skill = BukkitConfigMap.of(skill)
-                                .with(skillConfig)
-                                .applyTo(skill);
-                        skill.load(skillConfig);
-                        return skill;
+                        return new DefaultSkillContext(playerSkill, registration).init();
                     } catch (ConfigurationException e) {
                         log.severe("Failed to load skill " + registration.skillClass().getCanonicalName() + ": " + e.getMessage());
                         e.printStackTrace();
@@ -472,11 +478,11 @@ public final class SkillManager {
                     }
                 }).orElse(null);
 
-        if (loadedSkill != null) {
-            cachedSkills.put(playerSkill.id(), loadedSkill);
+        if (context != null) {
+            cachedSkills.put(playerSkill.id(), context);
             cachedPlayerSkills.put(playerId, cachedSkills);
         }
 
-        return loadedSkill;
+        return context;
     }
 }

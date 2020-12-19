@@ -6,11 +6,7 @@ import co.aikar.commands.PaperCommandManager;
 import com.google.common.base.Strings;
 import de.raidcraft.skills.commands.AdminCommands;
 import de.raidcraft.skills.commands.SkillsCommand;
-import de.raidcraft.skills.entities.ConfiguredSkill;
-import de.raidcraft.skills.entities.Level;
-import de.raidcraft.skills.entities.LevelHistory;
-import de.raidcraft.skills.entities.PlayerSkill;
-import de.raidcraft.skills.entities.SkilledPlayer;
+import de.raidcraft.skills.entities.*;
 import de.raidcraft.skills.listener.PlayerListener;
 import de.slikey.effectlib.EffectManager;
 import io.ebean.Database;
@@ -296,7 +292,8 @@ public class SkillsPlugin extends JavaPlugin {
                         PlayerSkill.class,
                         SkilledPlayer.class,
                         Level.class,
-                        LevelHistory.class
+                        LevelHistory.class,
+                        DataStore.class
                 )
                 .build()).connect();
     }

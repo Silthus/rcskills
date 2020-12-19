@@ -129,7 +129,7 @@ public class ConfiguredSkill extends BaseEntity {
         return this;
     }
 
-    private ConfigurationSection createConfig() {
+    public ConfigurationSection getConfig() {
 
         if (this.config == null) return new MemoryConfiguration();
 
@@ -143,14 +143,14 @@ public class ConfiguredSkill extends BaseEntity {
 
     public ConfigurationSection getSkillConfig() {
 
-        ConfigurationSection config = createConfig();
+        ConfigurationSection config = getConfig();
         return Objects.requireNonNullElse(config.getConfigurationSection("with"), config.createSection("with"));
     }
 
     @PostLoad
     public void load() {
 
-        ConfigurationSection config = createConfig();
+        ConfigurationSection config = getConfig();
 
         this.alias = config.getString("alias", alias);
         this.name = config.getString("name", alias());

@@ -78,10 +78,11 @@ public class DataStore extends BaseEntity {
      * @param <TData> the type of the data
      * @return the data or an empty optional
      */
+    @SuppressWarnings("unchecked")
     public <TData> Optional<TData> get(@NonNull String key, @NonNull Class<TData> type) {
 
         try {
-            return Optional.ofNullable(type.cast(data().get(key)));
+            return Optional.ofNullable((TData) data().get(key));
         } catch (Exception e) {
             log.warning("cannot convert data entry " + key + " to "
                     + type.getCanonicalName() + ": " + e.getMessage());
