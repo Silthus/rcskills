@@ -1,6 +1,7 @@
 package de.raidcraft.skills.entities;
 
 import de.raidcraft.skills.Skill;
+import de.raidcraft.skills.SkillContext;
 import de.raidcraft.skills.SkillStatus;
 import de.raidcraft.skills.SkillsPlugin;
 import de.raidcraft.skills.events.PlayerActivateSkillEvent;
@@ -21,9 +22,7 @@ import net.kyori.adventure.title.Title;
 import net.silthus.ebean.BaseEntity;
 import org.bukkit.Bukkit;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -58,6 +57,8 @@ public class PlayerSkill extends BaseEntity {
     @ManyToOne(optional = false)
     private ConfiguredSkill configuredSkill;
     private SkillStatus status = SkillStatus.NOT_PRESENT;
+    @OneToOne(cascade = CascadeType.ALL)
+    private DataStore data = new DataStore();
 
     PlayerSkill(SkilledPlayer player, ConfiguredSkill configuredSkill) {
         this.player = player;
@@ -76,7 +77,7 @@ public class PlayerSkill extends BaseEntity {
         return configuredSkill.description();
     }
 
-    Optional<Skill> skill() {
+    Optional<SkillContext> context() {
 
         return Optional.ofNullable(SkillsPlugin.instance().getSkillManager().loadSkill(this));
     }
@@ -101,14 +102,14 @@ public class PlayerSkill extends BaseEntity {
 
         if (!active()) return;
 
-        skill().ifPresent(Skill::apply);
+        context().ifPresent(SkillContext::enable);
     }
 
     public void disable() {
 
         if (!active()) return;
 
-        skill().ifPresent(Skill::remove);
+        context().ifPresent(SkillContext::disable);
     }
 
     public boolean canActivate() {
@@ -131,14 +132,14 @@ public class PlayerSkill extends BaseEntity {
 
             if (event.isCancelled()) return;
 
+            enable();
+
             status(SkillStatus.ACTIVE);
             save();
 
             if (event.isPlayEffect()) {
                 player().bukkitPlayer().ifPresent(Effects::playerActivateSkill);
             }
-
-            enable();
 
             Bukkit.getPluginManager().callEvent(new PlayerActivatedSkillEvent(player(), this));
         } catch (Exception e) {
@@ -148,6 +149,7 @@ public class PlayerSkill extends BaseEntity {
     }
 
     public void deactivate() {
+
         if (!active()) return;
 
         try {

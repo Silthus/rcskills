@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<migration xmlns="http://ebean-orm.github.io/xml/ns/dbmigration">
+    <changeSet type="apply">
+        <createTable name="rcs_datastore" identityType="external" pkName="pk_rcs_datastore">
+            <column name="id" type="uuid" primaryKey="true" identity="true"/>
+            <column name="data" type="json"/>
+            <column name="version" type="bigint" notnull="true"/>
+            <column name="when_created" type="timestamp" notnull="true"/>
+            <column name="when_modified" type="timestamp" notnull="true"/>
+        </createTable>
+        <addColumn tableName="rcs_player_skills">
+            <column name="data_id" type="uuid" uniqueOneToOne="uq_rcs_player_skills_data_id" references="rcs_datastore.id" foreignKeyName="fk_rcs_player_skills_data_id"/>
+        </addColumn>
+    </changeSet>
+</migration>
