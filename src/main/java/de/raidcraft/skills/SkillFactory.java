@@ -1,6 +1,5 @@
 package de.raidcraft.skills;
 
-import de.raidcraft.skills.entities.PlayerSkill;
 import lombok.NonNull;
 
 import java.util.function.Function;
@@ -25,9 +24,9 @@ import java.util.function.Function;
  *         }
  *
  *         @Override
- *         public MySkill create(PlayerSkill playerSkill) {
+ *         public MySkill create(SkillContext context) {
  *
- *             return new MySkill(playerSkill, MyPlugin.getInstance());
+ *             return new MySkill(context, MyPlugin.getInstance());
  *         }
  *     }
  *     ...
@@ -45,10 +44,10 @@ public interface SkillFactory<TSkill extends Skill> {
     Class<TSkill> getSkillClass();
 
     /**
-     * Creates a new instance of the skill for the given player skill.
+     * Creates a new instance of the skill for the given skill context.
      *
-     * @param playerSkill the player skill to create a new instance for
+     * @param context the context that was created for this skill
      * @return the created skill instance. must not be null.
      */
-    @NonNull TSkill create(PlayerSkill playerSkill);
+    @NonNull TSkill create(SkillContext context);
 }

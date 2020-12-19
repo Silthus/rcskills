@@ -32,7 +32,7 @@ public class PlayerListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onPlayerActivateSkill(PlayerActivateSkillEvent event) {
 
-        event.getPlayer().getBukkitPlayer().ifPresent(player -> {
+        event.getPlayer().bukkitPlayer().ifPresent(player -> {
             if (player.hasPermission(SkillsPlugin.BYPASS_ACTIVE_SKILL_LIMIT)) {
                 return;
             }

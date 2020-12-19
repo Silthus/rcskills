@@ -23,9 +23,9 @@ public class PermissionSkill extends AbstractSkill {
         }
 
         @Override
-        public PermissionSkill create(PlayerSkill playerSkill) {
+        public PermissionSkill create(SkillContext context) {
 
-            return new PermissionSkill(playerSkill, SkillsPlugin.instance());
+            return new PermissionSkill(context, SkillsPlugin.instance());
         }
     }
 
@@ -33,9 +33,9 @@ public class PermissionSkill extends AbstractSkill {
     private final List<String> permissions = new ArrayList<>();
     private final Set<PermissionAttachment> attachments = new HashSet<>();
 
-    public PermissionSkill(PlayerSkill playerSkill, SkillsPlugin plugin) {
+    public PermissionSkill(SkillContext context, SkillsPlugin plugin) {
 
-        super(playerSkill);
+        super(context);
         this.plugin = plugin;
     }
 
@@ -49,7 +49,7 @@ public class PermissionSkill extends AbstractSkill {
     @Override
     public void apply() {
 
-        getPlayer().ifPresent(player -> attachments
+        context().player().ifPresent(player -> attachments
                 .addAll(permissions.stream()
                         .map(permission -> player.addAttachment(plugin, permission, true))
                         .collect(Collectors.toList())));
@@ -58,7 +58,7 @@ public class PermissionSkill extends AbstractSkill {
     @Override
     public void remove() {
 
-        getPlayer().ifPresent(player -> attachments.forEach(player::removeAttachment));
+        context().player().ifPresent(player -> attachments.forEach(player::removeAttachment));
         attachments.clear();
     }
 }

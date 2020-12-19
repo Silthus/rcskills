@@ -1,15 +1,16 @@
 package de.raidcraft.skills;
 
-import de.raidcraft.skills.entities.PlayerSkill;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 @Data
+@Accessors(fluent = true)
 public abstract class AbstractSkill implements Skill {
 
-    private final PlayerSkill playerSkill;
+    private final SkillContext context;
 
-    protected AbstractSkill(PlayerSkill playerSkill) {
+    protected AbstractSkill(SkillContext context) {
 
-        this.playerSkill = playerSkill;
+        this.context = context;
     }
 }

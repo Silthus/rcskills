@@ -86,12 +86,12 @@ public class SkilledPlayer extends BaseEntity {
                 .sum();
     }
 
-    public OfflinePlayer getOfflinePlayer() {
+    public OfflinePlayer offlinePlayer() {
 
         return Bukkit.getOfflinePlayer(id());
     }
 
-    public Optional<Player> getBukkitPlayer() {
+    public Optional<Player> bukkitPlayer() {
         return Optional.ofNullable(Bukkit.getPlayer(id()));
     }
 

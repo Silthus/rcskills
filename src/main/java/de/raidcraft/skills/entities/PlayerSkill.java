@@ -113,7 +113,7 @@ public class PlayerSkill extends BaseEntity {
 
     public boolean canActivate() {
 
-        boolean bypassSkillLimit = player().getBukkitPlayer()
+        boolean bypassSkillLimit = player().bukkitPlayer()
                 .map(p -> p.hasPermission(SkillsPlugin.BYPASS_ACTIVE_SKILL_LIMIT))
                 .orElse(false);
 
@@ -135,7 +135,7 @@ public class PlayerSkill extends BaseEntity {
             save();
 
             if (event.isPlayEffect()) {
-                player().getBukkitPlayer().ifPresent(Effects::playerActivateSkill);
+                player().bukkitPlayer().ifPresent(Effects::playerActivateSkill);
             }
 
             enable();
@@ -181,7 +181,7 @@ public class PlayerSkill extends BaseEntity {
 //                .save();
 
         if (event.isPlayEffect()) {
-            player().getBukkitPlayer().ifPresent(player -> {
+            player().bukkitPlayer().ifPresent(player -> {
                 Effects.playerUnlockSkill(player);
 
                 TextComponent heading = text("Skill freigeschaltet", NamedTextColor.GOLD);

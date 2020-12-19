@@ -44,7 +44,7 @@ public class PermissionRequirement extends AbstractRequirement {
     @Override
     public TestResult test(@NonNull SkilledPlayer player) {
 
-        Boolean result = player.getBukkitPlayer().map(p -> permissions.stream().allMatch(p::hasPermission)).orElse(false);
+        Boolean result = player.bukkitPlayer().map(p -> permissions.stream().allMatch(p::hasPermission)).orElse(false);
 
         return TestResult.of(result, "Du hast nicht genügend Rechte um diesen Skill freizuschalten.");
     }

@@ -14,7 +14,6 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -67,7 +66,7 @@ public final class LevelManager implements Listener {
                 .reason(event.getReason())
                 .save();
 
-        event.getPlayer().getBukkitPlayer().ifPresent(player -> {
+        event.getPlayer().bukkitPlayer().ifPresent(player -> {
             Audience audience = BukkitAudiences.create(plugin)
                     .player(player);
 
@@ -139,7 +138,7 @@ public final class LevelManager implements Listener {
         Messages.send(event.getPlayer().id(), Messages.addSkillpoints(event.getPlayer(), skillpoints));
         Messages.send(event.getPlayer().id(), Messages.addSkillSlots(event.getPlayer(), skillslots));
 
-        event.getPlayer().getBukkitPlayer().ifPresent(player -> {
+        event.getPlayer().bukkitPlayer().ifPresent(player -> {
             if (event.getNewLevel() > event.getOldLevel()) {
                 Messages.send(player, Messages.levelUpSelf(event.getPlayer(), event.getNewLevel()));
                 BukkitAudiences.create(plugin)

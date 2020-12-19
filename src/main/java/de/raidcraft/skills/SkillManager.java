@@ -268,7 +268,7 @@ public final class SkillManager {
      * @param supplier the supplier that can create new instances of the skill
      * @param <TSkill> the type of the skill
      */
-    public <TSkill extends Skill> void registerSkill(Class<TSkill> skillClass, Function<PlayerSkill, TSkill> supplier) {
+    public <TSkill extends Skill> void registerSkill(Class<TSkill> skillClass, Function<SkillContext, TSkill> supplier) {
 
         if (!skillClass.isAnnotationPresent(SkillInfo.class)) {
             log.severe("Cannot register skill " + skillClass.getCanonicalName() + " without a @SkillType annotation.");
@@ -458,7 +458,7 @@ public final class SkillManager {
         Skill loadedSkill = getSkillType(playerSkill.configuredSkill().type())
                 .map(registration -> {
                     try {
-                        Skill skill = registration.supplier().apply(playerSkill);
+                        Skill skill = registration.supplier().apply(new DefaultSkillContext(playerSkill));
                         ConfigurationSection skillConfig = playerSkill.configuredSkill().getSkillConfig();
                         skill = BukkitConfigMap.of(skill)
                                 .with(skillConfig)

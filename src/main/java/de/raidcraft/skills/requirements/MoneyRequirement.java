@@ -43,7 +43,7 @@ public class MoneyRequirement extends AbstractRequirement {
     public TestResult test(@NonNull SkilledPlayer target) {
 
         Economy economy = Economy.get();
-        return TestResult.of(economy.has(target.getOfflinePlayer(), amount),
+        return TestResult.of(economy.has(target.offlinePlayer(), amount),
                 "Du benötigst mindestens " + economy.format(amount) + " um den Skill zu kaufen.");
     }
 }

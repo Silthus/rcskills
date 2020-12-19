@@ -49,7 +49,7 @@ public class BuySkillAction {
 
         if (!bypassChecks) {
             player.removeSkillPoints(skill.skillpoints());
-            Economy.get().withdrawPlayer(player.getOfflinePlayer(), skill.money(), "Skill \"" + skill.name() + "\" gekauft.", Map.of(
+            Economy.get().withdrawPlayer(player.offlinePlayer(), skill.money(), "Skill \"" + skill.name() + "\" gekauft.", Map.of(
                     "skill", skill.alias(),
                     "skill_id", skill.id()
             ));
