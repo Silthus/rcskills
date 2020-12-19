@@ -84,7 +84,7 @@ dependencies {
     implementation 'net.silthus.config-mapper:bukkit:1.1.4'
     implementation essentialsX()
 
-    testImplementation 'io.ebean:ebean-test:12.6.0'
+    testImplementation 'io.ebean:ebean-test:12.6.3'
 
     testImplementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
     testImplementation group: 'com.h2database', name: 'h2', version: '1.4.200'
