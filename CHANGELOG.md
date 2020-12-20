@@ -1,3 +1,16 @@
+# [1.3.0](https://github.com/raidcraft/rcskills/compare/v1.2.0...v1.3.0) (2020-12-20)
+
+
+### Bug Fixes
+
+* reload skills when /rcsa reload is called ([725b09f](https://github.com/raidcraft/rcskills/commit/725b09f1adef8d3d14190847b2d4ee95f82fdd8d))
+* unload player skills when server shuts down ([d8e999b](https://github.com/raidcraft/rcskills/commit/d8e999b9fbcf2c81cd47986406ea092706e76154))
+
+
+### Features
+
+* skills can now depend on plugins ([a78db31](https://github.com/raidcraft/rcskills/commit/a78db313731bcd03f753cb337a5b043ca3bd82f1))
+
 # [1.2.0](https://github.com/raidcraft/rcskills/compare/v1.1.1...v1.2.0) (2020-12-20)
 
 
