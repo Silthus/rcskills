@@ -4,12 +4,7 @@ import com.google.common.base.Strings;
 import de.raidcraft.skills.entities.ConfiguredSkill;
 import de.raidcraft.skills.entities.PlayerSkill;
 import de.raidcraft.skills.entities.SkilledPlayer;
-import de.raidcraft.skills.requirements.LevelRequirement;
-import de.raidcraft.skills.requirements.MoneyRequirement;
-import de.raidcraft.skills.requirements.PermissionRequirement;
-import de.raidcraft.skills.requirements.SkillPointRequirement;
-import de.raidcraft.skills.requirements.SkillRequirement;
-import de.raidcraft.skills.skills.OnlineTimeExpSkill;
+import de.raidcraft.skills.requirements.*;
 import de.raidcraft.skills.skills.PermissionSkill;
 import de.raidcraft.skills.util.ConfigUtil;
 import de.raidcraft.skills.util.JarUtil;
@@ -35,13 +30,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -77,7 +66,6 @@ public final class SkillManager {
         registerRequirement(SkillPointRequirement.class, SkillPointRequirement::new);
 
         registerSkill(new PermissionSkill.PermissionSkillFactory());
-        registerSkill(new OnlineTimeExpSkill.Factory());
     }
 
     public void reload() {
