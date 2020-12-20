@@ -20,6 +20,7 @@ import net.silthus.ebean.EbeanWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -85,6 +86,12 @@ public class SkillsPlugin extends JavaPlugin {
             setupCommands();
             registerPermissions();
         }
+    }
+
+    @Override
+    public void onDisable() {
+
+        getSkillManager().unload();
     }
 
     private void registerPermissions() {
