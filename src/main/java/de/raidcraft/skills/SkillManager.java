@@ -299,6 +299,13 @@ public final class SkillManager {
             return;
         }
 
+        for (String depend : info.depends()) {
+            if (Bukkit.getPluginManager().getPlugin(depend) == null) {
+                log.severe("Cannot register skill " + skillClass.getCanonicalName() + " (" + type + ")! Missing plugin dependency of " + depend);
+                return;
+            }
+        }
+
         skillTypes.put(type, new Skill.Registration<>(skillClass, info, supplier));
         log.info("registered skill type: " + type + " [" + skillClass.getCanonicalName() + "]");
     }

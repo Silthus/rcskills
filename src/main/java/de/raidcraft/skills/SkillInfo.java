@@ -22,6 +22,16 @@ public @interface SkillInfo {
     String value();
 
     /**
+     * List any plugins the skill needs here.
+     * <p>This is like the depends: [...] clause in the plugin.yml and will
+     * check if the plugin exists and is enabled before loading the skill.
+     * <p>You still need to fetch the plugin in the load(...) method with Bukkit.getPlugin(...).
+     *
+     * @return the plugin dependencies of this skill
+     */
+    String[] depends() default {};
+
+    /**
      * The time in ticks on how often a scheduled task,
      * if any should tick for this skill.
      * <p>This is only the default interval and can be overwritten in the config.
