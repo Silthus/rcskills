@@ -1,3 +1,16 @@
+# [1.1.0](https://github.com/raidcraft/rcskills/compare/v1.0.0...v1.1.0) (2020-12-20)
+
+
+### Bug Fixes
+
+* save skill state before activating it ([ff48f83](https://github.com/raidcraft/rcskills/commit/ff48f839ffed6e932d20ed4c7c509025f49b943a))
+
+
+### Features
+
+* add data store to PlayerSkill ([1622bdb](https://github.com/raidcraft/rcskills/commit/1622bdb073c03e339769a7f92878f2203ea4c4c3))
+* add exp online time skill ([7b997d7](https://github.com/raidcraft/rcskills/commit/7b997d76a71f0491a06acf5ab21e212eef5fa832))
+
 # 1.0.0 (2020-12-18)
 
 
