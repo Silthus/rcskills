@@ -59,6 +59,10 @@ public class BuySkillAction {
 
         playerSkill.unlock();
 
+        if (playerSkill.configuredSkill().skillslots() < 1) {
+            playerSkill.activate();
+        }
+
         player.save();
         return new Result(this, playerSkill, testResult);
     }

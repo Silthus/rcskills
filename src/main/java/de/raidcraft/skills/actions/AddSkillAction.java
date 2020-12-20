@@ -40,6 +40,10 @@ public class AddSkillAction {
         PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
         playerSkill.unlock();
 
+        if (playerSkill.configuredSkill().skillslots() < 1) {
+            playerSkill.activate();
+        }
+
         player.save();
         return new Result(this, playerSkill, testResult);
     }
