@@ -56,22 +56,16 @@ repositories {
     maven { url = 'https://jitpack.io' }
     spigot()
     maven { url = "https://repo.aikar.co/content/groups/aikar/" }
+    maven { url = 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
 
 dependencies {
     compileOnly spigot(mcVersion)
 
     api 'de.raidcraft.economy:wrapper:2.0.1'
-
-    implementation 'net.silthus:ebean-wrapper:2.8.1'
-    implementation 'net.silthus.configlib:configlib-bukkit:2.6.0'
-    implementation 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.3'
-    implementation 'com.github.Slikey:EffectLib:master-SNAPSHOT'
-    implementation 'com.github.stefvanschie.inventoryframework:IF:0.9.0'
-
-    implementation 'org.codehaus.janino:janino:3.1.2'
-    implementation group: 'org.codehaus.janino', name: 'commons-compiler', version: '3.1.2'
+    api 'net.silthus:ebean-wrapper:2.8.1'
+    api 'com.github.Slikey:EffectLib:master-SNAPSHOT'
+    api 'net.silthus.config-mapper:bukkit:1.1.4'
 
     api 'net.kyori:adventure-api:4.2.0-SNAPSHOT'
     api 'net.kyori:adventure-text-minimessage:4.0.0-SNAPSHOT'
@@ -79,8 +73,15 @@ dependencies {
     api group: 'net.kyori', name: 'adventure-text-feature-pagination', version: '4.0.0-SNAPSHOT'
     api group: 'net.kyori', name: 'adventure-text-serializer-plain', version: '4.0.0-SNAPSHOT'
 
+    implementation 'net.silthus.configlib:configlib-bukkit:2.6.0'
+    implementation 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.3'
+    implementation 'com.github.stefvanschie.inventoryframework:IF:0.9.0'
+
+    implementation 'org.codehaus.janino:janino:3.1.2'
+    implementation group: 'org.codehaus.janino', name: 'commons-compiler', version: '3.1.2'
+
     implementation group: 'io.art-framework', name: 'art-core', version: '1.0.0-beta.30'
-    api 'net.silthus.config-mapper:bukkit:1.1.4'
 
     testImplementation 'io.ebean:ebean-test:12.6.3'
 
