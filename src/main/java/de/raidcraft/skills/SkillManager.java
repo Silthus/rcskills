@@ -14,6 +14,7 @@ import lombok.experimental.Accessors;
 import lombok.extern.java.Log;
 import net.silthus.configmapper.ConfigurationException;
 import net.silthus.configmapper.bukkit.BukkitConfigMap;
+import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -77,6 +78,7 @@ public final class SkillManager {
     public void load() {
 
         loadSkillsFromPlugins();
+        loadSkillsFromModules();
         loadSkills(new File(plugin.getDataFolder(), config.getSkillsPath()).toPath());
     }
 
@@ -93,33 +95,51 @@ public final class SkillManager {
             if (plugin.equals(plugin())) continue;
 
             try {
-                File jarFile = new File(plugin.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
-                JarUtil.findClasses(plugin().getClass().getClassLoader(), jarFile, SkillFactory.class::isAssignableFrom).stream()
-                        .map(aClass -> {
-                            try {
-                                return aClass.getDeclaredConstructor();
-                            } catch (NoSuchMethodException e) {
-                                log.warning("unable to find a public no arguments constructor for skill factory " + aClass.getCanonicalName() + ": " + e.getMessage());
-                                log.warning("make sure you register your factory or skill manually with the SkillManager#registerSkill(...) method!");
-                                return null;
-                            }
-                        }).filter(Objects::nonNull)
-                        .map(constructor -> {
-                            try {
-                                return (SkillFactory<?>) constructor.newInstance();
-                            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                                log.severe("unable to create a new instance of the skill factory "
-                                        + constructor.getClass().getCanonicalName() + " --> " + constructor.getName() + ": " + e.getMessage());
-                                e.printStackTrace();
-                                return null;
-                            }
-                        }).filter(Objects::nonNull)
-                        .forEach(this::registerSkill);
+                loadClassesFromJar(new File(plugin.getClass().getProtectionDomain().getCodeSource().getLocation().toURI()));
             } catch (URISyntaxException e) {
                 log.severe("unable to find valid jar file location of plugin " + plugin.getName() + ": " + e.getMessage());
                 e.printStackTrace();
             }
         }
+    }
+
+    void loadSkillsFromModules() {
+
+        Path path = new File(plugin.getDataFolder(), config.getModulePath()).toPath();
+        try {
+            Files.walk(path, Integer.MAX_VALUE)
+                    .filter(Files::isRegularFile)
+                    .map(Path::toFile)
+                    .filter(file -> file.getName().endsWith(".jar"))
+                    .forEach(this::loadClassesFromJar);
+        } catch (IOException e) {
+            log.severe("unable to load modules from " + path + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void loadClassesFromJar(File jarFile) {
+        JarUtil.findClasses(plugin.getClass().getClassLoader(), jarFile, SkillFactory.class::isAssignableFrom).stream()
+                .map(aClass -> {
+                    try {
+                        return aClass.getDeclaredConstructor();
+                    } catch (NoSuchMethodException e) {
+                        log.warning("unable to find a public no arguments constructor for skill factory " + aClass.getCanonicalName() + ": " + e.getMessage());
+                        log.warning("make sure you register your factory or skill manually with the SkillManager#registerSkill(...) method!");
+                        return null;
+                    }
+                }).filter(Objects::nonNull)
+                .map(constructor -> {
+                    try {
+                        return (SkillFactory<?>) constructor.newInstance();
+                    } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                        log.severe("unable to create a new instance of the skill factory "
+                                + constructor.getClass().getCanonicalName() + " --> " + constructor.getName() + ": " + e.getMessage());
+                        e.printStackTrace();
+                        return null;
+                    }
+                }).filter(Objects::nonNull)
+                .forEach(this::registerSkill);
     }
 
     /**
@@ -260,8 +280,12 @@ public final class SkillManager {
      */
     public <TSkill extends Skill> void registerSkill(Class<TSkill> skillClass, Function<SkillContext, TSkill> supplier) {
 
+        if (skillTypes.values().stream().anyMatch(registration -> registration.skillClass().equals(skillClass))) {
+            return;
+        }
+
         if (!skillClass.isAnnotationPresent(SkillInfo.class)) {
-            log.severe("Cannot register skill " + skillClass.getCanonicalName() + " without a @SkillType annotation.");
+            log.severe("Cannot register skill " + skillClass.getCanonicalName() + " without a @SkillInfo annotation.");
             return;
         }
 

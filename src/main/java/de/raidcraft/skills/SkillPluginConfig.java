@@ -20,6 +20,8 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
 
     @Comment("The relative path where your skill configs are located.")
     private String skillsPath = "skills";
+    @Comment("The relative path where your skill and effect modules (jar files) are located.")
+    private String modulePath = "modules";
     @Comment("Set to true to automatically load skill classes and factories from other plugins.")
     private boolean loadClassesFromPlugins = false;
     @Comment("Set to false if you want to disable broadcasting players leveling up to everyone.")
