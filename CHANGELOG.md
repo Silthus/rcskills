@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/raidcraft/rcskills/compare/v1.1.0...v1.1.1) (2020-12-20)
+
+
+### Bug Fixes
+
+* expose ebeanwrapper as api ([f5af42d](https://github.com/raidcraft/rcskills/commit/f5af42dd148f0262527763f4a8d609c9dc3c5f35))
+
 # [1.1.0](https://github.com/raidcraft/rcskills/compare/v1.0.0...v1.1.0) (2020-12-20)
 
 
