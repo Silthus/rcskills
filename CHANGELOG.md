@@ -1,3 +1,17 @@
+# [1.2.0](https://github.com/raidcraft/rcskills/compare/v1.1.1...v1.2.0) (2020-12-20)
+
+
+### Bug Fixes
+
+* refresh playerskill from database when fetched from skill context ([086b558](https://github.com/raidcraft/rcskills/commit/086b558fc139ad9eed76f4c50911b3f2b06de5a9))
+
+
+### Features
+
+* activate skill directly if it needs no skill slots ([e731f78](https://github.com/raidcraft/rcskills/commit/e731f78f0f45d124ae33c6820848e765b176501d))
+* display details about exp gain ([135836c](https://github.com/raidcraft/rcskills/commit/135836c90c960d3b281c4a7ecf126a386bef0e2b))
+* load skill modules from sub directory ([dbd4b08](https://github.com/raidcraft/rcskills/commit/dbd4b083422c350063dc356922c4a5df9cf02110))
+
 ## [1.1.1](https://github.com/raidcraft/rcskills/compare/v1.1.0...v1.1.1) (2020-12-20)
 
 
