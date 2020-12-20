@@ -46,6 +46,12 @@ class DefaultSkillContext implements SkillContext {
         return this;
     }
 
+    public PlayerSkill playerSkill() {
+
+        playerSkill.refresh();
+        return playerSkill;
+    }
+
     public Skill get() {
         try {
             if (skill == null) {
