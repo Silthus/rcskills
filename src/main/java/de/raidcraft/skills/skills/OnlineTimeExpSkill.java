@@ -1,13 +1,9 @@
 package de.raidcraft.skills.skills;
 
-import com.earth2me.essentials.Essentials;
-import com.earth2me.essentials.User;
 import de.raidcraft.skills.*;
 import io.ebean.annotation.Transactional;
 import lombok.NonNull;
 import net.silthus.configmapper.ConfigOption;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
 
 import java.time.Instant;
 

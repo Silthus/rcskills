@@ -6,7 +6,7 @@ buildscript {
 }
 
 plugins {
-    id 'java'
+    id 'java-library'
     id 'jacoco'
     id 'idea'
     id 'io.freefair.lombok' version '5.3.0'
@@ -56,13 +56,12 @@ repositories {
     maven { url = 'https://jitpack.io' }
     spigot()
     maven { url = "https://repo.aikar.co/content/groups/aikar/" }
-    essentialsX()
 }
 
 dependencies {
     compileOnly spigot(mcVersion)
 
-    implementation 'de.raidcraft.economy:wrapper:2.0.1'
+    api 'de.raidcraft.economy:wrapper:2.0.1'
 
     implementation 'net.silthus:ebean-wrapper:2.8.1'
     implementation 'net.silthus.configlib:configlib-bukkit:2.6.0'
@@ -74,15 +73,14 @@ dependencies {
     implementation 'org.codehaus.janino:janino:3.1.2'
     implementation group: 'org.codehaus.janino', name: 'commons-compiler', version: '3.1.2'
 
-    implementation 'net.kyori:adventure-api:4.2.0-SNAPSHOT'
-    implementation 'net.kyori:adventure-text-minimessage:4.0.0-SNAPSHOT'
-    implementation 'net.kyori:adventure-platform-bukkit:4.0.0-SNAPSHOT'
-    implementation group: 'net.kyori', name: 'adventure-text-feature-pagination', version: '4.0.0-SNAPSHOT'
-    implementation group: 'net.kyori', name: 'adventure-text-serializer-plain', version: '4.0.0-SNAPSHOT'
+    api 'net.kyori:adventure-api:4.2.0-SNAPSHOT'
+    api 'net.kyori:adventure-text-minimessage:4.0.0-SNAPSHOT'
+    api 'net.kyori:adventure-platform-bukkit:4.0.0-SNAPSHOT'
+    api group: 'net.kyori', name: 'adventure-text-feature-pagination', version: '4.0.0-SNAPSHOT'
+    api group: 'net.kyori', name: 'adventure-text-serializer-plain', version: '4.0.0-SNAPSHOT'
 
     implementation group: 'io.art-framework', name: 'art-core', version: '1.0.0-beta.30'
-    implementation 'net.silthus.config-mapper:bukkit:1.1.4'
-    implementation essentialsX()
+    api 'net.silthus.config-mapper:bukkit:1.1.4'
 
     testImplementation 'io.ebean:ebean-test:12.6.3'
 
@@ -115,11 +113,11 @@ shadowJar {
     relocate 'co.aikar.locales', "shadow.${pluginName}.locales"
     relocate 'de.exlll.configlib', "shadow.${pluginName}.configlib"
     relocate 'de.slikey.effectlib', "shadow.${pluginName}.effectlib"
-    relocate 'net.kyori.adventure', "shadow.${pluginName}.adventure"
+    relocate 'net.kyori.adventure', "de.raidcraft.skills.text"
     relocate 'org.codehaus', "shadow.${pluginName}.codehaus"
-    relocate 'de.raidcraft.economy.wrapper', "shadow.${pluginName}.economy"
+    relocate 'de.raidcraft.economy.wrapper', "de.raidcraft.skills.economy"
     relocate 'com.github.stefvanschie.inventoryframework', "shadow.${pluginName}.inventoryframework"
-    relocate 'net.silthus.configmapper', "shadow.${pluginName}.configmapper"
+    relocate 'net.silthus.configmapper', "de.raidcraft.skills.configmapper"
 }
 
 tasks.build.dependsOn(shadowJar)

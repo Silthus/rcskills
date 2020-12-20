@@ -88,6 +88,8 @@ public class ConfiguredSkill extends BaseEntity {
     @Transient
     private List<Requirement> costRequirements = new ArrayList<>();
 
+    private transient boolean loaded = false;
+
     ConfiguredSkill(UUID id) {
         this.id(id);
     }
@@ -150,6 +152,8 @@ public class ConfiguredSkill extends BaseEntity {
     @PostLoad
     public void load() {
 
+        if (loaded) return;
+
         ConfigurationSection config = getConfig();
 
         this.alias = config.getString("alias", alias);
@@ -191,6 +195,8 @@ public class ConfiguredSkill extends BaseEntity {
             skillPointRequirement.setSkillpoints(this.skillpoints);
             costRequirements.add(skillPointRequirement);
         }
+
+        this.loaded = true;
     }
 
     public ConfiguredSkill enabled(boolean enabled) {

@@ -38,7 +38,6 @@ public class AddSkillAction {
         }
 
         PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
-        player.skills().add(playerSkill);
         playerSkill.unlock();
 
         player.save();
@@ -58,7 +57,7 @@ public class AddSkillAction {
             this.action = action;
             this.testResult = testResult;
             this.error = error;
-            playerSkill = null;
+            playerSkill = PlayerSkill.getOrCreate(action.player, action.skill);
         }
 
         public Result(AddSkillAction action, PlayerSkill playerSkill, TestResult testResult) {
@@ -72,7 +71,7 @@ public class AddSkillAction {
             this.action = action;
             this.testResult = null;
             this.error = error;
-            playerSkill = null;
+            playerSkill = PlayerSkill.getOrCreate(action.player, action.skill);
         }
 
         public boolean success() {

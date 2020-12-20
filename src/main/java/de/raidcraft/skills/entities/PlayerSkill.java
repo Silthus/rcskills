@@ -141,9 +141,9 @@ public class PlayerSkill extends BaseEntity {
             if (event.isCancelled()) return;
 
             status(SkillStatus.ACTIVE);
-            enable();
-
             save();
+
+            enable();
 
             if (event.isPlayEffect()) {
                 player().bukkitPlayer().ifPresent(Effects::playerActivateSkill);
@@ -153,6 +153,8 @@ public class PlayerSkill extends BaseEntity {
         } catch (Exception e) {
             log.severe("An error occured while activating the skill " + alias() + " of " + player().name() + ": " + e.getMessage());
             e.printStackTrace();
+            status(SkillStatus.UNLOCKED);
+            save();
         }
     }
 

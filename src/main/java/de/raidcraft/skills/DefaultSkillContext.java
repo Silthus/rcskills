@@ -2,6 +2,7 @@ package de.raidcraft.skills;
 
 import de.raidcraft.skills.entities.PlayerSkill;
 import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import lombok.extern.java.Log;
 import net.silthus.configmapper.ConfigurationException;
@@ -15,6 +16,7 @@ import java.util.UUID;
 @Data
 @Accessors(fluent = true)
 @Log(topic = "RCSkills")
+@ToString(of = { "playerSkillId", "registration", "enabled" })
 class DefaultSkillContext implements SkillContext {
 
     private final UUID playerSkillId;
@@ -30,13 +32,6 @@ class DefaultSkillContext implements SkillContext {
         this.playerSkill = playerSkill;
         this.registration = registration;
         this.interval = registration().info().taskInterval();
-    }
-
-    @Override
-    public PlayerSkill playerSkill() {
-
-        playerSkill.refresh();
-        return playerSkill;
     }
 
     DefaultSkillContext init() throws ConfigurationException {
