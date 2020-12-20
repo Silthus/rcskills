@@ -27,6 +27,12 @@ public interface SkillContext {
     Skill get();
 
     /**
+     * Reloads the skill context disabling it, reloading the config and enabling it again.
+     * <p>If anything goes wrong while reloading the skill will stay disabled.
+     */
+    void reload();
+
+    /**
      * Enables the skill context applying any effects of the skill
      * to the player that is associated with this context.
      * <p>The context will also start any timed tasks the skill requires.

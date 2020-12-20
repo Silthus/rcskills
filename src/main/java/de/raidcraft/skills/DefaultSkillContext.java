@@ -34,6 +34,18 @@ class DefaultSkillContext implements SkillContext {
         this.interval = registration().info().taskInterval();
     }
 
+    public void reload() {
+
+        try {
+            disable();
+            init();
+            enable();
+        } catch (ConfigurationException e) {
+            log.severe("failed to reload skill " + configuredSkill().alias() + " for " + skilledPlayer().name() + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     DefaultSkillContext init() throws ConfigurationException {
 
         skill = registration.supplier().apply(this);

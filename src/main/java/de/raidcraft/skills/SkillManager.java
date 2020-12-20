@@ -71,8 +71,13 @@ public final class SkillManager {
 
     public void reload() {
 
-        unload();
+        skillTypes.clear();
+        requirements.clear();
+        registerDefaults();
+
         load();
+
+        reloadPlayerSkills();
     }
 
     public void load() {
@@ -84,6 +89,11 @@ public final class SkillManager {
 
     public void unload() {
 
+        if (SkillsPlugin.isTesting()) return;
+
+        clearCache();
+        skillTypes.clear();
+        requirements.clear();
     }
 
     void loadSkillsFromPlugins() {
@@ -347,12 +357,26 @@ public final class SkillManager {
      */
     public void unload(@NonNull Player player) {
 
-        clearPlayerCache(player);
+        clearPlayerCache(player.getUniqueId());
     }
 
-    private void clearPlayerCache(Player player) {
+    private void reloadPlayerSkills() {
 
-        Map<UUID, SkillContext> cache = cachedPlayerSkills.remove(player.getUniqueId());
+        cachedPlayerSkills.values().stream()
+                .flatMap(uuidSkillContextMap -> uuidSkillContextMap.values().stream())
+                .forEach(SkillContext::reload);
+    }
+
+    private void clearCache() {
+
+        cachedPlayerSkills.keySet().stream().collect(Collectors.toUnmodifiableSet())
+                .forEach(this::clearPlayerCache);
+        cachedPlayerSkills.clear();
+    }
+
+    private void clearPlayerCache(UUID uuid) {
+
+        Map<UUID, SkillContext> cache = cachedPlayerSkills.remove(uuid);
         if (cache != null) {
             cache.values().forEach(SkillContext::disable);
             cache.clear();
