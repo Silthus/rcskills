@@ -1,5 +1,6 @@
 package de.raidcraft.skills;
 
+import com.google.common.base.Strings;
 import de.raidcraft.skills.entities.LevelHistory;
 import de.raidcraft.skills.entities.SkilledPlayer;
 import de.raidcraft.skills.events.PlayerLeveledEvent;
@@ -13,11 +14,18 @@ import lombok.extern.java.Log;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitTask;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.codehaus.commons.compiler.CompileException;
 import org.codehaus.commons.compiler.IExpressionEvaluator;
 import org.codehaus.janino.CompilerFactory;
@@ -27,6 +35,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import static net.kyori.adventure.text.Component.text;
+import static net.kyori.adventure.text.format.NamedTextColor.*;
+import static net.kyori.adventure.text.format.TextDecoration.*;
 
 @Log(topic = "RCSkills")
 public final class LevelManager implements Listener {
@@ -55,6 +67,9 @@ public final class LevelManager implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onExpGain(SetPlayerExpEvent event) {
+
+        long expDiff = event.getNewExp() - event.getOldExp();
+        if (expDiff == 0) return;
 
         int level = getLevelForExp(event.getNewExp());
         event.setLevel(level);
@@ -87,6 +102,20 @@ public final class LevelManager implements Listener {
                         }
             },
             plugin.getPluginConfig().getExpProgressBarDuration());
+
+            TextComponent.Builder builder = text();
+            if (expDiff < 0) {
+                builder.append(text("-", DARK_RED, BOLD)).append(text(expDiff, RED));
+            } else {
+                builder.append(text("+", DARK_GREEN, BOLD)).append(text(expDiff, GREEN));
+            }
+            builder.append(text(" EXP", YELLOW)).append(text(" - ", DARK_AQUA));
+            if (!Strings.isNullOrEmpty(event.getReason())) {
+                builder.append(text(event.getReason(), DARK_AQUA, ITALIC));
+            }
+
+            @NonNull BaseComponent[] baseComponents = BungeeComponentSerializer.get().serialize(builder.build());
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, baseComponents);
 
             activeExpBars.put(player.getUniqueId(), Map.entry(bossBar, bukkitTask));
         });
