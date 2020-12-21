@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/raidcraft/rcskills/compare/v1.4.0...v1.4.1) (2020-12-21)
+
+
+### Bug Fixes
+
+* **api:** return PlayerSkill in activate() and deactivate() methods ([6bc7486](https://github.com/raidcraft/rcskills/commit/6bc74867e0b1013e3126f3aeb5d7f1136f2c8abe))
+
 # [1.4.0](https://github.com/raidcraft/rcskills/compare/v1.3.0...v1.4.0) (2020-12-21)
 
 
