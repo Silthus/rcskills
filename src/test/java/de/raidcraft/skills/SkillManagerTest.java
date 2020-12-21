@@ -22,7 +22,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 class SkillManagerTest {
@@ -154,23 +156,19 @@ class SkillManagerTest {
                     .extracting(ConfiguredSkill::alias)
                     .contains("test", "foobar", "nested.minimal");
         }
-    }
-
-    @Nested
-    @DisplayName("loadPlayerSkills(...)")
-    class loadPlayerSkills {
-
-        @BeforeEach
-        void setUp() {
-
-            skillManager.registerDefaults();
-        }
 
         @Test
-        @DisplayName("should load and apply all player skills")
-        void shouldLoadAllPlayerSkillsFromTheDatabase() {
+        @DisplayName("should disable old skills")
+        void shouldDisableOldSkills() {
 
+            ConfiguredSkill skill = ConfiguredSkill.getOrCreate(UUID.randomUUID());
+            skill.save();
 
+            skillManager.load();
+
+            assertThat(ConfiguredSkill.find.byId(skill.id()))
+                    .extracting(ConfiguredSkill::enabled)
+                    .isEqualTo(false);
         }
     }
 
