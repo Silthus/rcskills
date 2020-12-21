@@ -17,10 +17,12 @@ import de.raidcraft.skills.actions.BuySkillAction;
 import de.raidcraft.skills.entities.ConfiguredSkill;
 import de.raidcraft.skills.entities.PlayerSkill;
 import de.raidcraft.skills.entities.SkilledPlayer;
+import de.raidcraft.skills.gui.SkillsGui;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,6 +57,15 @@ public class SkillsCommand extends BaseCommand {
     public void info(@Conditions("others:perm=player.info") SkilledPlayer player) {
 
         Messages.send(getCurrentCommandIssuer(), Messages.playerInfo(player));
+    }
+
+    @Subcommand("gui")
+    @CommandCompletion("@players")
+    @CommandPermission("rcskills.player.gui")
+    @Description("Zeigt die Skills Chest UI an.")
+    public void gui(Player player) {
+
+        SkillsGui.display(player);
     }
 
     @HelpCommand
