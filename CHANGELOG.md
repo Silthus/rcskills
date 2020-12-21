@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/raidcraft/rcskills/compare/v1.4.1...v1.5.0) (2020-12-21)
+
+
+### Features
+
+* add very basic skills gui ([3493762](https://github.com/raidcraft/rcskills/commit/349376283d2e51b3ce8fb34cae4fc7c31b1adcad))
+
 ## [1.4.1](https://github.com/raidcraft/rcskills/compare/v1.4.0...v1.4.1) (2020-12-21)
 
 
