@@ -94,6 +94,11 @@ public class ConfiguredSkill extends BaseEntity {
         this.id(id);
     }
 
+    public boolean hidden() {
+
+        return !enabled || hidden;
+    }
+
     public List<String> categories() {
 
         if (categories == null) {

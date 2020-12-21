@@ -58,4 +58,14 @@ public class PlayerSkillTest {
                 .extracting(PlayerSkill::active)
                 .isEqualTo(true);
     }
+
+    @Test
+    @DisplayName("should not activate disabled skills")
+    void shouldNotActivateSkillThatIsDisabled() {
+
+        skill.enabled(false).save();
+        PlayerSkill playerSkill = player.addSkill(skill).playerSkill().activate();
+
+        assertThat(playerSkill.active()).isFalse();
+    }
 }
