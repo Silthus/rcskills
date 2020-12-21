@@ -4,7 +4,11 @@ import com.google.common.base.Strings;
 import de.raidcraft.skills.entities.ConfiguredSkill;
 import de.raidcraft.skills.entities.PlayerSkill;
 import de.raidcraft.skills.entities.SkilledPlayer;
-import de.raidcraft.skills.requirements.*;
+import de.raidcraft.skills.requirements.LevelRequirement;
+import de.raidcraft.skills.requirements.MoneyRequirement;
+import de.raidcraft.skills.requirements.PermissionRequirement;
+import de.raidcraft.skills.requirements.SkillPointRequirement;
+import de.raidcraft.skills.requirements.SkillRequirement;
 import de.raidcraft.skills.skills.PermissionSkill;
 import de.raidcraft.skills.util.ConfigUtil;
 import de.raidcraft.skills.util.JarUtil;
@@ -14,10 +18,10 @@ import lombok.experimental.Accessors;
 import lombok.extern.java.Log;
 import net.silthus.configmapper.ConfigurationException;
 import net.silthus.configmapper.bukkit.BukkitConfigMap;
-import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
@@ -31,7 +35,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -462,6 +472,17 @@ public final class SkillManager {
         return Optional.of(skill.load(config));
     }
 
+    public ConfiguredSkill loadSkill(Class<? extends Skill> skillClass) {
+
+        return loadSkill(skillClass, new MemoryConfiguration());
+    }
+
+    public ConfiguredSkill loadSkill(Class<? extends Skill> skillClass, MemoryConfiguration config) {
+
+        config.set("type", getSkillType(skillClass));
+        return loadSkill(skillClass.getName().toLowerCase(), config).orElse(null);
+    }
+
     /**
      * Tries to get skill type registration of the given identifier.
      * <p>Use the {@link Skill.Registration} to create new instances of the
@@ -478,6 +499,22 @@ public final class SkillManager {
         }
 
         return Optional.ofNullable(skillTypes().get(type.toLowerCase()));
+    }
+
+    /**
+     * Gets the tpye of a skill based on the provided class.
+     *
+     * @param skillClass the skill class to get the type from
+     * @throws RuntimeException if the skill is not annotated with @SkillInfo
+     * @return the type of the skill
+     */
+    public String getSkillType(Class<? extends Skill> skillClass) {
+
+        if (!skillClass.isAnnotationPresent(SkillInfo.class)) {
+            throw new RuntimeException("Cannot get type of skill " + skillClass.getCanonicalName() + "! It is missing the @SkillInfo annotation.");
+        }
+
+        return skillClass.getAnnotation(SkillInfo.class).value();
     }
 
     /**
