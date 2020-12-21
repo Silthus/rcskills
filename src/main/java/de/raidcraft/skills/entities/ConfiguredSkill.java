@@ -73,7 +73,7 @@ public class ConfiguredSkill extends BaseEntity {
     private int level = 1;
     private double money = 0d;
     private int skillpoints = 0;
-    private int skillslots = 1;
+    private boolean noSkillSlot = false;
     private boolean hidden = false;
     private boolean enabled = true;
     private List<String> categories = new ArrayList<>();
@@ -163,7 +163,7 @@ public class ConfiguredSkill extends BaseEntity {
         this.level = config.getInt("level", level);
         this.money = config.getDouble("money", money);
         this.skillpoints = config.getInt("skillpoints", skillpoints);
-        this.skillslots = config.getInt("skillslots", skillslots);
+        this.noSkillSlot = config.getBoolean("no-skill-slot", noSkillSlot);
         this.hidden = config.getBoolean("hidden", hidden);
         this.enabled = config.getBoolean("enabled", enabled);
         if (config.isSet("categories"))

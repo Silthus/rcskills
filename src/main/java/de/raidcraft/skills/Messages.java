@@ -160,7 +160,7 @@ public final class Messages {
                 .append(text(" wurden um ", YELLOW))
                 .append(text(slots, AQUA))
                 .append(text(" Slots auf ", YELLOW))
-                .append(text(player.skillSlots(), AQUA))
+                .append(text(player.skillSlots().size(), AQUA))
                 .append(text(" erhöht.", YELLOW));
     }
 
@@ -288,7 +288,7 @@ public final class Messages {
 
     public static Component skillSlots(SkilledPlayer player) {
 
-        int slots = player.skillSlots();
+        int slots = player.skillSlots().size();
         return text("Skill Slots: ", YELLOW)
                 .append(text(slots - player.freeSkillSlots(), GREEN))
                 .append(text("/", DARK_AQUA))

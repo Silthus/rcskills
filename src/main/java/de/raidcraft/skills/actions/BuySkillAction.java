@@ -59,7 +59,7 @@ public class BuySkillAction {
 
         playerSkill.unlock();
 
-        if (playerSkill.configuredSkill().skillslots() < 1) {
+        if (playerSkill.configuredSkill().noSkillSlot()) {
             playerSkill.activate();
         }
 

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<migration xmlns="http://ebean-orm.github.io/xml/ns/dbmigration">
+    <changeSet type="apply">
+        <addColumn tableName="rcs_skills">
+            <column name="no_skill_slot" type="boolean" defaultValue="false" notnull="true"/>
+        </addColumn>
+        <createTable name="rcs_skill_slots" identityType="external" pkName="pk_rcs_skill_slots">
+            <column name="id" type="uuid" primaryKey="true" identity="true"/>
+            <column name="player_id" type="uuid" references="rcs_players.id" foreignKeyName="fk_rcs_skill_slots_player_id" foreignKeyIndex="ix_rcs_skill_slots_player_id"/>
+            <column name="skill_id" type="uuid" uniqueOneToOne="uq_rcs_skill_slots_skill_id" references="rcs_player_skills.id" foreignKeyName="fk_rcs_skill_slots_skill_id"/>
+            <column name="status" type="varchar(8)" checkConstraint="check ( status in ('ELIGIBLE','FREE','IN_USE'))" checkConstraintName="ck_rcs_skill_slots_status"/>
+            <column name="version" type="bigint" notnull="true"/>
+            <column name="when_created" type="timestamp" notnull="true"/>
+            <column name="when_modified" type="timestamp" notnull="true"/>
+        </createTable>
+    </changeSet>
+    <changeSet type="pendingDrops">
+        <dropColumn columnName="skillslots" tableName="rcs_skills"/>
+        <dropColumn columnName="skill_slots" tableName="rcs_players"/>
+    </changeSet>
+</migration>

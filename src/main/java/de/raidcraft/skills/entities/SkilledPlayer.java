@@ -4,6 +4,7 @@ import de.raidcraft.skills.actions.AddSkillAction;
 import de.raidcraft.skills.actions.BuySkillAction;
 import de.raidcraft.skills.events.*;
 import io.ebean.Finder;
+import io.ebean.annotation.Transactional;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,12 +19,7 @@ import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
@@ -56,14 +52,15 @@ public class SkilledPlayer extends BaseEntity {
     private String name;
     @Setter(AccessLevel.NONE)
     private int skillPoints = 0;
-    @Setter(AccessLevel.NONE)
-    private int skillSlots = 0;
 
     @OneToOne(optional = false, cascade = CascadeType.ALL)
     private Level level = new Level();
 
     @OneToMany(cascade = CascadeType.REMOVE)
     private Set<PlayerSkill> skills = new HashSet<>();
+
+    @OneToMany(cascade = CascadeType.REMOVE)
+    private List<SkillSlot> skillSlots = new ArrayList<>();
 
     SkilledPlayer(OfflinePlayer player) {
 
@@ -80,10 +77,7 @@ public class SkilledPlayer extends BaseEntity {
      */
     public int freeSkillSlots() {
 
-        return skillSlots - activeSkills().stream()
-                .map(PlayerSkill::configuredSkill)
-                .mapToInt(ConfiguredSkill::skillslots)
-                .sum();
+        return (int) skillSlots.stream().filter(SkillSlot::free).count();
     }
 
     public OfflinePlayer offlinePlayer() {
@@ -253,31 +247,69 @@ public class SkilledPlayer extends BaseEntity {
         return this.setSkillPoints(points);
     }
 
-    public SkilledPlayer setSkillSlots(int slots) {
+    @Transactional
+    public SkilledPlayer setSkillSlots(int slots, SkillSlot.Status status) {
 
-        if (this.skillSlots == slots) return this;
+        int currentSlotSize = this.skillSlots.size();
+        if (currentSlotSize == slots) return this;
 
-        SetPlayerSkillSlotsEvent event = new SetPlayerSkillSlotsEvent(this, this.skillSlots, slots);
+        SetPlayerSkillSlotsEvent event = new SetPlayerSkillSlotsEvent(this, currentSlotSize, slots);
         Bukkit.getPluginManager().callEvent(event);
 
         if (event.isCancelled()) return this;
 
         if (event.getNewSkillSlots() < 0) event.setNewSkillSlots(0);
+        if (currentSlotSize == event.getNewSkillSlots()) return this;
 
-        this.skillSlots = event.getNewSkillSlots();
+        if (event.getNewSkillSlots() < currentSlotSize) {
+            for (int i = 0; i < currentSlotSize - event.getNewSkillSlots(); i++) {
+                removeSkillSlot();
+            }
+        } else {
+            addSkillSlots(event.getNewSkillSlots() - currentSlotSize, status);
+        }
 
         Bukkit.getPluginManager().callEvent(new PlayerSkillSlotsChangedEvent(this, event.getOldSkillSlots(), event.getNewSkillSlots()));
 
         return this;
     }
 
-    public SkilledPlayer addSkillSlots(int slots) {
+    @Transactional
+    public SkilledPlayer addSkillSlots(int slots, SkillSlot.Status status) {
 
-        return this.setSkillSlots(this.skillSlots + slots);
+        for (int i = 0; i < slots; i++) {
+            SkillSlot skillSlot = new SkillSlot(this).status(status);
+            skillSlot.save();
+            skillSlots.add(skillSlot);
+        }
+        return this;
+    }
+
+    private void removeSkillSlot() {
+
+        List<SkillSlot> freeSlots = skillSlots.stream().filter(SkillSlot::free).collect(Collectors.toList());
+        if (freeSlots.size() > 0) {
+            freeSlots.get(0).delete();
+        } else {
+            skillSlots.stream().findAny().ifPresent(SkillSlot::delete);
+        }
+        save();
     }
 
     public boolean canBuy(ConfiguredSkill skill) {
 
         return !hasSkill(skill) && skill.test(this).success();
+    }
+
+    public boolean hasFreeSkillSlot() {
+
+        return skillSlots.stream().anyMatch(SkillSlot::free);
+    }
+
+    public SkillSlot freeSkillSlot() {
+
+        return skillSlots.stream()
+                .filter(SkillSlot::free)
+                .findFirst().orElse(new SkillSlot(this).status(SkillSlot.Status.FREE));
     }
 }

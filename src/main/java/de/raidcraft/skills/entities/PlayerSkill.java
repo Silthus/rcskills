@@ -130,7 +130,7 @@ public class PlayerSkill extends BaseEntity {
                 .orElse(false);
 
         return !active()
-                && (bypassSkillLimit || player().freeSkillSlots() >= configuredSkill().skillslots());
+                && (bypassSkillLimit || configuredSkill().noSkillSlot() || player().hasFreeSkillSlot());
     }
 
     public PlayerSkill activate() {
@@ -142,6 +142,10 @@ public class PlayerSkill extends BaseEntity {
             Bukkit.getPluginManager().callEvent(event);
 
             if (event.isCancelled()) return this;
+
+            if (!configuredSkill.noSkillSlot()) {
+                player.freeSkillSlot().assign(this).save();
+            }
 
             status(SkillStatus.ACTIVE);
             save();
@@ -167,6 +171,7 @@ public class PlayerSkill extends BaseEntity {
         if (!active()) return this;
 
         try {
+            SkillSlot.of(this).ifPresent(skillSlot -> skillSlot.unassign().save());
             status(SkillStatus.UNLOCKED);
             save();
 

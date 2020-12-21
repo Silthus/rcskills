@@ -29,7 +29,7 @@ public class SkillsGui {
     private static PaginatedPane skillSlots(Player player) {
 
         List<GuiItem> items = SkilledPlayer.getOrCreate(player).activeSkills()
-                .stream().filter(skill -> skill.configuredSkill().skillslots() > 0)
+                .stream().filter(skill -> !skill.configuredSkill().noSkillSlot())
                 .sorted()
                 .map(SkillsGui::skill)
                 .collect(Collectors.toList());
