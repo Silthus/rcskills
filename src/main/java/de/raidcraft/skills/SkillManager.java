@@ -12,12 +12,15 @@ import de.raidcraft.skills.requirements.SkillRequirement;
 import de.raidcraft.skills.skills.PermissionSkill;
 import de.raidcraft.skills.util.ConfigUtil;
 import de.raidcraft.skills.util.JarUtil;
+import io.ebean.Transaction;
+import io.ebean.annotation.Transactional;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
 import lombok.extern.java.Log;
 import net.silthus.configmapper.ConfigurationException;
 import net.silthus.configmapper.bukkit.BukkitConfigMap;
+import net.silthus.ebean.BaseEntity;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -90,11 +93,16 @@ public final class SkillManager {
         reloadPlayerSkills();
     }
 
+    @Transactional
     public void load() {
 
         loadSkillsFromPlugins();
         loadSkillsFromModules();
-        loadSkills(new File(plugin.getDataFolder(), config.getSkillsPath()).toPath());
+        List<ConfiguredSkill> loadedSkills = loadSkills(new File(plugin.getDataFolder(), config.getSkillsPath()).toPath());
+        ConfiguredSkill.find.query()
+                .where().notIn("id", loadedSkills.stream().map(BaseEntity::id).collect(Collectors.toUnmodifiableList()))
+                .findList()
+                .forEach(skill -> skill.enabled(false).save());
     }
 
     public void unload() {
