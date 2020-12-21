@@ -125,6 +125,8 @@ public class PlayerSkill extends BaseEntity {
 
     public boolean canActivate() {
 
+        if (!configuredSkill.enabled()) return false;
+
         boolean bypassSkillLimit = player().bukkitPlayer()
                 .map(p -> p.hasPermission(SkillsPlugin.BYPASS_ACTIVE_SKILL_LIMIT))
                 .orElse(false);
@@ -135,7 +137,10 @@ public class PlayerSkill extends BaseEntity {
 
     public PlayerSkill activate() {
 
-        if (!canActivate()) return this;
+        if (!canActivate()) {
+            if (active()) deactivate();
+            return this;
+        }
 
         try {
             PlayerActivateSkillEvent event = new PlayerActivateSkillEvent(player(), this);

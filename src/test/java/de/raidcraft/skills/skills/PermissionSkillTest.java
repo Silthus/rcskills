@@ -33,6 +33,7 @@ class PermissionSkillTest {
         MemoryConfiguration cfg = new MemoryConfiguration();
         cfg.set("type", "permission");
         cfg.set("name", "Test Skill");
+        cfg.set("enabled", true);
         cfg.set("with.permissions", Collections.singletonList("foobar"));
         plugin.getSkillManager().loadSkill(TEST_SKILL, cfg);
     }
