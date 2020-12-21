@@ -323,6 +323,7 @@ public final class Messages {
     public static List<Component> skills(SkilledPlayer player, int page, Predicate<ConfiguredSkill> predicate) {
 
         List<ConfiguredSkill> allSkills = ConfiguredSkill.find.all().stream()
+                .filter(skill -> !skill.hidden())
                 .filter(predicate)
                 .sorted(Comparator.comparingInt(ConfiguredSkill::level))
                 .collect(Collectors.toUnmodifiableList());
