@@ -13,9 +13,11 @@ import de.raidcraft.skills.SkillsPlugin;
 import de.raidcraft.skills.actions.AddSkillAction;
 import de.raidcraft.skills.entities.ConfiguredSkill;
 import de.raidcraft.skills.entities.PlayerSkill;
+import de.raidcraft.skills.entities.SkillSlot;
 import de.raidcraft.skills.entities.SkilledPlayer;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
+import org.apache.commons.lang.enums.EnumUtils;
 
 @CommandAlias("rcsa|rcs:admin|rcskills:admin|skills:admin")
 @CommandPermission("rcskills.admin.*")
@@ -84,12 +86,12 @@ public class AdminCommands extends BaseCommand {
 
         @Subcommand("slots|skillslots")
         @CommandAlias("addskillslots")
-        @CommandCompletion("@players")
+        @CommandCompletion("@players * ELIGIBLE|FREE")
         @Description("Fügt dem Spieler Skill Slots hinzu.")
         @CommandPermission("rcskills.admin.add.skillslots")
-        public void addSkillSlots(SkilledPlayer player, int slots) {
+        public void addSkillSlots(SkilledPlayer player, @Default("1") int slots, @Default("ELIGIBLE") SkillSlot.Status status) {
 
-            player.addSkillSlots(slots).save();
+            player.addSkillSlots(slots, status).save();
             Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.addSkillSlots(player, slots));
         }
     }
@@ -137,7 +139,7 @@ public class AdminCommands extends BaseCommand {
         @CommandPermission("rcskills.admin.set.skillslots")
         public void setSkillSlots(SkilledPlayer player, int slots) {
 
-            player.setSkillSlots(slots).save();
+            player.setSkillSlots(slots, SkillSlot.Status.FREE).save();
             Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.setSkillSlots(player, slots));
         }
     }

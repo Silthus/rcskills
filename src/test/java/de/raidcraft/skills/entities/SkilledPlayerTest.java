@@ -65,24 +65,23 @@ class SkilledPlayerTest {
     void shouldSumReturnCorrectFreeSkillSlots() {
 
         ConfiguredSkill skill1 = new ConfiguredSkill(UUID.randomUUID());
-        skill1.skillslots(2);
         skill1.save();
         ConfiguredSkill skill2 = new ConfiguredSkill(UUID.randomUUID());
-        skill2.skillslots(5);
         skill2.save();
         ConfiguredSkill skill3 = new ConfiguredSkill(UUID.randomUUID());
-        skill3.skillslots(0);
+        skill3.noSkillSlot(true);
         skill3.save();
 
         PlayerMock bukkitPlayer = server.addPlayer();
         bukkitPlayer.setOp(true);
 
         SkilledPlayer player = SkilledPlayer.getOrCreate(bukkitPlayer);
-        player.setSkillSlots(100);
+        player.setSkillSlots(10, SkillSlot.Status.FREE);
         player.addSkill(skill1, true).playerSkill().activate();
         player.addSkill(skill2, true).playerSkill().activate();
         player.addSkill(skill3, true).playerSkill().activate();
+        player.save();
 
-        assertThat(SkilledPlayer.getOrCreate(bukkitPlayer).freeSkillSlots()).isEqualTo(93);
+        assertThat(SkilledPlayer.getOrCreate(bukkitPlayer).freeSkillSlots()).isEqualTo(8);
     }
 }

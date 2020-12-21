@@ -300,7 +300,8 @@ public class SkillsPlugin extends JavaPlugin {
                         SkilledPlayer.class,
                         Level.class,
                         LevelHistory.class,
-                        DataStore.class
+                        DataStore.class,
+                        SkillSlot.class
                 )
                 .build()).connect();
     }

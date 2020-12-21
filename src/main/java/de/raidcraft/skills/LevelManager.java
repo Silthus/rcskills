@@ -2,6 +2,7 @@ package de.raidcraft.skills;
 
 import com.google.common.base.Strings;
 import de.raidcraft.skills.entities.LevelHistory;
+import de.raidcraft.skills.entities.SkillSlot;
 import de.raidcraft.skills.entities.SkilledPlayer;
 import de.raidcraft.skills.events.PlayerLeveledEvent;
 import de.raidcraft.skills.events.PlayerSkillSlotsChangedEvent;
@@ -162,7 +163,7 @@ public final class LevelManager implements Listener {
         }
 
         event.getPlayer().addSkillPoints(skillpoints);
-        event.getPlayer().addSkillSlots(skillslots);
+        event.getPlayer().addSkillSlots(skillslots, SkillSlot.Status.ELIGIBLE);
 
         Messages.send(event.getPlayer().id(), Messages.addSkillpoints(event.getPlayer(), skillpoints));
         Messages.send(event.getPlayer().id(), Messages.addSkillSlots(event.getPlayer(), skillslots));
