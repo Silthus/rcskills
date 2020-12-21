@@ -71,7 +71,7 @@ dependencies {
     api 'net.kyori:adventure-text-minimessage:4.0.0-SNAPSHOT'
     api 'net.kyori:adventure-platform-bukkit:4.0.0-SNAPSHOT'
     api group: 'net.kyori', name: 'adventure-text-feature-pagination', version: '4.0.0-SNAPSHOT'
-    api group: 'net.kyori', name: 'adventure-text-serializer-plain', version: '4.0.0-SNAPSHOT'
+    api group: 'net.kyori', name: 'adventure-text-serializer-plain', version: '4.3.0'
 
     implementation 'net.silthus.configlib:configlib-bukkit:2.6.0'
     implementation 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
