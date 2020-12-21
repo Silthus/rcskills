@@ -1,6 +1,5 @@
 package de.raidcraft.skills.entities;
 
-import de.raidcraft.skills.Skill;
 import de.raidcraft.skills.SkillContext;
 import de.raidcraft.skills.SkillStatus;
 import de.raidcraft.skills.SkillsPlugin;
@@ -22,7 +21,11 @@ import net.kyori.adventure.title.Title;
 import net.silthus.ebean.BaseEntity;
 import org.bukkit.Bukkit;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -130,15 +133,15 @@ public class PlayerSkill extends BaseEntity {
                 && (bypassSkillLimit || player().freeSkillSlots() >= configuredSkill().skillslots());
     }
 
-    public void activate() {
+    public PlayerSkill activate() {
 
-        if (!canActivate()) return;
+        if (!canActivate()) return this;
 
         try {
             PlayerActivateSkillEvent event = new PlayerActivateSkillEvent(player(), this);
             Bukkit.getPluginManager().callEvent(event);
 
-            if (event.isCancelled()) return;
+            if (event.isCancelled()) return this;
 
             status(SkillStatus.ACTIVE);
             save();
@@ -156,11 +159,12 @@ public class PlayerSkill extends BaseEntity {
             status(SkillStatus.UNLOCKED);
             save();
         }
+        return this;
     }
 
-    public void deactivate() {
+    public PlayerSkill deactivate() {
 
-        if (!active()) return;
+        if (!active()) return this;
 
         try {
             status(SkillStatus.UNLOCKED);
@@ -171,6 +175,7 @@ public class PlayerSkill extends BaseEntity {
             log.severe("An error occured while deactivating the skill " + alias() + " of " + player().name() + ": " + e.getMessage());
             e.printStackTrace();
         }
+        return this;
     }
 
     public boolean unlock() {
