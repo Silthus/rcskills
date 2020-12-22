@@ -123,13 +123,10 @@ public final class SkillManager {
                         log.info("enabled previous disabled skill \"" + skill.alias() + "\" in the database because it was loaded again from disk.");
                 });
 
-        loadedSkills.stream()
-                .filter(ConfiguredSkill::enabled)
-                .forEach(skill -> Bukkit.getPluginManager().addPermission(new Permission(
-                        SkillsPlugin.SKILL_PERMISSION_PREFIX + skill.alias(),
-                        skill.description(),
-                        skill.restricted() ? PermissionDefault.OP : PermissionDefault.TRUE)
-                ));
+        getSkillPermissions(loadedSkills).forEach(permission -> {
+            Bukkit.getPluginManager().removePermission(permission);
+            Bukkit.getPluginManager().addPermission(permission);
+        });
     }
 
     public void unload() {
@@ -139,6 +136,17 @@ public final class SkillManager {
         clearCache();
         skillTypes.clear();
         requirements.clear();
+    }
+
+    List<Permission> getSkillPermissions(List<ConfiguredSkill> skills) {
+
+        return skills.stream()
+                .filter(ConfiguredSkill::enabled)
+                .map(skill -> new Permission(
+                        SkillsPlugin.SKILL_PERMISSION_PREFIX + skill.alias(),
+                        skill.description(),
+                        skill.restricted() ? PermissionDefault.OP : PermissionDefault.TRUE)
+                ).collect(Collectors.toUnmodifiableList());
     }
 
     void loadSkillsFromPlugins() {
