@@ -37,6 +37,8 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
     private LevelConfig levelConfig = new LevelConfig();
     @Comment("Define what a player automatically gets when he levels up.")
     private LevelUpConfig levelUpConfig = new LevelUpConfig();
+    @Comment("Define the expression that calculates the cost for buying new skill slots.")
+    private SkillSlotConfig slotConfig = new SkillSlotConfig();
 
     public SkillPluginConfig(Path path) {
 
@@ -70,6 +72,26 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
         private String expToNextLevel = "(-0.4 * Math.pow(level, 2)) + (x * Math.pow(level, 2))";
         private double x = 10.4;
         private double y = 0;
+        private double z = 0;
+    }
+
+    @ConfigurationElement
+    @Getter
+    @Setter
+    public static class SkillSlotConfig {
+
+        @Comment({
+                "You can use any of the following variables and all java Math.* expressions: ",
+                "  - x: settable in this config",
+                "  - y: settable in this config",
+                "  - z: settable in this config",
+                "  - level: the current level of the player",
+                "  - slots: the number of unlocked slots",
+                "  - skills: the number of unlocked skills"
+        })
+        private String price = "(Math.pow(2, slots) * x) + (level + skills) * y";
+        private double x = 1000;
+        private double y = 100;
         private double z = 0;
     }
 

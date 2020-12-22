@@ -80,6 +80,18 @@ public class SkilledPlayer extends BaseEntity {
         return (int) skillSlots.stream().filter(SkillSlot::free).count();
     }
 
+    public int slotCount() {
+
+        return (int) skillSlots().stream()
+                .filter(skillSlot -> skillSlot.free() || skillSlot.status() == SkillSlot.Status.IN_USE)
+                .count();
+    }
+
+    public int skillCount() {
+
+        return unlockedSkills().size();
+    }
+
     public OfflinePlayer offlinePlayer() {
 
         return Bukkit.getOfflinePlayer(id());

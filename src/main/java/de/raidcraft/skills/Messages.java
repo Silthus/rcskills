@@ -74,7 +74,9 @@ public final class Messages {
 
     public static void send(Object commandIssuer, Component message) {
 
-        if (commandIssuer instanceof Player) {
+        if (commandIssuer instanceof SkilledPlayer) {
+            send(((SkilledPlayer) commandIssuer).id(), message);
+        } else if (commandIssuer instanceof Player) {
             sendPlayer((Player) commandIssuer, message);
         } else if (commandIssuer instanceof ConsoleCommandSender) {
             sendConsole((ConsoleCommandSender) commandIssuer, message);

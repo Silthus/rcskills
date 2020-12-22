@@ -74,6 +74,32 @@ public final class LevelManager implements Listener {
         return getPlugin().getPluginConfig().getLevelConfig();
     }
 
+    public void load() throws CompileException {
+
+        cache.clear();
+
+        this.x = getConfig().getX();
+        this.y = getConfig().getY();
+        this.z = getConfig().getZ();
+
+        ee = new CompilerFactory().newExpressionEvaluator();
+        ee.setExpressionType(double.class);
+        ee.setParameters(new String[] {
+                "x",
+                "y",
+                "z",
+                "level"
+        }, new Class[] {
+                double.class,
+                double.class,
+                double.class,
+                int.class
+        });
+
+        ee.cook(getConfig().getExpToNextLevel());
+        this.levelToExpMap = calculateTotalExpMap(getConfig().getMaxLevel());
+    }
+
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onExpGain(SetPlayerExpEvent event) {
 
@@ -209,32 +235,6 @@ public final class LevelManager implements Listener {
                         .forEach(p -> Messages.send(p, Messages.levelDown(skilledPlayer)));
             }
         });
-    }
-
-    public void load() throws CompileException {
-
-        cache.clear();
-
-        this.x = getConfig().getX();
-        this.y = getConfig().getY();
-        this.z = getConfig().getZ();
-
-        ee = new CompilerFactory().newExpressionEvaluator();
-        ee.setExpressionType(double.class);
-        ee.setParameters(new String[] {
-                "x",
-                "y",
-                "z",
-                "level"
-        }, new Class[] {
-                double.class,
-                double.class,
-                double.class,
-                int.class
-        });
-
-        ee.cook(getConfig().getExpToNextLevel());
-        this.levelToExpMap = calculateTotalExpMap(getConfig().getMaxLevel());
     }
 
     private Map<Integer, Integer> calculateTotalExpMap(int maxLevel) {

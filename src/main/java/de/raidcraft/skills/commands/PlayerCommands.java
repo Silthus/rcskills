@@ -11,12 +11,15 @@ import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.HelpCommand;
 import co.aikar.commands.annotation.Subcommand;
+import de.raidcraft.economy.wrapper.Economy;
 import de.raidcraft.skills.Messages;
 import de.raidcraft.skills.SkillsPlugin;
 import de.raidcraft.skills.actions.BuySkillAction;
 import de.raidcraft.skills.entities.ConfiguredSkill;
 import de.raidcraft.skills.entities.PlayerSkill;
+import de.raidcraft.skills.entities.SkillSlot;
 import de.raidcraft.skills.entities.SkilledPlayer;
+import jdk.jfr.Event;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -24,18 +27,17 @@ import org.bukkit.command.CommandSender;
 import org.checkerframework.checker.fenum.qual.Fenum;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static de.raidcraft.skills.Messages.allRequirements;
 import static de.raidcraft.skills.Messages.send;
 import static de.raidcraft.skills.Messages.skill;
 import static net.kyori.adventure.text.Component.newline;
 import static net.kyori.adventure.text.Component.text;
-import static net.kyori.adventure.text.format.NamedTextColor.DARK_AQUA;
-import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
-import static net.kyori.adventure.text.format.NamedTextColor.RED;
-import static net.kyori.adventure.text.format.NamedTextColor.YELLOW;
+import static net.kyori.adventure.text.format.NamedTextColor.*;
 import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 
 @CommandAlias("rcs|rcskills")
@@ -120,7 +122,7 @@ public class PlayerCommands extends BaseCommand {
         @CommandCompletion("@skills @players")
         @CommandPermission("rcskills.buy.skill")
         @Description("Kauft den agegebenen Skill, falls möglich.")
-        public void buy(ConfiguredSkill skill, @Conditions("others:perm=skill.buy") SkilledPlayer player) {
+        public void buy(ConfiguredSkill skill, @Conditions("others:perm=buy.skill") SkilledPlayer player) {
 
             if (player.hasSkill(skill)) {
                 throw new ConditionFailedException("Du besitzt den Skill " + skill.name() + " bereits.");
@@ -163,6 +165,41 @@ public class PlayerCommands extends BaseCommand {
                             .append(text(" ist abgelaufen.", RED)));
                 }
             }, plugin.getPluginConfig().getBuyCommandTimeout());
+        }
+
+        @Subcommand("slot")
+        @CommandCompletion("@players")
+        @CommandPermission("rcskills.buy.slot")
+        @Description("Kauft einen verfügbaren Skill Slot, falls möglich.")
+        public void buySlot(@Conditions("others:perm=buy.slot") SkilledPlayer player) {
+
+            List<SkillSlot> slots = player.skillSlots().stream().filter(SkillSlot::buyable)
+                    .collect(Collectors.toList());
+
+            if (slots.size() < 1) {
+                throw new ConditionFailedException("Du hast keinen Skill Slot den du kaufen kannst.");
+            }
+
+            double cost = plugin.getSlotManager().calculateSlotCost(player);
+            if (!Economy.get().has(player.offlinePlayer(), cost)) {
+                throw new ConditionFailedException("Du hast nicht genügend Geld um den Skill Slot zu kaufen. " +
+                        "Du benötigst mindestens " + Economy.get().format(cost));
+            }
+
+            Economy.get().withdrawPlayer(player.offlinePlayer(), cost, "Skill Slot Kauf", Map.of(
+                    "player_id", player.id(),
+                    "slot_count", player.slotCount(),
+                    "skill_count", player.skillCount(),
+                    "skill_points", player.skillPoints(),
+                    "free_slots", player.freeSkillSlots()
+            ));
+            slots.get(0).status(SkillSlot.Status.FREE).save();
+
+            Messages.send(player, text("Du hast erfolgreich einen weiteren Skill Slot gekauft!", GREEN).append(newline())
+                    .append(text("Du hast jetzt ", YELLOW)).append(text(player.freeSkillSlots() + " freie Skill Slots ", GREEN))
+                    .append(text("die du mit ", YELLOW)).append(text("/skills", GOLD).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/skills")))
+                    .append(text(" zuweisen kannst.", YELLOW))
+            );
         }
 
         @Subcommand("confirm")

@@ -48,6 +48,8 @@ public class SkillsPlugin extends JavaPlugin {
     private SkillManager skillManager;
     @Getter
     private LevelManager levelManager;
+    @Getter
+    private SlotManager slotManager;
     private Database database;
     @Getter
     @Setter(AccessLevel.PACKAGE)
@@ -79,6 +81,7 @@ public class SkillsPlugin extends JavaPlugin {
         setupDatabase();
         setupSkillManager();
         setupLevelManager();
+        setupSlotManager();
         setupEffectManager();
         setupListener();
         if (!isTesting()) {
@@ -105,6 +108,7 @@ public class SkillsPlugin extends JavaPlugin {
             loadConfig();
             getSkillManager().reload();
             getLevelManager().load();
+            getSlotManager().load(getPluginConfig().getSlotConfig());
         } catch (CompileException e) {
             getLogger().severe("failed to parse level expression");
             e.printStackTrace();
@@ -146,7 +150,18 @@ public class SkillsPlugin extends JavaPlugin {
             levelManager.load();
             Bukkit.getPluginManager().registerEvents(levelManager, this);
         } catch (CompileException e) {
-            getLogger().severe("failed to parse level expression");
+            getLogger().severe("failed to parse level expression: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void setupSlotManager() {
+
+        try {
+            this.slotManager = new SlotManager();
+            slotManager.load(getPluginConfig().getSlotConfig());
+        } catch (CompileException e) {
+            getLogger().severe("failed to parse slot price expression: " + e.getMessage());
             e.printStackTrace();
         }
     }
