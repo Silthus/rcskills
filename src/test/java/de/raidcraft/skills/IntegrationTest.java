@@ -105,7 +105,7 @@ public class IntegrationTest {
                 void shouldBuySkillIfAllRequirementsAreMet() {
 
                     server.dispatchCommand(player, "rcs buy " + TEST_SKILL);
-                    server.dispatchCommand(player, "rcs buyconfirm");
+                    server.dispatchCommand(player, "rcs buy confirm");
                     assertSkillIsUnlocked(player, TEST_SKILL);
                 }
             }
