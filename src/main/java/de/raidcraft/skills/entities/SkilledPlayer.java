@@ -296,9 +296,27 @@ public class SkilledPlayer extends BaseEntity {
         save();
     }
 
+    /**
+     * Checks if the player does not own the skill and if he meets all requirements to buy it.
+     *
+     * @param skill the skill to check
+     * @return true if the skill can be bought
+     */
     public boolean canBuy(ConfiguredSkill skill) {
 
         return !hasSkill(skill) && skill.test(this).success();
+    }
+
+    /**
+     * Checks if the player has unlocked the skill and can activate it.
+     *
+     * @param skill the skill that should checked for activation
+     * @return true if the skill can be activated
+     *         false if the player has not unlocked the skill or cannot activate it
+     */
+    public boolean canActivate(ConfiguredSkill skill) {
+
+        return hasSkill(skill) && PlayerSkill.getOrCreate(this, skill).canActivate();
     }
 
     public boolean hasFreeSkillSlot() {
