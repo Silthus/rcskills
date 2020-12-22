@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalInt;
 
 @Getter
 @Setter
@@ -82,6 +84,20 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
         private int slotsPerLevel = 0;
         @ElementType(LevelUp.class)
         private Map<Integer, LevelUp> levels = new HashMap<>();
+
+        public Optional<Map.Entry<Integer, LevelUp>> getNextLevelUp(int currentLevel) {
+
+            OptionalInt max = levels.keySet().stream().mapToInt(value -> value).max();
+            if (max.isEmpty()) return Optional.empty();
+
+            for (int i = currentLevel + 1; i <= max.getAsInt(); i++) {
+                if (levels.containsKey(i)) {
+                    return Optional.of(Map.entry(i, levels.get(i)));
+                }
+            }
+
+            return Optional.empty();
+        }
     }
 
     @ConfigurationElement

@@ -125,14 +125,14 @@ public class PlayerSkill extends BaseEntity {
 
     public boolean canActivate() {
 
-        if (!configuredSkill.enabled()) return false;
+        if (configuredSkill.disabled()) return false;
+        if (active()) return false;
+        if (configuredSkill.noSkillSlot()) return true;
+        if (player.hasFreeSkillSlot()) return true;
 
-        boolean bypassSkillLimit = player().bukkitPlayer()
+        return player().bukkitPlayer()
                 .map(p -> p.hasPermission(SkillsPlugin.BYPASS_ACTIVE_SKILL_LIMIT))
                 .orElse(false);
-
-        return !active()
-                && (bypassSkillLimit || configuredSkill().noSkillSlot() || player().hasFreeSkillSlot());
     }
 
     public PlayerSkill activate() {
