@@ -40,7 +40,7 @@ import java.util.stream.Stream;
 @Setter
 @Table(name = "rcs_skills")
 @Accessors(fluent = true)
-public class ConfiguredSkill extends BaseEntity {
+public class ConfiguredSkill extends BaseEntity implements Comparable<ConfiguredSkill> {
 
     static {
         try {
@@ -62,10 +62,18 @@ public class ConfiguredSkill extends BaseEntity {
         return Optional.ofNullable(find.byId(id)).orElse(new ConfiguredSkill(id));
     }
 
+    public static List<ConfiguredSkill> allEnabled() {
+
+        return find.query()
+                .where().eq("enabled", true)
+                .findList();
+    }
+
     public static final Finder<UUID, ConfiguredSkill> find = new Finder<>(ConfiguredSkill.class);
 
     @Index
     private String alias;
+
     @Index
     private String name;
     private String type;
@@ -77,18 +85,18 @@ public class ConfiguredSkill extends BaseEntity {
     private boolean hidden = false;
     private boolean enabled = true;
     private boolean restricted = false;
+    private boolean autoUnlock = false;
     private List<String> categories = new ArrayList<>();
-
     @DbJson
     private Map<String, Object> config = new HashMap<>();
+
     @OneToMany(cascade = CascadeType.REMOVE)
     private List<PlayerSkill> playerSkills = new ArrayList<>();
-
     @Transient
     private List<Requirement> requirements = new ArrayList<>();
+
     @Transient
     private List<Requirement> costRequirements = new ArrayList<>();
-
     private transient boolean loaded = false;
 
     ConfiguredSkill(UUID id) {
@@ -178,6 +186,7 @@ public class ConfiguredSkill extends BaseEntity {
         this.hidden = config.getBoolean("hidden", hidden);
         this.enabled = config.getBoolean("enabled", enabled);
         this.restricted = config.getBoolean("restricted", restricted);
+        this.autoUnlock = config.getBoolean("auto-unlock", autoUnlock);
         if (config.isSet("categories"))
             this.categories = config.getStringList("categories");
 
@@ -255,5 +264,11 @@ public class ConfiguredSkill extends BaseEntity {
                 .map(requirement -> requirement.test(player))
                 .reduce(TestResult::merge)
                 .orElse(TestResult.ofSuccess());
+    }
+
+    @Override
+    public int compareTo(ConfiguredSkill o) {
+
+        return Integer.compare(level, o.level);
     }
 }

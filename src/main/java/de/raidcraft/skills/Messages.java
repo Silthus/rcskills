@@ -333,8 +333,14 @@ public final class Messages {
                 .collect(Collectors.toUnmodifiableList());
 
         TextComponent header = text("Skills von ", DARK_AQUA).append(player(player));
+        return skills(header, player, allSkills, page);
+    }
+
+    public static List<Component> skills(Component header, SkilledPlayer player, Collection<ConfiguredSkill> skills, int page) {
+
         Pagination<ConfiguredSkill> pagination = Pagination.builder()
                 .width(Pagination.WIDTH - 6)
+                .resultsPerPage(10)
                 .build(header, new Pagination.Renderer.RowRenderer<>() {
                     @Override
                     public @NonNull Collection<Component> renderRow(ConfiguredSkill value, int index) {
@@ -343,7 +349,7 @@ public final class Messages {
                         return Collections.singletonList(skill(value, player));
                     }
                 }, p -> "/rcskills skills " + player.name() + " " + p);
-        return pagination.render(allSkills, page);
+        return pagination.render(skills, page);
     }
 
     public static Component skills(Collection<PlayerSkill> skills) {

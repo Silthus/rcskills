@@ -1,7 +1,9 @@
 package de.raidcraft.skills;
 
 import com.google.common.base.Strings;
+import de.raidcraft.skills.entities.ConfiguredSkill;
 import de.raidcraft.skills.entities.LevelHistory;
+import de.raidcraft.skills.entities.PlayerSkill;
 import de.raidcraft.skills.entities.SkillSlot;
 import de.raidcraft.skills.entities.SkilledPlayer;
 import de.raidcraft.skills.events.PlayerLeveledEvent;
@@ -16,8 +18,6 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -33,13 +33,21 @@ import org.codehaus.janino.CompilerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static net.kyori.adventure.text.Component.text;
-import static net.kyori.adventure.text.format.NamedTextColor.*;
-import static net.kyori.adventure.text.format.TextDecoration.*;
+import static net.kyori.adventure.text.format.NamedTextColor.DARK_AQUA;
+import static net.kyori.adventure.text.format.NamedTextColor.DARK_GREEN;
+import static net.kyori.adventure.text.format.NamedTextColor.DARK_RED;
+import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
+import static net.kyori.adventure.text.format.NamedTextColor.RED;
+import static net.kyori.adventure.text.format.NamedTextColor.YELLOW;
+import static net.kyori.adventure.text.format.TextDecoration.BOLD;
+import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 
 @Log(topic = "RCSkills")
 public final class LevelManager implements Listener {
@@ -149,6 +157,7 @@ public final class LevelManager implements Listener {
         int skillpoints = levelDiff * config.getSkillPointsPerLevel();
         int skillslots = levelDiff * config.getSlotsPerLevel();
 
+        SkilledPlayer skilledPlayer = event.getPlayer();
         for (int i = 0; i < levelDiff; i++) {
             int level = event.getOldLevel() + 1;
             SkillPluginConfig.LevelUp levelUp = config.getLevels().get(level);
@@ -156,32 +165,45 @@ public final class LevelManager implements Listener {
                 skillpoints += levelUp.getSkillpoints();
                 skillslots += levelUp.getSlots();
                 levelUp.getCommands().stream()
-                        .map(s -> s.replace("{player}", event.getPlayer().name()))
-                        .map(s -> s.replace("{player_id}", event.getPlayer().id().toString()))
+                        .map(s -> s.replace("{player}", skilledPlayer.name()))
+                        .map(s -> s.replace("{player_id}", skilledPlayer.id().toString()))
                         .forEach(s -> Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), s));
             }
         }
 
-        event.getPlayer().addSkillPoints(skillpoints);
-        event.getPlayer().addSkillSlots(skillslots, SkillSlot.Status.ELIGIBLE);
+        skilledPlayer.addSkillPoints(skillpoints);
+        skilledPlayer.addSkillSlots(skillslots, SkillSlot.Status.ELIGIBLE);
 
-        Messages.send(event.getPlayer().id(), Messages.addSkillpoints(event.getPlayer(), skillpoints));
-        Messages.send(event.getPlayer().id(), Messages.addSkillSlots(event.getPlayer(), skillslots));
+        Messages.send(skilledPlayer.id(), Messages.addSkillpoints(skilledPlayer, skillpoints));
+        Messages.send(skilledPlayer.id(), Messages.addSkillSlots(skilledPlayer, skillslots));
 
-        event.getPlayer().bukkitPlayer().ifPresent(player -> {
+        List<PlayerSkill> skills = ConfiguredSkill.find.query()
+                .where().eq("enabled", true)
+                .and().eq("level", event.getNewLevel())
+                .orderBy().desc("level")
+                .findList().stream()
+                .map(skill -> PlayerSkill.getOrCreate(skilledPlayer, skill))
+                .collect(Collectors.toList());
+
+        Messages.send(skilledPlayer.id(), text(skills.size(), GREEN)
+                .append(text("neue Skills freigeschaltet: ", YELLOW))
+                .append(Messages.skills(skills))
+        );
+
+        skilledPlayer.bukkitPlayer().ifPresent(player -> {
             if (event.getNewLevel() > event.getOldLevel()) {
-                Messages.send(player, Messages.levelUpSelf(event.getPlayer(), event.getNewLevel()));
+                Messages.send(player, Messages.levelUpSelf(skilledPlayer, event.getNewLevel()));
                 BukkitAudiences.create(plugin)
                         .player(player)
                         .showTitle(Messages.levelUpTitle(event.getNewLevel()));
                 Bukkit.getOnlinePlayers().stream()
                         .filter(p -> !p.equals(player))
-                        .forEach(p -> Messages.send(p, Messages.levelUp(event.getPlayer())));
+                        .forEach(p -> Messages.send(p, Messages.levelUp(skilledPlayer)));
             } else if (event.getNewLevel() < event.getOldLevel()) {
-                Messages.send(player, Messages.levelDownSelf(event.getPlayer(), event.getNewLevel()));
+                Messages.send(player, Messages.levelDownSelf(skilledPlayer, event.getNewLevel()));
                 Bukkit.getOnlinePlayers().stream()
                         .filter(p -> !p.equals(player))
-                        .forEach(p -> Messages.send(p, Messages.levelDown(event.getPlayer())));
+                        .forEach(p -> Messages.send(p, Messages.levelDown(skilledPlayer)));
             }
         });
     }
