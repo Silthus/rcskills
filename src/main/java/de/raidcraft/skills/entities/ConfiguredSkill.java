@@ -94,6 +94,11 @@ public class ConfiguredSkill extends BaseEntity {
         this.id(id);
     }
 
+    public boolean disabled() {
+
+        return !enabled();
+    }
+
     public boolean hidden() {
 
         return !enabled || hidden;
@@ -222,6 +227,8 @@ public class ConfiguredSkill extends BaseEntity {
 
     public TestResult test(SkilledPlayer player) {
 
+        if (disabled()) return TestResult.ofError("Der Skill " + alias() + " ist nicht aktiviert.");
+
         return Stream.concat(requirements().stream(), costRequirements().stream())
                 .map(requirement -> requirement.test(player))
                 .reduce(TestResult::merge)
@@ -230,6 +237,8 @@ public class ConfiguredSkill extends BaseEntity {
 
     public TestResult testRequirements(SkilledPlayer player) {
 
+        if (disabled()) return TestResult.ofError("Der Skill " + alias() + " ist nicht aktiviert.");
+
         return requirements().stream()
                 .map(requirement -> requirement.test(player))
                 .reduce(TestResult::merge)
@@ -237,6 +246,8 @@ public class ConfiguredSkill extends BaseEntity {
     }
 
     public TestResult testCosts(SkilledPlayer player) {
+
+        if (disabled()) return TestResult.ofError("Der Skill " + alias() + " ist nicht aktiviert.");
 
         return costRequirements().stream()
                 .map(requirement -> requirement.test(player))
