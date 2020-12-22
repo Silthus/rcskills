@@ -484,7 +484,7 @@ public final class SkillManager {
                 .or(() -> ConfiguredSkill.findByAliasOrName(alias))
                 .orElseGet(() -> ConfiguredSkill.getOrCreate(id));
 
-        config.set("id", skill.id());
+        config.set("id", skill.id().toString());
 
         return Optional.of(skill.load(config));
     }
