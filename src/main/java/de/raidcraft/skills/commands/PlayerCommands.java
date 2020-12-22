@@ -346,10 +346,6 @@ public class PlayerCommands extends BaseCommand {
         if (skill.active()) {
             throw new ConditionFailedException("Du kannst den Skill " + skill.name() + " nicht aktivieren. Er ist bereits aktiviert.");
         }
-        if (skill.configuredSkill().noSkillSlot()) {
-            throw new ConditionFailedException("Du kannst den Skill " + skill.name() + " nicht aktivieren. Er benötigt keinen Skill Slot und ist dauerhaft aktiv.");
-        }
-
         if (!skill.canActivate()) {
             throw new ConditionFailedException("Du kannst den Skill " + skill.name() + " nicht aktivieren. Du hast zu wenig freie Skill Slots.");
         }

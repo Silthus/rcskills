@@ -398,8 +398,14 @@ public final class SkillManager {
      */
     public void load(@NonNull Player player) {
 
-        SkilledPlayer.getOrCreate(player).activeSkills()
-                .forEach(PlayerSkill::enable);
+        SkilledPlayer skilledPlayer = SkilledPlayer.getOrCreate(player);
+        skilledPlayer.activeSkills().forEach(PlayerSkill::enable);
+        skilledPlayer.unlockedSkills()
+                .stream()
+                .filter(skill -> !skill.active())
+                .filter(skill -> skill.configuredSkill().autoUnlock())
+                .filter(skill -> skill.configuredSkill().noSkillSlot())
+                .forEach(PlayerSkill::activate);
     }
 
     /**
