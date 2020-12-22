@@ -318,11 +318,11 @@ public final class Messages {
         for (int i = 0; i < slots.size(); i++) {
             builder.append(skillSlot(slots.get(i)));
             if (i != slots.size() - 1) {
-                builder.append(text("|", DARK_AQUA));
+                builder.append(text(" | ", YELLOW));
             }
         }
 
-        builder.append(text("[X]", DARK_RED).hoverEvent(showText(text("Du erhältst neue Skill Slots beim Levelaufstieg und durch Events und Achievements.", GRAY))));
+        builder.append(text(" | ", YELLOW)).append(text("[X]", DARK_RED).hoverEvent(showText(text("Du erhältst neue Skill Slots beim Levelaufstieg und durch Events und Achievements.", GRAY))));
 
         return builder.build();
     }
@@ -332,9 +332,9 @@ public final class Messages {
         TextComponent.Builder builder = text();
         SkilledPlayer player = slot.player();
         if (slot.status() == SkillSlot.Status.IN_USE) {
-            builder.append(text("[", GREEN)).append(text("*", DARK_AQUA)).append(text("]", GREEN));
+            builder.append(text("[", DARK_AQUA)).append(text("*", DARK_AQUA)).append(text("]", DARK_AQUA));
         } else if (slot.status() == SkillSlot.Status.FREE) {
-            return builder.append(text("[", GREEN)).append(text("O", GREEN)).append(text("]", GREEN))
+            return builder.append(text("[", DARK_AQUA)).append(text("O", GREEN)).append(text("]", DARK_AQUA))
                     .build().hoverEvent(showText(text("Aktiviere einen Skill um den Skill Slot zu belegen.", GRAY)))
                     .clickEvent(suggestCommand(PlayerCommands.activateSkill(null)));
         } else if (slot.status() == SkillSlot.Status.ELIGIBLE) {

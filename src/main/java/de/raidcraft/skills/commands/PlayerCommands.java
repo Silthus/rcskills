@@ -3,6 +3,7 @@ package de.raidcraft.skills.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.CommandHelp;
 import co.aikar.commands.ConditionFailedException;
+import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.CommandPermission;
@@ -20,14 +21,12 @@ import de.raidcraft.skills.entities.PlayerSkill;
 import de.raidcraft.skills.entities.SkillSlot;
 import de.raidcraft.skills.entities.SkilledPlayer;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static de.raidcraft.skills.Messages.allRequirements;
@@ -35,11 +34,7 @@ import static de.raidcraft.skills.Messages.send;
 import static de.raidcraft.skills.Messages.skill;
 import static net.kyori.adventure.text.Component.newline;
 import static net.kyori.adventure.text.Component.text;
-import static net.kyori.adventure.text.format.NamedTextColor.DARK_AQUA;
-import static net.kyori.adventure.text.format.NamedTextColor.GOLD;
-import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
-import static net.kyori.adventure.text.format.NamedTextColor.RED;
-import static net.kyori.adventure.text.format.NamedTextColor.YELLOW;
+import static net.kyori.adventure.text.format.NamedTextColor.*;
 import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 
 @CommandAlias("rcs|rcskills")
@@ -73,6 +68,16 @@ public class PlayerCommands extends BaseCommand {
     public static String buyAbortSkill() {
 
         return "/rcskills buy abort skill";
+    }
+
+    public static String buyConfirmSkillSlot() {
+
+        return "/rcskills buy confirm slot";
+    }
+
+    public static String buyAbortSkillSlot() {
+
+        return "/rcskills buy abort slot";
     }
 
     private final SkillsPlugin plugin;
@@ -125,6 +130,7 @@ public class PlayerCommands extends BaseCommand {
     public class BuyCommands extends BaseCommand {
 
         private final Map<UUID, BuySkillAction> buyActions = new HashMap<>();
+        private final Set<UUID> buySlotActions = new HashSet<>();
 
         @Subcommand("skill")
         @CommandCompletion("@skills @players")
@@ -181,6 +187,34 @@ public class PlayerCommands extends BaseCommand {
         @Description("Kauft einen verfügbaren Skill Slot, falls möglich.")
         public void buySlot(@Conditions("others:perm=buy.slot") SkilledPlayer player) {
 
+            double cost = checkSlotBuy(player);
+
+            UUID id = player.id();
+            buySlotActions.add(id);
+            send(player, text()
+                    .append(text("Bist du dir sicher, dass du einen Skill Slot für ", YELLOW))
+                    .append(text(Economy.get().format(cost), RED))
+                    .append(text(" kaufen möchtest? ", YELLOW))
+                    .append(text("[JA - KAUFEN]", GREEN)
+                            .hoverEvent(text("Klicken um den Kauf des Skill Slots abzuschließen.", GREEN, ITALIC))
+                            .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, buyConfirmSkillSlot()))
+                    )
+                    .append(text(" [NEIN - ABBRECHEN]", RED)
+                            .hoverEvent(text("Klicken um den Kauf des Skill Slots abzubrechen.", RED, ITALIC))
+                            .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, buyAbortSkillSlot()))
+                    )
+                    .build()
+            );
+
+            Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+                if (buySlotActions.remove(id)) {
+                    Messages.send(id, text("Der Kauf des Skill Slots ist abgelaufen. ", RED));
+                }
+            }, plugin.getPluginConfig().getBuyCommandTimeout());
+        }
+
+        private double checkSlotBuy(SkilledPlayer player) {
+
             List<SkillSlot> slots = player.skillSlots().stream().filter(SkillSlot::buyable)
                     .collect(Collectors.toList());
 
@@ -193,21 +227,7 @@ public class PlayerCommands extends BaseCommand {
                 throw new ConditionFailedException("Du hast nicht genügend Geld um den Skill Slot zu kaufen. " +
                         "Du benötigst mindestens " + Economy.get().format(cost));
             }
-
-            Economy.get().withdrawPlayer(player.offlinePlayer(), cost, "Skill Slot Kauf", Map.of(
-                    "player_id", player.id(),
-                    "slot_count", player.slotCount(),
-                    "skill_count", player.skillCount(),
-                    "skill_points", player.skillPoints(),
-                    "free_slots", player.freeSkillSlots()
-            ));
-            slots.get(0).status(SkillSlot.Status.FREE).save();
-
-            Messages.send(player, text("Du hast erfolgreich einen weiteren Skill Slot gekauft!", GREEN).append(newline())
-                    .append(text("Du hast jetzt ", YELLOW)).append(text(player.freeSkillSlots() + " freie Skill Slots ", GREEN))
-                    .append(text("die du mit ", YELLOW)).append(text("/skills", GOLD).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/skills")))
-                    .append(text(" zuweisen kannst.", YELLOW))
-            );
+            return cost;
         }
 
         @Subcommand("confirm")
@@ -235,6 +255,44 @@ public class PlayerCommands extends BaseCommand {
                     }
                 }
             }
+
+            @Subcommand("slot")
+            @CommandPermission("rcskills.buy.slot")
+            @Description("Bestätigt den Kauf eines Skill Slots")
+            public void slotConfirm() {
+
+                if (!buySlotActions.remove(getCurrentCommandIssuer().getUniqueId())) {
+                    throw new ConditionFailedException("Du hast keine ausstehenden Skill Slot Käufe.");
+                }
+
+                SkilledPlayer player = SkilledPlayer.find.byId(getCurrentCommandIssuer().getUniqueId());
+
+                if (player == null)
+                    throw new InvalidCommandArgument("Du kannst diesen Befehl nur als Spieler ausführen.");
+
+                double cost = checkSlotBuy(player);
+
+                Economy.get().withdrawPlayer(player.offlinePlayer(), cost, "Skill Slot Kauf", Map.of(
+                        "player_id", player.id(),
+                        "slot_count", player.slotCount(),
+                        "skill_count", player.skillCount(),
+                        "skill_points", player.skillPoints(),
+                        "free_slots", player.freeSkillSlots()
+                ));
+
+                player.skillSlots().stream()
+                        .filter(SkillSlot::buyable)
+                        .findFirst()
+                        .ifPresent(skillSlot -> skillSlot.status(SkillSlot.Status.FREE).save());
+
+                Messages.send(player, text("Du hast erfolgreich einen weiteren Skill Slot gekauft!", GREEN).append(newline())
+                        .append(text("Du hast jetzt ", YELLOW)).append(text(player.freeSkillSlots() + " freie(n) Skill Slot(s) ", GREEN))
+                        .append(text("die du mit ", YELLOW)).append(text("/skills", GOLD)
+                                .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/skills"))
+                                .hoverEvent(HoverEvent.showText(text("Klicken um /skills auszuführen.", GRAY))))
+                        .append(text(" zuweisen kannst.", YELLOW))
+                );
+            }
         }
 
         @Subcommand("abort")
@@ -251,6 +309,16 @@ public class PlayerCommands extends BaseCommand {
                     Messages.send(getCurrentCommandIssuer(), text("Der Kauf des Skills ", RED)
                             .append(skill(action.skill(), action.player()))
                             .append(text(" wurde abgebrochen.", RED)));
+                }
+            }
+
+            @Subcommand("slot")
+            @CommandPermission("rcskills.buy.slot")
+            @Description("Bricht den Kauf eines Skill Slots ab.")
+            public void buyAbortSlot() {
+
+                if (buySlotActions.remove(getCurrentCommandIssuer().getUniqueId())) {
+                    Messages.send(getCurrentCommandIssuer(), text("Der Kauf des Skill Slots wurde angebrochen.", RED));
                 }
             }
         }
