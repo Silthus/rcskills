@@ -14,8 +14,8 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.feature.pagination.Pagination;
-import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import net.kyori.adventure.title.Title;
@@ -32,6 +32,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -289,10 +291,12 @@ public final class Messages {
     public static Component skillSlots(SkilledPlayer player) {
 
         int slots = player.skillSlots().size();
+        int freeSkillSlots = player.freeSkillSlots();
         return text("Skill Slots: ", YELLOW)
-                .append(text(slots - player.freeSkillSlots(), GREEN))
+                .append(text(freeSkillSlots, freeSkillSlots > 0 ? GREEN : RED))
                 .append(text("/", DARK_AQUA))
-                .append(text(slots, RED));
+                .append(text(slots, AQUA))
+                .append(text(" Slots frei", DARK_AQUA));
     }
 
     public static Component player(SkilledPlayer player) {
@@ -368,24 +372,70 @@ public final class Messages {
         TextColor color = GRAY;
         if (player != null) {
             if (player.hasActiveSkill(skill)) {
-                color = GREEN;
+                color = AQUA;
+            } else if (player.hasSkill(skill)) {
+                color = DARK_AQUA;
             } else {
-                color = skill.test(player).success() ? AQUA : RED;
+                color = player.canBuy(skill) ? GREEN : RED;
             }
+        }
+
+        TextColor levelColor = AQUA;
+        if (player != null) {
+            levelColor = player.level().getLevel() >= skill.level() ? GREEN : RED;
         }
 
         TextComponent.Builder builder = text()
                 .append(text("[", YELLOW))
-                .append(text(skill.level(), AQUA))
+                .append(text(skill.level(), levelColor))
                 .append(text("] ", YELLOW))
                 .append(text(skill.name(), color, BOLD).hoverEvent(skillInfo(skill, player)));
 
-        if (showBuy && player != null && player.canBuy(skill)) {
-            builder.append(text(" [$]", GREEN, ITALIC)
-                    .hoverEvent(costs(PlayerSkill.getOrCreate(player, skill)).append(text("Klicken um den Skill zu kaufen.", GRAY, ITALIC)))
-                    .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/rcskills buy " + skill.id()))
-            );
+        if (player != null) {
+            builder.append(text(" | ", YELLOW));
+            PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
+            if (showBuy && player.canBuy(skill)) {
+                builder.append(text(" [$] ", GREEN)
+                        .hoverEvent(costs(playerSkill).append(text("Klicken um den Skill zu kaufen.", GRAY, ITALIC)))
+                        .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/rcskills buy " + skill.id()))
+                );
+            } else if (playerSkill.active()) {
+                builder.append(text("aktiv", AQUA).hoverEvent(HoverEvent.showText(
+                        text("Der Skill ist aktiv.", GRAY).append(newline())
+                                .append(text("Gebe ", GRAY))
+                                .append(text("/rcskills reset", GRAY, ITALIC))
+                                .append(text(" ein um alle deine Skills zurückzusetzen.", GRAY))
+                        )).clickEvent(ClickEvent.suggestCommand("/rcskills reset"))
+                );
+            } else if (playerSkill.unlocked()) {
+                if (playerSkill.canActivate()) {
+                    builder.append(text("aktivieren", GREEN).hoverEvent(HoverEvent.showText(
+                            text("Du besitzt den Skill, er ist aber nicht aktiv.", GRAY).append(newline())
+                                    .append(text("Klicke um den Skill zu aktivieren und einem Slot zuzuweisen.", GRAY)).append(newline())
+                                    .append(skillSlots(player))))
+                            .clickEvent(ClickEvent.runCommand("/rcskills activate " + skill.alias()))
+                    );
+                } else {
+                    Optional<Map.Entry<Integer, SkillPluginConfig.LevelUp>> nextLevelUp = SkillsPlugin.instance().getPluginConfig()
+                            .getLevelUpConfig()
+                            .getNextLevelUp(player.level().getLevel());
+
+                    TextComponent hover = text("Du besitzt den Skill, kannst ihn aber nicht aktivieren, da du keinen freien Skill Slot hast.", GRAY).append(newline());
+                    if (nextLevelUp.isPresent() && nextLevelUp.get().getValue().getSlots() > 0) {
+                        hover.append(text("Mit ", GRAY))
+                                .append(text("Level " + nextLevelUp.get().getKey(), DARK_AQUA))
+                                .append(text(" erhältst du ", GRAY))
+                                .append(text(nextLevelUp.get().getValue().getSlots() + " Skill Slot(s)", GREEN))
+                                .append(text(".", GRAY)).append(newline());
+                    }
+                    hover.append(text("Mit Events und Achievements kannst du jederzeit weitere Skill Slots erhalten.", GRAY, ITALIC));
+
+                    builder.append(text("aktivieren", GRAY).hoverEvent(showText(hover)));
+                }
+            }
         }
+
+
 
         return builder.build();
     }
