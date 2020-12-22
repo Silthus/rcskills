@@ -118,6 +118,7 @@ public class PlayerCommands extends BaseCommand {
 
         private final Map<UUID, BuySkillAction> buyActions = new HashMap<>();
 
+        @Default
         @Subcommand("skill")
         @CommandCompletion("@skills @players")
         @CommandPermission("rcskills.buy.skill")
