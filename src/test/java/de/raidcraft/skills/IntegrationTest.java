@@ -97,8 +97,8 @@ public class IntegrationTest {
         class PlayerCommands {
 
             @Nested
-            @DisplayName("buy <skill> [player]")
-            class buy {
+            @DisplayName("buy skill <skill> [player]")
+            class buySkill {
 
                 @Test
                 @DisplayName("player should be able to buy skills when all requirements are met")
