@@ -85,14 +85,22 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
                 "  - x: settable in this config",
                 "  - y: settable in this config",
                 "  - z: settable in this config",
+                "  - a: settable in this config",
+                "  - b: settable in this config",
+                "  - c: settable in this config",
                 "  - level: the current level of the player",
                 "  - slots: the number of unlocked slots",
-                "  - skills: the number of unlocked skills"
+                "  - skills: the number of unlocked skills",
+                "  - resets: the number of skill slot resets the player had"
         })
-        private String price = "(Math.pow(2, slots) * x) + (level + skills) * y";
+        private String slotPrice = "(Math.pow(2, slots) * x) + (level + skills) * y";
+        private String resetPrice = "Math.pow(2, resets) * a";
         private double x = 1000;
         private double y = 100;
         private double z = 0;
+        private double a = 10000;
+        private double b = 0;
+        private double c = 0;
     }
 
     @ConfigurationElement
