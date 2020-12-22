@@ -19,12 +19,10 @@ import de.raidcraft.skills.entities.ConfiguredSkill;
 import de.raidcraft.skills.entities.PlayerSkill;
 import de.raidcraft.skills.entities.SkillSlot;
 import de.raidcraft.skills.entities.SkilledPlayer;
-import jdk.jfr.Event;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.checkerframework.checker.fenum.qual.Fenum;
 
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +35,11 @@ import static de.raidcraft.skills.Messages.send;
 import static de.raidcraft.skills.Messages.skill;
 import static net.kyori.adventure.text.Component.newline;
 import static net.kyori.adventure.text.Component.text;
-import static net.kyori.adventure.text.format.NamedTextColor.*;
+import static net.kyori.adventure.text.format.NamedTextColor.DARK_AQUA;
+import static net.kyori.adventure.text.format.NamedTextColor.GOLD;
+import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
+import static net.kyori.adventure.text.format.NamedTextColor.RED;
+import static net.kyori.adventure.text.format.NamedTextColor.YELLOW;
 import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 
 @CommandAlias("rcs|rcskills")
@@ -48,6 +50,11 @@ public class PlayerCommands extends BaseCommand {
         return "/rcskills buy skill " + skill.id();
     }
 
+    public static String buySkillSlot() {
+
+        return "/rcskills buy slot";
+    }
+
     public static String reset(SkilledPlayer player) {
 
         return "/rcskills reset";
@@ -55,7 +62,7 @@ public class PlayerCommands extends BaseCommand {
 
     public static String activateSkill(PlayerSkill skill) {
 
-        return "/rcskills activate " + skill.id();
+        return "/rcskills activate " + (skill == null ? "" : skill.id());
     }
 
     public static String buyConfirmSkill() {
@@ -82,6 +89,7 @@ public class PlayerCommands extends BaseCommand {
     public void info(@Conditions("others:perm=player.info") SkilledPlayer player) {
 
         Messages.send(getCurrentCommandIssuer(), Messages.playerInfo(player));
+        Messages.skills(player, 1).forEach(component -> Messages.send(getCurrentCommandIssuer(), component));
     }
 
     @HelpCommand
@@ -118,7 +126,6 @@ public class PlayerCommands extends BaseCommand {
 
         private final Map<UUID, BuySkillAction> buyActions = new HashMap<>();
 
-        @Default
         @Subcommand("skill")
         @CommandCompletion("@skills @players")
         @CommandPermission("rcskills.buy.skill")

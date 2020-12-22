@@ -22,4 +22,17 @@ public enum SkillStatus {
     public String getValue() {
         return name();
     }
+
+    public String localized() {
+
+        switch (this) {
+            case ACTIVE:
+                return "aktiv";
+            case UNLOCKED:
+                return "freigeschaltet";
+            default:
+            case NOT_PRESENT:
+                return "N/A";
+        }
+    }
 }

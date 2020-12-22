@@ -6,6 +6,7 @@ import de.raidcraft.skills.commands.PlayerCommands;
 import de.raidcraft.skills.entities.ConfiguredSkill;
 import de.raidcraft.skills.entities.Level;
 import de.raidcraft.skills.entities.PlayerSkill;
+import de.raidcraft.skills.entities.SkillSlot;
 import de.raidcraft.skills.entities.SkilledPlayer;
 import lombok.AccessLevel;
 import lombok.Setter;
@@ -14,7 +15,6 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TextReplacementConfig;
-import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.feature.pagination.Pagination;
 import net.kyori.adventure.text.format.TextColor;
@@ -43,6 +43,10 @@ import java.util.stream.Collectors;
 import static net.kyori.adventure.text.Component.empty;
 import static net.kyori.adventure.text.Component.newline;
 import static net.kyori.adventure.text.Component.text;
+import static net.kyori.adventure.text.event.ClickEvent.Action;
+import static net.kyori.adventure.text.event.ClickEvent.clickEvent;
+import static net.kyori.adventure.text.event.ClickEvent.runCommand;
+import static net.kyori.adventure.text.event.ClickEvent.suggestCommand;
 import static net.kyori.adventure.text.event.HoverEvent.showText;
 import static net.kyori.adventure.text.format.NamedTextColor.AQUA;
 import static net.kyori.adventure.text.format.NamedTextColor.DARK_AQUA;
@@ -293,13 +297,71 @@ public final class Messages {
 
     public static Component skillSlots(SkilledPlayer player) {
 
-        int slots = player.skillSlots().size();
+        List<SkillSlot> slots = player.skillSlots();
         int freeSkillSlots = player.freeSkillSlots();
-        return text("Skill Slots: ", YELLOW)
+
+        return text()
+                .append(text("Slots ", YELLOW))
+                .append(text("(", GRAY))
                 .append(text(freeSkillSlots, freeSkillSlots > 0 ? GREEN : RED))
                 .append(text("/", DARK_AQUA))
-                .append(text(slots, AQUA))
-                .append(text(" Slots frei", DARK_AQUA));
+                .append(text(slots.size(), AQUA))
+                .append(text(")", GRAY))
+                .append(text(": ", YELLOW))
+                .append(skillSlots(slots))
+                .build();
+    }
+
+    public static Component skillSlots(List<SkillSlot> slots) {
+
+        TextComponent.Builder builder = text();
+        for (int i = 0; i < slots.size(); i++) {
+            builder.append(skillSlot(slots.get(i)));
+            if (i != slots.size() - 1) {
+                builder.append(text("|", DARK_AQUA));
+            }
+        }
+
+        builder.append(text("[X]", DARK_RED).hoverEvent(showText(text("Du erhältst neue Skill Slots beim Levelaufstieg und durch Events und Achievements.", GRAY))));
+
+        return builder.build();
+    }
+
+    public static Component skillSlot(SkillSlot slot) {
+
+        TextComponent.Builder builder = text();
+        SkilledPlayer player = slot.player();
+        if (slot.status() == SkillSlot.Status.IN_USE) {
+            builder.append(text("[", GREEN)).append(text("*", DARK_AQUA)).append(text("]", GREEN));
+        } else if (slot.status() == SkillSlot.Status.FREE) {
+            return builder.append(text("[", GREEN)).append(text("O", GREEN)).append(text("]", GREEN))
+                    .build().hoverEvent(showText(text("Aktiviere einen Skill um den Skill Slot zu belegen.", GRAY)))
+                    .clickEvent(suggestCommand(PlayerCommands.activateSkill(null)));
+        } else if (slot.status() == SkillSlot.Status.ELIGIBLE) {
+            double cost = SkillsPlugin.instance().getSlotManager().calculateSlotCost(player);
+            return builder.append(text("[", RED))
+                    .append(text("$", Economy.get().has(player.offlinePlayer(), cost) ? GREEN : DARK_RED))
+                    .append(text("]", RED)).build()
+                    .hoverEvent(showText(text("Du kannst diesen Skill Slot für ", GRAY)
+                            .append(text(Economy.get().format(cost), AQUA))
+                            .append(text(" kaufen.", GRAY)).append(newline()).append(newline())
+                            .append(text("Klicke um den Slot zu kaufen."))
+                    )).clickEvent(runCommand(PlayerCommands.buySkillSlot()));
+        }
+
+        if (slot.skill() != null) {
+            return builder.build().hoverEvent(showText(skillInfo(slot.skill().configuredSkill(), player)));
+        }
+
+        return builder.build();
+    }
+
+    public static Component activeSkills(SkilledPlayer player) {
+
+        return text().append(text("aktive Skills: ", YELLOW))
+                .append(text(player.activeSkills().size(), GREEN)).append(text("/", DARK_AQUA))
+                .append(text(player.unlockedSkills().size(), AQUA))
+                .build();
     }
 
     public static Component player(SkilledPlayer player) {
@@ -316,9 +378,7 @@ public final class Messages {
                 .append(level(player.level())).append(newline())
                 .append(skillPoints(player)).append(newline())
                 .append(skillSlots(player)).append(newline())
-                .append(text("aktive/freigeschaltete Skills: ", YELLOW))
-                .append(text(player.activeSkills().size(), GREEN)).append(text("/", DARK_AQUA))
-                .append(text(player.unlockedSkills().size(), AQUA))
+                .append(activeSkills(player))
                 .build();
     }
 
@@ -343,7 +403,7 @@ public final class Messages {
 
         Pagination<ConfiguredSkill> pagination = Pagination.builder()
                 .width(Pagination.WIDTH - 6)
-                .resultsPerPage(10)
+                .resultsPerPage(8)
                 .build(header, new Pagination.Renderer.RowRenderer<>() {
                     @Override
                     public @NonNull Collection<Component> renderRow(ConfiguredSkill value, int index) {
@@ -406,7 +466,7 @@ public final class Messages {
             if (showBuy && player.canBuy(skill)) {
                 builder.append(text(" [$] ", GREEN)
                         .hoverEvent(costs(playerSkill).append(text("Klicken um den Skill zu kaufen.", GRAY, ITALIC)))
-                        .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, PlayerCommands.buySkill(player, skill)))
+                        .clickEvent(clickEvent(Action.RUN_COMMAND, PlayerCommands.buySkill(player, skill)))
                 );
             } else if (playerSkill.active()) {
                 builder.append(text("aktiv", AQUA).hoverEvent(HoverEvent.showText(
@@ -414,7 +474,7 @@ public final class Messages {
                                 .append(text("Gebe ", GRAY))
                                 .append(text(PlayerCommands.reset(player), GRAY, ITALIC))
                                 .append(text(" ein um alle deine Skills zurückzusetzen.", GRAY))
-                        )).clickEvent(ClickEvent.suggestCommand(PlayerCommands.reset(player)))
+                        )).clickEvent(suggestCommand(PlayerCommands.reset(player)))
                 );
             } else if (playerSkill.unlocked()) {
                 if (playerSkill.canActivate()) {
@@ -422,7 +482,7 @@ public final class Messages {
                             text("Du besitzt den Skill, er ist aber nicht aktiv.", GRAY).append(newline())
                                     .append(text("Klicke um den Skill zu aktivieren und einem Slot zuzuweisen.", GRAY)).append(newline())
                                     .append(skillSlots(player))))
-                            .clickEvent(ClickEvent.runCommand(PlayerCommands.activateSkill(playerSkill)))
+                            .clickEvent(runCommand(PlayerCommands.activateSkill(playerSkill)))
                     );
                 } else {
                     Optional<Map.Entry<Integer, SkillPluginConfig.LevelUp>> nextLevelUp = SkillsPlugin.instance().getPluginConfig()
@@ -454,7 +514,8 @@ public final class Messages {
         TextComponent.Builder builder = text().append(skillInfo(skill));
         if (player != null) {
             PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
-            builder.append(costs(playerSkill)).append(newline())
+            builder.append(text("Status: ", YELLOW)).append(text(playerSkill.status().localized(), AQUA)).append(newline())
+                    .append(costs(playerSkill)).append(newline())
                     .append(requirements(playerSkill));
         }
         return builder.build();
@@ -462,10 +523,8 @@ public final class Messages {
 
     public static Component skillInfo(ConfiguredSkill skill) {
 
-        TextComponent.Builder builder = text().append(text("--- [ ", DARK_AQUA))
-                .append(text(skill.name(), YELLOW, BOLD))
-                .append(text(" (" + skill.alias() + ")", GRAY, ITALIC))
-                .append(text(" ] ---", DARK_AQUA)).append(newline())
+        TextComponent.Builder builder = text()
+                .append(text(" (" + skill.alias() + ")", GRAY, ITALIC)).append(newline())
                 .append(text("Level: ", YELLOW).append(text(skill.level(), AQUA))).append(newline());
         if (skill.money() > 0d) {
             builder.append(text("Kosten: ", YELLOW))
