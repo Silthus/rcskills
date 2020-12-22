@@ -2,6 +2,7 @@ package de.raidcraft.skills;
 
 import co.aikar.commands.CommandIssuer;
 import de.raidcraft.economy.wrapper.Economy;
+import de.raidcraft.skills.commands.PlayerCommands;
 import de.raidcraft.skills.entities.ConfiguredSkill;
 import de.raidcraft.skills.entities.Level;
 import de.raidcraft.skills.entities.PlayerSkill;
@@ -403,15 +404,15 @@ public final class Messages {
             if (showBuy && player.canBuy(skill)) {
                 builder.append(text(" [$] ", GREEN)
                         .hoverEvent(costs(playerSkill).append(text("Klicken um den Skill zu kaufen.", GRAY, ITALIC)))
-                        .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/rcskills buy " + skill.id()))
+                        .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, PlayerCommands.buySkill(player, skill)))
                 );
             } else if (playerSkill.active()) {
                 builder.append(text("aktiv", AQUA).hoverEvent(HoverEvent.showText(
                         text("Der Skill ist aktiv.", GRAY).append(newline())
                                 .append(text("Gebe ", GRAY))
-                                .append(text("/rcskills reset", GRAY, ITALIC))
+                                .append(text(PlayerCommands.reset(player), GRAY, ITALIC))
                                 .append(text(" ein um alle deine Skills zurückzusetzen.", GRAY))
-                        )).clickEvent(ClickEvent.suggestCommand("/rcskills reset"))
+                        )).clickEvent(ClickEvent.suggestCommand(PlayerCommands.reset(player)))
                 );
             } else if (playerSkill.unlocked()) {
                 if (playerSkill.canActivate()) {
@@ -419,7 +420,7 @@ public final class Messages {
                             text("Du besitzt den Skill, er ist aber nicht aktiv.", GRAY).append(newline())
                                     .append(text("Klicke um den Skill zu aktivieren und einem Slot zuzuweisen.", GRAY)).append(newline())
                                     .append(skillSlots(player))))
-                            .clickEvent(ClickEvent.runCommand("/rcskills activate " + skill.alias()))
+                            .clickEvent(ClickEvent.runCommand(PlayerCommands.activateSkill(playerSkill)))
                     );
                 } else {
                     Optional<Map.Entry<Integer, SkillPluginConfig.LevelUp>> nextLevelUp = SkillsPlugin.instance().getPluginConfig()
