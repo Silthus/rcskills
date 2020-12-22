@@ -185,6 +185,9 @@ public final class LevelManager implements Listener {
                 .map(skill -> PlayerSkill.getOrCreate(skilledPlayer, skill))
                 .collect(Collectors.toList());
 
+        skills.stream().filter(skill -> skill.configuredSkill().autoUnlock())
+                .forEach(skill -> skilledPlayer.addSkill(skill.configuredSkill()));
+
         Messages.send(skilledPlayer.id(), text(skills.size(), GREEN)
                 .append(text("neue Skills freigeschaltet: ", YELLOW))
                 .append(Messages.skills(skills))

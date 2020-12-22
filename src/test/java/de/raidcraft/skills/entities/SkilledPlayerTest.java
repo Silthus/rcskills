@@ -84,4 +84,29 @@ class SkilledPlayerTest {
 
         assertThat(SkilledPlayer.getOrCreate(bukkitPlayer).freeSkillSlots()).isEqualTo(8);
     }
+
+    @Test
+    @DisplayName("should auto unlock news skills")
+    void shouldAutoUnlockNewSkills() {
+
+        ConfiguredSkill skill = new ConfiguredSkill(UUID.randomUUID())
+                .autoUnlock(true)
+                .skillpoints(0)
+                .noSkillSlot(true)
+                .level(5);
+        skill.save();
+
+        PlayerMock bukkitPlayer = server.addPlayer();
+        bukkitPlayer.setOp(true);
+
+        SkilledPlayer skilledPlayer = SkilledPlayer.getOrCreate(bukkitPlayer);
+        skilledPlayer.setLevel(4);
+        assertThat(SkilledPlayer.getOrCreate(bukkitPlayer).hasSkill(skill))
+                .isFalse();
+
+        skilledPlayer.setLevel(5);
+
+        assertThat(SkilledPlayer.getOrCreate(bukkitPlayer).hasActiveSkill(skill))
+                .isTrue();
+    }
 }
