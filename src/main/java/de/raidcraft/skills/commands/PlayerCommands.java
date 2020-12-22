@@ -21,6 +21,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.checkerframework.checker.fenum.qual.Fenum;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +43,7 @@ public class PlayerCommands extends BaseCommand {
 
     public static String buySkill(SkilledPlayer player, ConfiguredSkill skill) {
 
-        return "/rcskills buy " + skill.id();
+        return "/rcskills buy skill " + skill.id();
     }
 
     public static String reset(SkilledPlayer player) {
@@ -55,8 +56,17 @@ public class PlayerCommands extends BaseCommand {
         return "/rcskills activate " + skill.id();
     }
 
+    public static String buyConfirmSkill() {
+
+        return "/rcskills buy confirm skill";
+    }
+
+    public static String buyAbortSkill() {
+
+        return "/rcskills buy abort skill";
+    }
+
     private final SkillsPlugin plugin;
-    private final Map<UUID, BuySkillAction> buyActions = new HashMap<>();
 
     public PlayerCommands(SkillsPlugin plugin) {
         this.plugin = plugin;
@@ -102,86 +112,102 @@ public class PlayerCommands extends BaseCommand {
     }
 
     @Subcommand("buy")
-    @CommandCompletion("@skills @players")
-    @CommandPermission("rcskills.skill.buy")
-    @Description("Kauft den agegebenen Skill, falls möglich.")
-    public void buy(ConfiguredSkill skill, @Conditions("others:perm=skill.buy") SkilledPlayer player) {
+    public class BuyCommands extends BaseCommand {
 
-        if (player.hasSkill(skill)) {
-            throw new ConditionFailedException("Du besitzt den Skill " + skill.name() + " bereits.");
-        }
+        private final Map<UUID, BuySkillAction> buyActions = new HashMap<>();
 
-        if (!getCurrentCommandIssuer().hasPermission(SkillsPlugin.BYPASS_REQUIREMENT_CHECKS) && !player.canBuy(skill)) {
-            PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
-            Messages.send(getCurrentCommandIssuer(), text("Du kannst den Skill ", RED)
-                    .append(skill(playerSkill, false))
-                    .append(text(" nicht kaufen:", RED)).append(newline())
-                    .append(allRequirements(playerSkill))
-            );
-            return;
-        }
+        @Subcommand("skill")
+        @CommandCompletion("@skills @players")
+        @CommandPermission("rcskills.buy.skill")
+        @Description("Kauft den agegebenen Skill, falls möglich.")
+        public void buy(ConfiguredSkill skill, @Conditions("others:perm=skill.buy") SkilledPlayer player) {
 
-        BuySkillAction buySkillAction = new BuySkillAction(player, skill);
-        UUID id = getCurrentCommandIssuer().getUniqueId();
-        buyActions.put(id, buySkillAction);
-
-        send(getCurrentCommandIssuer(), text()
-                .append(text("Bist du dir sicher, dass du den Skill ", YELLOW))
-                .append(skill(buySkillAction.skill(), player, false))
-                .append(text(" kaufen möchtest? ", YELLOW))
-                .append(text("[JA - KAUFEN]", GREEN)
-                        .hoverEvent(text("Klicken um den Kauf des Skills abzuschließen.", GREEN, ITALIC))
-                        .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/rcskills buyconfirm"))
-                )
-                .append(text(" [NEIN - ABBRECHEN]", RED)
-                        .hoverEvent(text("Klicken um den Kauf des Skills abzubrechen.", RED, ITALIC))
-                        .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/rcskills buyabort"))
-                )
-                .build()
-        );
-
-        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
-            BuySkillAction skillAction = buyActions.remove(id);
-            if (skillAction != null) {
-                Messages.send(id, text("Der Kauf des Skills ", RED)
-                        .append(skill(skill, player))
-                        .append(text(" ist abgelaufen.", RED)));
+            if (player.hasSkill(skill)) {
+                throw new ConditionFailedException("Du besitzt den Skill " + skill.name() + " bereits.");
             }
-        }, plugin.getPluginConfig().getBuyCommandTimeout());
-    }
 
-    @Subcommand("buyconfirm")
-    @CommandPermission("rcskills.skill.buy")
-    @Description("Bestätigt den Kauf eines Skills.")
-    public void buyConfirm() {
-
-        BuySkillAction buySkillAction = buyActions.remove(getCurrentCommandIssuer().getUniqueId());
-        if (buySkillAction == null) {
-            getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Der Zeitraum zum Kaufen des Skills ist abgelaufen bitte gebe den Befehl erneut ein.");
-        } else {
-            BuySkillAction.Result result = buySkillAction.execute(getCurrentCommandIssuer().hasPermission(SkillsPlugin.BYPASS_REQUIREMENT_CHECKS));
-            if (result.success()) {
-                Messages.send(getCurrentCommandIssuer(), Messages.buySkill(buySkillAction.player(), result.playerSkill()));
-            } else {
+            if (!getCurrentCommandIssuer().hasPermission(SkillsPlugin.BYPASS_REQUIREMENT_CHECKS) && !player.canBuy(skill)) {
+                PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
                 Messages.send(getCurrentCommandIssuer(), text("Du kannst den Skill ", RED)
-                        .append(skill(result.playerSkill(), false))
+                        .append(skill(playerSkill, false))
                         .append(text(" nicht kaufen:", RED)).append(newline())
-                        .append(allRequirements(result.playerSkill()))
+                        .append(allRequirements(playerSkill))
                 );
+                return;
+            }
+
+            BuySkillAction buySkillAction = new BuySkillAction(player, skill);
+            UUID id = getCurrentCommandIssuer().getUniqueId();
+            buyActions.put(id, buySkillAction);
+
+            send(getCurrentCommandIssuer(), text()
+                    .append(text("Bist du dir sicher, dass du den Skill ", YELLOW))
+                    .append(skill(buySkillAction.skill(), player, false))
+                    .append(text(" kaufen möchtest? ", YELLOW))
+                    .append(text("[JA - KAUFEN]", GREEN)
+                            .hoverEvent(text("Klicken um den Kauf des Skills abzuschließen.", GREEN, ITALIC))
+                            .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, buyConfirmSkill()))
+                    )
+                    .append(text(" [NEIN - ABBRECHEN]", RED)
+                            .hoverEvent(text("Klicken um den Kauf des Skills abzubrechen.", RED, ITALIC))
+                            .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, buyAbortSkill()))
+                    )
+                    .build()
+            );
+
+            Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+                BuySkillAction skillAction = buyActions.remove(id);
+                if (skillAction != null) {
+                    Messages.send(id, text("Der Kauf des Skills ", RED)
+                            .append(skill(skill, player))
+                            .append(text(" ist abgelaufen.", RED)));
+                }
+            }, plugin.getPluginConfig().getBuyCommandTimeout());
+        }
+
+        @Subcommand("confirm")
+        public class ConfirmCommands extends BaseCommand {
+
+            @Default
+            @Subcommand("skill")
+            @CommandPermission("rcskills.buy.skill")
+            @Description("Bestätigt den Kauf eines Skills.")
+            public void buyConfirm() {
+
+                BuySkillAction buySkillAction = buyActions.remove(getCurrentCommandIssuer().getUniqueId());
+                if (buySkillAction == null) {
+                    getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Der Zeitraum zum Kaufen des Skills ist abgelaufen bitte gebe den Befehl erneut ein.");
+                } else {
+                    BuySkillAction.Result result = buySkillAction.execute(getCurrentCommandIssuer().hasPermission(SkillsPlugin.BYPASS_REQUIREMENT_CHECKS));
+                    if (result.success()) {
+                        Messages.send(getCurrentCommandIssuer(), Messages.buySkill(buySkillAction.player(), result.playerSkill()));
+                    } else {
+                        Messages.send(getCurrentCommandIssuer(), text("Du kannst den Skill ", RED)
+                                .append(skill(result.playerSkill(), false))
+                                .append(text(" nicht kaufen:", RED)).append(newline())
+                                .append(allRequirements(result.playerSkill()))
+                        );
+                    }
+                }
             }
         }
-    }
 
-    @Subcommand("buyabort")
-    @CommandPermission("rcskills.skill.buy")
-    @Description("Bricht den Kauf eines Skills ab.")
-    public void buyAbort() {
+        @Subcommand("abort")
+        public class AbortCommands extends BaseCommand {
 
-        BuySkillAction action = buyActions.remove(getCurrentCommandIssuer().getUniqueId());
-        if (action != null) {
-            Messages.send(getCurrentCommandIssuer(), text("Der Kauf des Skills ", RED)
-                    .append(skill(action.skill(), action.player()))
-                    .append(text(" wurde abgebrochen.", RED)));
+            @Default
+            @Subcommand("skill")
+            @CommandPermission("rcskills.buy.skill")
+            @Description("Bricht den Kauf eines Skills ab.")
+            public void buyAbort() {
+
+                BuySkillAction action = buyActions.remove(getCurrentCommandIssuer().getUniqueId());
+                if (action != null) {
+                    Messages.send(getCurrentCommandIssuer(), text("Der Kauf des Skills ", RED)
+                            .append(skill(action.skill(), action.player()))
+                            .append(text(" wurde abgebrochen.", RED)));
+                }
+            }
         }
     }
 
