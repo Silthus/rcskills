@@ -69,6 +69,11 @@ public class SkillSlot extends BaseEntity {
         return this;
     }
 
+    public boolean buyable() {
+
+        return status == Status.ELIGIBLE;
+    }
+
     public enum Status {
         /**
          * The skill slot is available to the player and can be bought.
