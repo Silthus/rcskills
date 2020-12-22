@@ -193,13 +193,16 @@ public class SkillsPlugin extends JavaPlugin {
 
         commandManager.getCommandCompletions().registerAsyncCompletion("skills", context -> ConfiguredSkill.find
                 .query().findSet().stream()
+                .filter(ConfiguredSkill::enabled)
                 .map(ConfiguredSkill::alias)
                 .collect(Collectors.toSet()));
 
         commandManager.getCommandCompletions().registerAsyncCompletion("unlocked-skills", context -> PlayerSkill.find
                 .query().where()
                 .eq("player_id", context.getPlayer().getUniqueId())
+                .and().eq("status", SkillStatus.UNLOCKED.getValue())
                 .findSet().stream()
+                .filter(skill -> skill.configuredSkill().enabled())
                 .map(PlayerSkill::alias)
                 .collect(Collectors.toSet())
         );
@@ -230,6 +233,7 @@ public class SkillsPlugin extends JavaPlugin {
         commandManager.getCommandContexts().registerIssuerAwareContext(PlayerSkill.class, context -> {
             SkilledPlayer player = null;
             ConfiguredSkill skill = null;
+            PlayerSkill playerSkill = null;
             for (String arg : context.getArgs()) {
                 try {
                     UUID id = UUID.fromString(arg);
@@ -237,12 +241,18 @@ public class SkillsPlugin extends JavaPlugin {
                         player = SkilledPlayer.find.byId(id);
                     if (skill == null)
                         skill = ConfiguredSkill.find.byId(id);
+                    if (playerSkill == null)
+                        playerSkill = PlayerSkill.find.byId(id);
                 } catch (Exception ignored) {
                     if (player == null)
                         player = SkilledPlayer.find.query().where().eq("name", arg).findOne();
                     if (skill == null)
                         skill = ConfiguredSkill.findByAliasOrName(arg).orElse(null);
                 }
+            }
+
+            if (playerSkill != null) {
+                return playerSkill;
             }
 
             if (player == null && context.getPlayer() != null) {

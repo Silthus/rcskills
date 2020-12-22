@@ -117,7 +117,7 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
 
         if (categories == null) {
             this.categories = new ArrayList<>();
-            load();
+            load(false);
         }
         return categories;
     }
@@ -126,7 +126,7 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
 
         if (requirements == null) {
             this.requirements = new ArrayList<>();
-            load();
+            load(false);
         }
         return requirements;
     }
@@ -135,7 +135,7 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
 
         if (costRequirements == null) {
             this.costRequirements = new ArrayList<>();
-            load();
+            load(false);
         }
         return costRequirements;
     }
@@ -144,7 +144,7 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         this.config = new HashMap<>();
         config.getKeys(true).forEach(key -> this.config.put(key, config.get(key)));
 
-        load();
+        load(true);
         save();
 
         return this;
@@ -169,9 +169,14 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     }
 
     @PostLoad
-    public void load() {
+    void postLoad() {
 
-        if (loaded) return;
+        load(true);
+    }
+
+    private void load(boolean force) {
+
+        if (!force && loaded) return;
 
         ConfigurationSection config = getConfig();
 

@@ -98,10 +98,30 @@ public final class SkillManager {
         loadSkillsFromPlugins();
         loadSkillsFromModules();
         List<ConfiguredSkill> loadedSkills = loadSkills(new File(plugin.getDataFolder(), config.getSkillsPath()).toPath());
+
         ConfiguredSkill.find.query()
+                .where().eq("enabled", true)
                 .where().notIn("id", loadedSkills.stream().map(BaseEntity::id).collect(Collectors.toUnmodifiableList()))
                 .findList()
-                .forEach(skill -> skill.enabled(false).save());
+                .forEach(skill -> {
+                    skill.enabled(false).save();
+                    log.warning("disabled \"" + skill.alias() + "\" in the database because it was not loaded from disk.");
+                });
+
+        ConfiguredSkill.find.query()
+                .where().eq("enabled", false)
+                .where().in("id", loadedSkills.stream().map(BaseEntity::id).collect(Collectors.toUnmodifiableList()))
+                .findList()
+                .forEach(skill -> {
+                    boolean enabled = loadedSkills.stream()
+                            .filter(s -> s.id().equals(skill.id()))
+                            .findFirst()
+                            .map(ConfiguredSkill::enabled)
+                            .orElse(true);
+                    skill.enabled(enabled).save();
+                    if (enabled)
+                        log.info("enabled previous disabled skill \"" + skill.alias() + "\" in the database because it was loaded again from disk.");
+                });
 
         loadedSkills.stream()
                 .filter(ConfiguredSkill::enabled)
@@ -484,9 +504,12 @@ public final class SkillManager {
                 .or(() -> ConfiguredSkill.findByAliasOrName(alias))
                 .orElseGet(() -> ConfiguredSkill.getOrCreate(id));
 
-        config.set("id", skill.id().toString());
 
-        return Optional.of(skill.load(config));
+        ConfiguredSkill configuredSkill = skill.load(config);
+        config.set("id", skill.id().toString());
+        config.set("enabled", skill.enabled());
+
+        return Optional.of(configuredSkill);
     }
 
     public ConfiguredSkill loadSkill(Class<? extends Skill> skillClass) {

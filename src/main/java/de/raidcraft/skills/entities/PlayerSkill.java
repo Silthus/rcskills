@@ -113,6 +113,11 @@ public class PlayerSkill extends BaseEntity {
 
         if (!active()) return;
 
+        if (configuredSkill.disabled()) {
+            deactivate();
+            return;
+        }
+
         context().ifPresent(SkillContext::enable);
     }
 
@@ -155,7 +160,7 @@ public class PlayerSkill extends BaseEntity {
             status(SkillStatus.ACTIVE);
             save();
 
-            enable();
+            context().ifPresent(SkillContext::enable);
 
             if (event.isPlayEffect()) {
                 player().bukkitPlayer().ifPresent(Effects::playerActivateSkill);
@@ -180,7 +185,7 @@ public class PlayerSkill extends BaseEntity {
             status(SkillStatus.UNLOCKED);
             save();
 
-            disable();
+            context().ifPresent(SkillContext::disable);
         } catch (Exception e) {
             log.severe("An error occured while deactivating the skill " + alias() + " of " + player().name() + ": " + e.getMessage());
             e.printStackTrace();
