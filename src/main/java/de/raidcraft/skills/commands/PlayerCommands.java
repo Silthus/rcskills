@@ -340,6 +340,16 @@ public class PlayerCommands extends BaseCommand {
     @Description("Weist dem Skill einen Slot zu und aktiviert ihn.")
     public void activate(@Conditions("unlocked|others:perm=skill.activate") PlayerSkill skill) {
 
+        if (skill.configuredSkill().disabled()) {
+            throw new ConditionFailedException("Du kannst den Skill " + skill.name() + " nicht aktivieren. Er ist fehlerhaft und deaktiviert.");
+        }
+        if (skill.active()) {
+            throw new ConditionFailedException("Du kannst den Skill " + skill.name() + " nicht aktivieren. Er ist bereits aktiviert.");
+        }
+        if (skill.configuredSkill().noSkillSlot()) {
+            throw new ConditionFailedException("Du kannst den Skill " + skill.name() + " nicht aktivieren. Er benötigt keinen Skill Slot und ist dauerhaft aktiv.");
+        }
+
         if (!skill.canActivate()) {
             throw new ConditionFailedException("Du kannst den Skill " + skill.name() + " nicht aktivieren. Du hast zu wenig freie Skill Slots.");
         }

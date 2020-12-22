@@ -48,15 +48,7 @@ import static net.kyori.adventure.text.event.ClickEvent.clickEvent;
 import static net.kyori.adventure.text.event.ClickEvent.runCommand;
 import static net.kyori.adventure.text.event.ClickEvent.suggestCommand;
 import static net.kyori.adventure.text.event.HoverEvent.showText;
-import static net.kyori.adventure.text.format.NamedTextColor.AQUA;
-import static net.kyori.adventure.text.format.NamedTextColor.DARK_AQUA;
-import static net.kyori.adventure.text.format.NamedTextColor.DARK_RED;
-import static net.kyori.adventure.text.format.NamedTextColor.GOLD;
-import static net.kyori.adventure.text.format.NamedTextColor.GRAY;
-import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
-import static net.kyori.adventure.text.format.NamedTextColor.RED;
-import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
-import static net.kyori.adventure.text.format.NamedTextColor.YELLOW;
+import static net.kyori.adventure.text.format.NamedTextColor.*;
 import static net.kyori.adventure.text.format.TextDecoration.BOLD;
 import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 
@@ -439,7 +431,9 @@ public final class Messages {
     public static Component skill(ConfiguredSkill skill, SkilledPlayer player, boolean showBuy) {
 
         TextColor color = GRAY;
-        if (player != null) {
+        if (skill.disabled()) {
+            color = DARK_GRAY;
+        } else if (player != null) {
             if (player.hasActiveSkill(skill)) {
                 color = AQUA;
             } else if (player.hasSkill(skill)) {
@@ -458,7 +452,14 @@ public final class Messages {
                 .append(text("[", YELLOW))
                 .append(text(skill.level(), levelColor))
                 .append(text("] ", YELLOW))
-                .append(text(skill.name(), color, BOLD).hoverEvent(skillInfo(skill, player)));
+                .append(text(skill.name(), color, BOLD));
+
+
+        if (skill.disabled()) {
+            return builder.hoverEvent(showText(text("Der Skill ist deaktiviert.", RED))).build();
+        }
+
+        builder.hoverEvent(skillInfo(skill, player));
 
         if (player != null) {
             builder.append(text(" | ", YELLOW));
@@ -504,8 +505,6 @@ public final class Messages {
             }
         }
 
-
-
         return builder.build();
     }
 
@@ -514,7 +513,7 @@ public final class Messages {
         TextComponent.Builder builder = text().append(skillInfo(skill));
         if (player != null) {
             PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
-            builder.append(text("Status: ", YELLOW)).append(text(playerSkill.status().localized(), AQUA)).append(newline())
+            builder.append(text("Status: ", YELLOW)).append(text(playerSkill.configuredSkill().disabled() ? "deaktiviert" : playerSkill.status().localized(), AQUA)).append(newline())
                     .append(costs(playerSkill)).append(newline())
                     .append(requirements(playerSkill));
         }
@@ -523,7 +522,7 @@ public final class Messages {
 
     public static Component skillInfo(ConfiguredSkill skill) {
 
-        TextComponent.Builder builder = text()
+        TextComponent.Builder builder = text().append(text(skill.name(), GOLD))
                 .append(text(" (" + skill.alias() + ")", GRAY, ITALIC)).append(newline())
                 .append(text("Level: ", YELLOW).append(text(skill.level(), AQUA))).append(newline());
         if (skill.money() > 0d) {
