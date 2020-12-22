@@ -5,7 +5,7 @@ import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.PaperCommandManager;
 import com.google.common.base.Strings;
 import de.raidcraft.skills.commands.AdminCommands;
-import de.raidcraft.skills.commands.SkillsCommand;
+import de.raidcraft.skills.commands.PlayerCommands;
 import de.raidcraft.skills.entities.*;
 import de.raidcraft.skills.listener.PlayerListener;
 import de.slikey.effectlib.EffectManager;
@@ -20,7 +20,6 @@ import net.silthus.ebean.EbeanWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Player;
-import org.bukkit.event.HandlerList;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -190,7 +189,7 @@ public class SkillsPlugin extends JavaPlugin {
                 .collect(Collectors.toSet())
         );
 
-        commandManager.registerCommand(new SkillsCommand(this));
+        commandManager.registerCommand(new PlayerCommands(this));
         commandManager.registerCommand(new AdminCommands(this));
     }
 

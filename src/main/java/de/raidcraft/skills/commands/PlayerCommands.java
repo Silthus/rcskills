@@ -38,12 +38,12 @@ import static net.kyori.adventure.text.format.NamedTextColor.YELLOW;
 import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 
 @CommandAlias("rcs|rcskills")
-public class SkillsCommand extends BaseCommand {
+public class PlayerCommands extends BaseCommand {
 
     private final SkillsPlugin plugin;
     private final Map<UUID, BuySkillAction> buyActions = new HashMap<>();
 
-    public SkillsCommand(SkillsPlugin plugin) {
+    public PlayerCommands(SkillsPlugin plugin) {
         this.plugin = plugin;
     }
 
