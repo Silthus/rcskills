@@ -76,6 +76,7 @@ public class ConfiguredSkill extends BaseEntity {
     private boolean noSkillSlot = false;
     private boolean hidden = false;
     private boolean enabled = true;
+    private boolean restricted = false;
     private List<String> categories = new ArrayList<>();
 
     @DbJson
@@ -176,6 +177,7 @@ public class ConfiguredSkill extends BaseEntity {
         this.noSkillSlot = config.getBoolean("no-skill-slot", noSkillSlot);
         this.hidden = config.getBoolean("hidden", hidden);
         this.enabled = config.getBoolean("enabled", enabled);
+        this.restricted = config.getBoolean("restricted", restricted);
         if (config.isSet("categories"))
             this.categories = config.getStringList("categories");
 

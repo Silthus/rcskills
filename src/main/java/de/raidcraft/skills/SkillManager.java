@@ -102,6 +102,14 @@ public final class SkillManager {
                 .where().notIn("id", loadedSkills.stream().map(BaseEntity::id).collect(Collectors.toUnmodifiableList()))
                 .findList()
                 .forEach(skill -> skill.enabled(false).save());
+
+        loadedSkills.stream()
+                .filter(ConfiguredSkill::enabled)
+                .forEach(skill -> Bukkit.getPluginManager().addPermission(new Permission(
+                        SkillsPlugin.SKILL_PERMISSION_PREFIX + skill.alias(),
+                        skill.description(),
+                        skill.restricted() ? PermissionDefault.OP : PermissionDefault.TRUE)
+                ));
     }
 
     public void unload() {
