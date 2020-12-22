@@ -104,7 +104,7 @@ public class IntegrationTest {
                 @DisplayName("player should be able to buy skills when all requirements are met")
                 void shouldBuySkillIfAllRequirementsAreMet() {
 
-                    server.dispatchCommand(player, "rcs buy " + TEST_SKILL);
+                    server.dispatchCommand(player, "rcs buy skill " + TEST_SKILL);
                     server.dispatchCommand(player, "rcs buy confirm");
                     assertSkillIsUnlocked(player, TEST_SKILL);
                 }
