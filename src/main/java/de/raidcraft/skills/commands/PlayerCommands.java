@@ -40,6 +40,21 @@ import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 @CommandAlias("rcs|rcskills")
 public class PlayerCommands extends BaseCommand {
 
+    public static String buySkill(SkilledPlayer player, ConfiguredSkill skill) {
+
+        return "/rcskills buy " + skill.id();
+    }
+
+    public static String reset(SkilledPlayer player) {
+
+        return "/rcskills reset";
+    }
+
+    public static String activateSkill(PlayerSkill skill) {
+
+        return "/rcskills activate " + skill.id();
+    }
+
     private final SkillsPlugin plugin;
     private final Map<UUID, BuySkillAction> buyActions = new HashMap<>();
 
