@@ -12,7 +12,6 @@ import de.raidcraft.skills.requirements.SkillRequirement;
 import de.raidcraft.skills.skills.PermissionSkill;
 import de.raidcraft.skills.util.ConfigUtil;
 import de.raidcraft.skills.util.JarUtil;
-import io.ebean.Transaction;
 import io.ebean.annotation.Transactional;
 import lombok.Getter;
 import lombok.NonNull;
@@ -476,6 +475,8 @@ public final class SkillManager {
         ConfiguredSkill skill = Optional.ofNullable(ConfiguredSkill.find.byId(id))
                 .or(() -> ConfiguredSkill.findByAliasOrName(alias))
                 .orElseGet(() -> ConfiguredSkill.getOrCreate(id));
+
+        config.set("id", skill.id());
 
         return Optional.of(skill.load(config));
     }
