@@ -48,7 +48,7 @@ public class SkillSlot extends BaseEntity {
         return status == Status.FREE;
     }
 
-    public SkillSlot assign(PlayerSkill skill) {
+    SkillSlot assign(PlayerSkill skill) {
 
         if (skill == null && status == Status.IN_USE) {
             status = Status.FREE;
@@ -60,7 +60,7 @@ public class SkillSlot extends BaseEntity {
         return this;
     }
 
-    public SkillSlot unassign() {
+    SkillSlot unassign() {
 
         if (this.skill != null) {
             this.status = Status.FREE;

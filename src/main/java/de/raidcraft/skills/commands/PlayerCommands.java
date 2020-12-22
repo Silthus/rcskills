@@ -29,11 +29,11 @@ import org.bukkit.command.CommandSender;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static de.raidcraft.skills.Messages.allRequirements;
-import static de.raidcraft.skills.Messages.send;
-import static de.raidcraft.skills.Messages.skill;
+import static de.raidcraft.skills.Messages.*;
 import static net.kyori.adventure.text.Component.newline;
 import static net.kyori.adventure.text.Component.text;
+import static net.kyori.adventure.text.event.ClickEvent.runCommand;
+import static net.kyori.adventure.text.event.HoverEvent.showText;
 import static net.kyori.adventure.text.format.NamedTextColor.*;
 import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 
@@ -78,6 +78,16 @@ public class PlayerCommands extends BaseCommand {
     public static String buyAbortSkillSlot() {
 
         return "/rcskills buy abort slot";
+    }
+
+    public static String confirmReset() {
+
+        return "/rcskills confirmreset";
+    }
+
+    public static String abortReset() {
+
+        return "/rcskills abortreset";
     }
 
     private final SkillsPlugin plugin;
@@ -287,9 +297,9 @@ public class PlayerCommands extends BaseCommand {
 
                 Messages.send(player, text("Du hast erfolgreich einen weiteren Skill Slot gekauft!", GREEN).append(newline())
                         .append(text("Du hast jetzt ", YELLOW)).append(text(player.freeSkillSlots() + " freie(n) Skill Slot(s) ", GREEN))
-                        .append(text("die du mit ", YELLOW)).append(text("/skills", GOLD)
-                                .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/skills"))
-                                .hoverEvent(HoverEvent.showText(text("Klicken um /skills auszuführen.", GRAY))))
+                        .append(text("die du mit ", YELLOW)).append(text("/rcs", GOLD)
+                                .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/rcs"))
+                                .hoverEvent(showText(text("Klicken um /rcs auszuführen.", GRAY))))
                         .append(text(" zuweisen kannst.", YELLOW))
                 );
             }
@@ -336,5 +346,93 @@ public class PlayerCommands extends BaseCommand {
 
         skill.activate();
         getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + " Der Skill " + skill.name() + " wurde erfolgreich aktiviert.");
+    }
+
+    private final Map<UUID, SkilledPlayer> resetList = new HashMap<>();
+
+    @Subcommand("reset")
+    @CommandCompletion("@players")
+    @CommandPermission("rcskills.reset")
+    @Description("Setzt alle Skill Slot Zuweisungen zurück.")
+    public void resetSkills(@Conditions("others:perm=reset") SkilledPlayer player) {
+
+        double cost = checkSlotReset(player);
+        UUID id = getCurrentCommandIssuer().getUniqueId();
+        resetList.put(id, player);
+        send(player, text()
+                .append(text("Bist du dir sicher, dass du alle deine Skill Slots für ", YELLOW))
+                .append(text(Economy.get().format(cost), RED))
+                .append(text(" zurücksetzen möchtest? ", YELLOW))
+                .append(text("[JA - KAUFEN]", GREEN)
+                        .hoverEvent(text("Klicken um das Zurücksetzen deiner Skill Slots abzuschließen.", GREEN, ITALIC))
+                        .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, confirmReset()))
+                )
+                .append(text(" [NEIN - ABBRECHEN]", RED)
+                        .hoverEvent(text("Klicken um das Zurücksetzen deiner Skill Slots abzubrechen.", RED, ITALIC))
+                        .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, abortReset()))
+                ).append(newline())
+                .append(text("Du behältst alle deine gekauften Skills und Skill Slots, kannst danach aber die Skills neu auf die Skill Slots verteilen.", GRAY, ITALIC))
+                .build()
+        );
+
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+            SkilledPlayer skilledPlayer = resetList.remove(id);
+            if (skilledPlayer != null) {
+                Messages.send(id, text("Das Zurücksetzen der Skill Slots ist abgelaufen. ", RED));
+            }
+        }, plugin.getPluginConfig().getBuyCommandTimeout());
+    }
+
+    @Subcommand("confirmreset")
+    @CommandPermission("rcskills.reset")
+    @Description("Bestätigt das Zurücksetzen aller Skill Slot Zuweisungen.")
+    public void resetConfirm() {
+
+        SkilledPlayer player = resetList.remove(getCurrentCommandIssuer().getUniqueId());
+        if (player == null) {
+            throw new InvalidCommandArgument("Das Zurücksetzen der Skill Slots ist bereits abgelaufen. Bitte führe den Befehl erneut aus.");
+        }
+
+        double cost = checkSlotReset(player);
+        Economy.get().withdrawPlayer(player.offlinePlayer(), cost, "Skill Slot Reset", Map.of(
+                "player_id", player.id(),
+                "slot_count", player.slotCount(),
+                "skill_count", player.skillCount(),
+                "skill_points", player.skillPoints(),
+                "free_slots", player.freeSkillSlots(),
+                "reset_count", player.resetCount()
+        ));
+        player.resetSkillSlots();
+
+        send(player, text("Deine Skill Slots wurden erfolgreich zurückgesetzt. Gebe ", GREEN)
+                .append(text("/rcs", GOLD)
+                        .hoverEvent(showText(text("Klicken um den Befehl auszuführen.", GRAY, ITALIC)))
+                        .clickEvent(runCommand("/rcs"))
+                ).append(text(" ein um deine Skills neu zu verteilen.", GREEN)));
+    }
+
+    @Subcommand("abortreset")
+    @CommandPermission("rcskills.reset")
+    @Description("Bricht das Zurücksetzen aller Skill Slot Zuweisungen ab.")
+    public void resetAbort() {
+
+        SkilledPlayer player = resetList.remove(getCurrentCommandIssuer().getUniqueId());
+        if (player != null) {
+            send(getCurrentCommandIssuer(), text("Das Zurücksetzen der Skill Slots wurde abgebrochen.", RED));
+        }
+    }
+
+    private double checkSlotReset(SkilledPlayer player) {
+
+        if (player.skillSlots().stream().filter(skillSlot -> skillSlot.status() == SkillSlot.Status.IN_USE).count() < 1) {
+            throw new ConditionFailedException("Du hast keine Skill Slots die in Benutzung sind.");
+        }
+
+        double cost = plugin.getSlotManager().calculateSlotResetCost(player);
+        if (!Economy.get().has(player.offlinePlayer(), cost)) {
+            throw new ConditionFailedException("Du hast nicht genügend Geld um deine Skill Slots zurückzusetzen. Du benötigst " + Economy.get().format(cost) + ".");
+        }
+
+        return cost;
     }
 }

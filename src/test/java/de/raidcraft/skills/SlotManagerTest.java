@@ -57,7 +57,7 @@ class SlotManagerTest {
     void shouldCalculateCorrectSlotCost(String formula, int level, int skills, int slots, double result) {
 
         if (!Strings.isNullOrEmpty(formula)) {
-            config.setPrice(formula);
+            config.setSlotPrice(formula);
         }
 
         assertThatCode(() -> slotManager.load(config)).doesNotThrowAnyException();
@@ -75,6 +75,34 @@ class SlotManagerTest {
         return Stream.of(
                 Arguments.of("", 1, 10, 1, 3100),
                 Arguments.of("level * slots", 10, 1, 10, 100)
+        );
+    }
+
+    @ParameterizedTest
+    @DisplayName("should calculate correct slot cost")
+    @MethodSource("slotResetTestValues")
+    void shouldCalculateCorrectSlotResetCost(String formula, int level, int skills, int slots, int resets, double result) {
+
+        if (!Strings.isNullOrEmpty(formula)) {
+            config.setResetPrice(formula);
+        }
+
+        assertThatCode(() -> slotManager.load(config)).doesNotThrowAnyException();
+
+        when(player.slotCount()).thenReturn(slots);
+        when(player.skillCount()).thenReturn(skills);
+        when(player.resetCount()).thenReturn(resets);
+        player.setLevel(level);
+
+        assertThat(slotManager.calculateSlotResetCost(player))
+                .isEqualTo(result);
+    }
+
+    private static Stream slotResetTestValues() {
+
+        return Stream.of(
+                Arguments.of("", 1, 10, 1, 1, 20000),
+                Arguments.of("resets * 100", 10, 1, 10, 3, 300)
         );
     }
 

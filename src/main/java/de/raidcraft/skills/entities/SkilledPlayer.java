@@ -4,6 +4,7 @@ import de.raidcraft.skills.actions.AddSkillAction;
 import de.raidcraft.skills.actions.BuySkillAction;
 import de.raidcraft.skills.events.*;
 import io.ebean.Finder;
+import io.ebean.annotation.DbDefault;
 import io.ebean.annotation.Transactional;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -52,6 +53,9 @@ public class SkilledPlayer extends BaseEntity {
     private String name;
     @Setter(AccessLevel.NONE)
     private int skillPoints = 0;
+    @Setter(AccessLevel.PACKAGE)
+    @DbDefault("0")
+    private int resetCount = 0;
 
     @OneToOne(optional = false, cascade = CascadeType.ALL)
     private Level level = new Level();
@@ -257,6 +261,22 @@ public class SkilledPlayer extends BaseEntity {
 
         int points = this.skillPoints - skillPoints;
         return this.setSkillPoints(points);
+    }
+
+    @Transactional
+    public SkilledPlayer resetSkillSlots() {
+
+        List<SkillSlot> skills = skillSlots.stream()
+                .filter(skillSlot -> skillSlot.status() == SkillSlot.Status.IN_USE)
+                .collect(Collectors.toList());
+
+        if (skills.isEmpty()) return this;
+
+        skills.stream().map(SkillSlot::skill).forEach(PlayerSkill::deactivate);
+        resetCount++;
+        save();
+
+        return this;
     }
 
     @Transactional

@@ -214,10 +214,13 @@ public final class LevelManager implements Listener {
         skills.stream().filter(skill -> skill.configuredSkill().autoUnlock())
                 .forEach(skill -> skilledPlayer.addSkill(skill.configuredSkill()));
 
-        Messages.send(skilledPlayer.id(), text(skills.size(), GREEN)
-                .append(text("neue Skills freigeschaltet: ", YELLOW))
-                .append(Messages.skills(skills))
-        );
+        if (skills.size() > 0) {
+            Messages.send(skilledPlayer.id(), text(skills.size(), GREEN)
+                    .append(text(" neue Skills freigeschaltet: ", YELLOW))
+                    .append(Messages.skills(skills))
+            );
+        }
+
 
         skilledPlayer.bukkitPlayer().ifPresent(player -> {
             if (event.getNewLevel() > event.getOldLevel()) {
