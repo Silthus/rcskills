@@ -1,3 +1,18 @@
+# [1.8.0](https://github.com/raidcraft/rcskills/compare/v1.7.5...v1.8.0) (2020-12-23)
+
+
+### Bug Fixes
+
+* calculate exp for next level not current ([c26ef08](https://github.com/raidcraft/rcskills/commit/c26ef0812317b4f77eec1aaab35b83ca93a20c7c))
+* send levelup messages in sync with bukkit api ([0fd8fb3](https://github.com/raidcraft/rcskills/commit/0fd8fb31dd69943b94032dee34c5cab614f61109))
+* show correct exp to next level ([fdfa023](https://github.com/raidcraft/rcskills/commit/fdfa023b3f683bb9c27aa34bbbdfb62646873e15))
+
+
+### Features
+
+* add /rcsa reset command to purge player ([fad5e27](https://github.com/raidcraft/rcskills/commit/fad5e270f9207c92cb4e70252e607b3bd7973f59))
+* add required exp for current level to display ([82e2570](https://github.com/raidcraft/rcskills/commit/82e2570632090287a052ce2605fafe10aaff8397))
+
 ## [1.7.5](https://github.com/raidcraft/rcskills/compare/v1.7.4...v1.7.5) (2020-12-23)
 
 
