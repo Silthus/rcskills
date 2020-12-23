@@ -3,10 +3,7 @@ package de.raidcraft.skills.entities;
 import de.raidcraft.skills.SkillContext;
 import de.raidcraft.skills.SkillStatus;
 import de.raidcraft.skills.SkillsPlugin;
-import de.raidcraft.skills.events.PlayerActivateSkillEvent;
-import de.raidcraft.skills.events.PlayerActivatedSkillEvent;
-import de.raidcraft.skills.events.PlayerUnlockSkillEvent;
-import de.raidcraft.skills.events.PlayerUnlockedSkillEvent;
+import de.raidcraft.skills.events.*;
 import de.raidcraft.skills.util.Effects;
 import io.ebean.Finder;
 import io.ebean.annotation.Index;
@@ -140,19 +137,19 @@ public class PlayerSkill extends BaseEntity {
                 .orElse(false);
     }
 
-    public PlayerSkill activate() {
+    public boolean activate() {
 
-        if (checkDisable()) return this;
+        if (checkDisable()) return false;
 
         if (!canActivate()) {
-            return this;
+            return false;
         }
 
         try {
             PlayerActivateSkillEvent event = new PlayerActivateSkillEvent(player(), this);
             Bukkit.getPluginManager().callEvent(event);
 
-            if (event.isCancelled()) return this;
+            if (event.isCancelled()) return false;
 
             if (!configuredSkill.noSkillSlot()) {
                 player.freeSkillSlot().assign(this).save();
@@ -168,18 +165,20 @@ public class PlayerSkill extends BaseEntity {
             }
 
             Bukkit.getPluginManager().callEvent(new PlayerActivatedSkillEvent(player(), this));
+            return true;
         } catch (Exception e) {
             log.severe("An error occured while activating the skill " + alias() + " of " + player().name() + ": " + e.getMessage());
             e.printStackTrace();
             status(SkillStatus.UNLOCKED);
             save();
         }
-        return this;
+
+        return false;
     }
 
-    public PlayerSkill deactivate() {
+    public boolean deactivate() {
 
-        if (!active()) return this;
+        if (!active()) return false;
 
         try {
             SkillSlot.of(this).ifPresent(skillSlot -> skillSlot.unassign().save());
@@ -187,11 +186,13 @@ public class PlayerSkill extends BaseEntity {
             save();
 
             context().ifPresent(SkillContext::disable);
+            Bukkit.getPluginManager().callEvent(new PlayerDeactivatedSkillEvent(player(), this));
+            return true;
         } catch (Exception e) {
             log.severe("An error occured while deactivating the skill " + alias() + " of " + player().name() + ": " + e.getMessage());
             e.printStackTrace();
         }
-        return this;
+        return false;
     }
 
     public boolean unlock() {

@@ -67,7 +67,8 @@ public class PlayerSkillTest {
     void shouldNotActivateSkillThatIsDisabled() {
 
         skill.enabled(false).save();
-        PlayerSkill playerSkill = player.addSkill(skill).playerSkill().activate();
+        PlayerSkill playerSkill = player.addSkill(skill).playerSkill();
+        playerSkill.activate();
 
         assertThat(playerSkill.active()).isFalse();
     }

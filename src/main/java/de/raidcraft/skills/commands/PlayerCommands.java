@@ -350,8 +350,11 @@ public class PlayerCommands extends BaseCommand {
             throw new ConditionFailedException("Du kannst den Skill " + skill.name() + " nicht aktivieren. Du hast zu wenig freie Skill Slots.");
         }
 
-        skill.activate();
-        getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + " Der Skill " + skill.name() + " wurde erfolgreich aktiviert.");
+        if (skill.activate()) {
+            getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + " Der Skill " + skill.name() + " wurde erfolgreich aktiviert.");
+        } else {
+            getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Der Skill konnte nicht aktiviert werden.");
+        }
     }
 
     private final Map<UUID, SkilledPlayer> resetList = new HashMap<>();

@@ -28,20 +28,4 @@ public class PlayerListener implements Listener {
 
         skillManager.unload(event.getPlayer());
     }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onPlayerActivateSkill(PlayerActivateSkillEvent event) {
-
-        event.getPlayer().bukkitPlayer().ifPresent(player -> {
-            if (player.hasPermission(SkillsPlugin.BYPASS_ACTIVE_SKILL_LIMIT)) {
-                return;
-            }
-            if (event.getPlayer().freeSkillSlots() < 1) {
-                event.setCancelled(true);
-                player.sendMessage(ChatColor.RED + "Du hast bereits alle Skill Slots belegt und kannst den Skill '"
-                        + event.getSkill().name() + "' nicht aktivieren.");
-            }
-        });
-
-    }
 }
