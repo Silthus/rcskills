@@ -246,6 +246,30 @@ public final class Messages {
         return Title.title(headline, subline);
     }
 
+    public static Component addSkillPointsSelf(SkilledPlayer player, int skillpoints) {
+
+        if (skillpoints == 0) return empty();
+
+        return text().append(text("Du", GOLD, BOLD).hoverEvent(showText(playerInfo(player))))
+                .append(player(player))
+                .append(text(" hast ", GREEN))
+                .append(text(skillpoints + " Skillpunkt(e)", AQUA))
+                .append(text(" erhalten!", GREEN))
+                .build();
+    }
+
+    public static Component addSkillSlotsSelf(SkilledPlayer player, int slots) {
+
+        if (slots == 0) return empty();
+
+        return text().append(text("Du", GOLD, BOLD).hoverEvent(showText(playerInfo(player))))
+                .append(player(player))
+                .append(text(" hast ", GREEN))
+                .append(text(slots + " Skill Slot(s)", AQUA))
+                .append(text(" erhalten!", GREEN))
+                .build();
+    }
+
     public static Component levelUpSelf(SkilledPlayer player, int level) {
 
         return text().append(text("Du", GOLD, BOLD).hoverEvent(playerInfo(player)))

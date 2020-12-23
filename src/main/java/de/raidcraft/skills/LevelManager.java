@@ -200,8 +200,8 @@ public final class LevelManager implements Listener {
         skilledPlayer.addSkillPoints(skillpoints);
         skilledPlayer.addSkillSlots(skillslots, SkillSlot.Status.ELIGIBLE);
 
-        Messages.send(skilledPlayer.id(), Messages.addSkillpoints(skilledPlayer, skillpoints));
-        Messages.send(skilledPlayer.id(), Messages.addSkillSlots(skilledPlayer, skillslots));
+        Messages.send(skilledPlayer.id(), Messages.addSkillPointsSelf(skilledPlayer, skillpoints));
+        Messages.send(skilledPlayer.id(), Messages.addSkillSlotsSelf(skilledPlayer, skillslots));
 
         List<PlayerSkill> skills = ConfiguredSkill.find.query()
                 .where().eq("enabled", true)
