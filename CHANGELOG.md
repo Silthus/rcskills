@@ -1,3 +1,16 @@
+# [1.7.0](https://github.com/raidcraft/rcskills/compare/v1.6.0...v1.7.0) (2020-12-23)
+
+
+### Bug Fixes
+
+* order skill slots by status ([56fd755](https://github.com/raidcraft/rcskills/commit/56fd755c0de9a962644e9a6ffa97f29d24a2457c))
+* skill activation cancelled when skill requires no slot ([c3987a7](https://github.com/raidcraft/rcskills/commit/c3987a76cf856f0c88141ad9b2a4d0c5ded44e95))
+
+
+### Features
+
+* improve slot help tooltip display next slot level and cost ([ac66cc9](https://github.com/raidcraft/rcskills/commit/ac66cc9c2ca6cddced719ff3970437692ac80b6f))
+
 # [1.6.0](https://github.com/raidcraft/rcskills/compare/v1.5.0...v1.6.0) (2020-12-23)
 
 
