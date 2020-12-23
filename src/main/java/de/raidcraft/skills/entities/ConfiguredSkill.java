@@ -200,7 +200,7 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         this.costRequirements = new ArrayList<>();
 
         if (restricted) {
-            requirements.add(new PermissionRequirement().add(SkillsPlugin.SKILL_PERMISSION_PREFIX + alias));
+            requirements.add(new PermissionRequirement().add(SkillsPlugin.SKILL_PERMISSION_PREFIX + alias).load(new MemoryConfiguration()));
         }
 
         if (level > 0) {

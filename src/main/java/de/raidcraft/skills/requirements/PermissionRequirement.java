@@ -22,16 +22,21 @@ public class PermissionRequirement extends AbstractRequirement {
     private List<String> permissions = new ArrayList<>();
 
     @Override
+    public String name() {
+
+        return String.format(msg(msgIdentifier("name"), "%s"), String.join(",", permissions));
+    }
+
+    @Override
     public String description() {
 
-        return String.format(msg(msgIdentifier("description"), "Requires the %s permission to unlock this skill."), permissions);
+        return String.format(msg(msgIdentifier("description"), "Benötigt das Recht %s um den Skill freizuschalten."), String.join(",", permissions));
     }
 
     @Override
     public void loadConfig(ConfigurationSection config) {
 
         if (permissions == null) permissions = new ArrayList<>();
-        permissions.clear();
         permissions.addAll(config.getStringList("permissions"));
     }
 
