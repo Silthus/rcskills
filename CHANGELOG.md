@@ -1,3 +1,10 @@
+## [1.7.4](https://github.com/raidcraft/rcskills/compare/v1.7.3...v1.7.4) (2020-12-23)
+
+
+### Bug Fixes
+
+* show restricted skill requirement ([bf7e6f3](https://github.com/raidcraft/rcskills/commit/bf7e6f3d6425d3ea8244105beac64902f6e2d3df))
+
 ## [1.7.3](https://github.com/raidcraft/rcskills/compare/v1.7.2...v1.7.3) (2020-12-23)
 
 
