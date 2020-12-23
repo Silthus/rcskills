@@ -304,7 +304,12 @@ public final class Messages {
         Level level = player.level();
         LevelManager levelManager = SkillsPlugin.instance().getLevelManager();
         int expToNext = levelManager.calculateExpToNextLevel(player);
-        long exp = level.getTotalExp() - levelManager.getTotalExpForLevel(level.getLevel());
+        long exp;
+        if (level.getLevel() == 1) {
+            exp = level.getTotalExp();
+        } else {
+            exp = level.getTotalExp() - levelManager.getTotalExpForLevel(level.getLevel());
+        }
 
         return text("Level: ", YELLOW).append(text(level.getLevel(), AQUA)).append(newline())
                 .append(text("EXP: ", YELLOW)).append(text(exp, GREEN)).append(text("/", YELLOW))

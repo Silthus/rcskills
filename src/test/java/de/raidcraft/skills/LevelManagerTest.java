@@ -62,10 +62,10 @@ class LevelManagerTest {
     private static Stream levelTestValues() {
 
         return Stream.of(
-                Arguments.of(1, 40),
-                Arguments.of(2, 90),
-                Arguments.of(5, 360),
-                Arguments.of(10, 1210)
+                Arguments.of(1, 10),
+                Arguments.of(2, 40),
+                Arguments.of(5, 250),
+                Arguments.of(10, 1000)
         );
     }
 
@@ -82,12 +82,12 @@ class LevelManagerTest {
     private static Stream totalExpTestValues() {
 
         return Stream.of(
-                Arguments.of(1, 10),
-                Arguments.of(2, 50),
-                Arguments.of(5, 550),
-                Arguments.of(10, 3850),
-                Arguments.of(50, 429250),
-                Arguments.of(100, 3383500)
+                Arguments.of(1, 0),
+                Arguments.of(2, 10),
+                Arguments.of(5, 300),
+                Arguments.of(10, 2850),
+                Arguments.of(50, 404250),
+                Arguments.of(100, 3283500)
         );
     }
 
@@ -102,7 +102,7 @@ class LevelManagerTest {
 
         assertThat(player.level())
                 .extracting(Level::getLevel, Level::getTotalExp)
-                .contains(4, 500L);
+                .contains(5, 500L);
     }
 
     @Test
@@ -116,7 +116,7 @@ class LevelManagerTest {
 
         assertThat(player.level())
                 .extracting(Level::getLevel, Level::getTotalExp)
-                .contains(7, 1400L);
+                .contains(8, 1400L);
     }
 
     @Test
@@ -129,7 +129,7 @@ class LevelManagerTest {
 
         assertThat(player.level())
                 .extracting(Level::getLevel, Level::getTotalExp)
-                .contains(10, 3850L);
+                .contains(10, 2850L);
     }
 
     @Test
@@ -143,7 +143,7 @@ class LevelManagerTest {
 
         assertThat(player.level())
                 .extracting(Level::getLevel, Level::getTotalExp)
-                .contains(10, 3850L);
+                .contains(10, 2850L);
     }
 
     @Test
@@ -157,6 +157,6 @@ class LevelManagerTest {
 
         assertThat(player.level())
                 .extracting(Level::getLevel, Level::getTotalExp)
-                .contains(7, 1500L);
+                .contains(7, 910L);
     }
 }

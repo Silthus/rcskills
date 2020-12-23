@@ -127,7 +127,12 @@ public final class LevelManager implements Listener {
                 expBar.getValue().cancel();
             }
 
-            BossBar bossBar = Messages.levelProgressBar(level, event.getNewExp() - calculateTotalExpForLevel(level), calculateExpForNextLevel(level + 1));
+            long exp = event.getNewExp() - calculateTotalExpForLevel(level);
+            if (level == 1) {
+                exp = event.getNewExp();
+            }
+
+            BossBar bossBar = Messages.levelProgressBar(level, exp, calculateExpForNextLevel(level));
             audience.showBossBar(bossBar);
             BukkitTask bukkitTask = Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
                         Map.Entry<BossBar, BukkitTask> entry = activeExpBars.remove(player.getUniqueId());
@@ -201,45 +206,48 @@ public final class LevelManager implements Listener {
         skilledPlayer.addSkillPoints(skillpoints);
         skilledPlayer.addSkillSlots(skillslots, SkillSlot.Status.ELIGIBLE);
 
+        List<PlayerSkill> skills = ConfiguredSkill.find.query()
+                .where().eq("enabled", true)
+                .and().eq("level", event.getNewLevel())
+                .orderBy().desc("level")
+                .findList().stream()
+                .map(skill -> PlayerSkill.getOrCreate(skilledPlayer, skill))
+                .collect(Collectors.toList());
+
+        skills.stream().filter(skill -> skill.configuredSkill().autoUnlock())
+                .forEach(skill -> skilledPlayer.addSkill(skill.configuredSkill()));
+
         int finalSkillpoints = skillpoints;
         int finalSkillslots = skillslots;
-        skilledPlayer.bukkitPlayer().ifPresent(player -> {
-            if (event.getNewLevel() > event.getOldLevel()) {
-                Messages.send(player, Messages.levelUpSelf(skilledPlayer, event.getNewLevel()));
-                Messages.send(skilledPlayer.id(), Messages.addSkillPointsSelf(skilledPlayer, finalSkillpoints));
-                Messages.send(skilledPlayer.id(), Messages.addSkillSlotsSelf(skilledPlayer, finalSkillslots));
 
-                List<PlayerSkill> skills = ConfiguredSkill.find.query()
-                        .where().eq("enabled", true)
-                        .and().eq("level", event.getNewLevel())
-                        .orderBy().desc("level")
-                        .findList().stream()
-                        .map(skill -> PlayerSkill.getOrCreate(skilledPlayer, skill))
-                        .collect(Collectors.toList());
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+            skilledPlayer.bukkitPlayer().ifPresent(player -> {
+                if (event.getNewLevel() > event.getOldLevel()) {
+                    Messages.send(player, Messages.levelUpSelf(skilledPlayer, event.getNewLevel()));
+                    Messages.send(skilledPlayer.id(), Messages.addSkillPointsSelf(skilledPlayer, finalSkillpoints));
+                    Messages.send(skilledPlayer.id(), Messages.addSkillSlotsSelf(skilledPlayer, finalSkillslots));
 
-                skills.stream().filter(skill -> skill.configuredSkill().autoUnlock())
-                        .forEach(skill -> skilledPlayer.addSkill(skill.configuredSkill()));
+                    if (skills.size() > 0) {
+                        Messages.send(skilledPlayer.id(), text(skills.size(), GREEN)
+                                .append(text(" neue(r) Skill(s) freigeschaltet: ", YELLOW)).append(newline())
+                                .append(Messages.skills(skills))
+                        );
+                    }
 
-                if (skills.size() > 0) {
-                    Messages.send(skilledPlayer.id(), text(skills.size(), GREEN)
-                            .append(text(" neue(r) Skill(s) freigeschaltet: ", YELLOW)).append(newline())
-                            .append(Messages.skills(skills))
-                    );
+                    BukkitAudiences.create(plugin)
+                            .player(player)
+                            .showTitle(Messages.levelUpTitle(event.getNewLevel()));
+                    Bukkit.getOnlinePlayers().stream()
+                            .filter(p -> !p.equals(player))
+                            .forEach(p -> Messages.send(p, Messages.levelUp(skilledPlayer)));
+                } else if (event.getNewLevel() < event.getOldLevel()) {
+                    Messages.send(player, Messages.levelDownSelf(skilledPlayer, event.getNewLevel()));
+                    Bukkit.getOnlinePlayers().stream()
+                            .filter(p -> !p.equals(player))
+                            .forEach(p -> Messages.send(p, Messages.levelDown(skilledPlayer)));
                 }
-
-                BukkitAudiences.create(plugin)
-                        .player(player)
-                        .showTitle(Messages.levelUpTitle(event.getNewLevel()));
-                Bukkit.getOnlinePlayers().stream()
-                        .filter(p -> !p.equals(player))
-                        .forEach(p -> Messages.send(p, Messages.levelUp(skilledPlayer)));
-            } else if (event.getNewLevel() < event.getOldLevel()) {
-                Messages.send(player, Messages.levelDownSelf(skilledPlayer, event.getNewLevel()));
-                Bukkit.getOnlinePlayers().stream()
-                        .filter(p -> !p.equals(player))
-                        .forEach(p -> Messages.send(p, Messages.levelDown(skilledPlayer)));
-            }
-        });
+            });
+        }, 10L);
     }
 
     private Map<Integer, Integer> calculateTotalExpMap(int maxLevel) {
@@ -292,8 +300,8 @@ public final class LevelManager implements Listener {
         if (clearCache) clearCache(player.id());
 
         return getCache(player).orElseGet(() ->
-                cache(player.id(), player.level().getLevel() + 1,
-                        calculateExpForNextLevel(player.level().getLevel() + 1)));
+                cache(player.id(), player.level().getLevel(),
+                        calculateExpForNextLevel(player.level().getLevel())));
     }
 
     public int calculateExpToNextLevel(SkilledPlayer player) {
@@ -339,7 +347,7 @@ public final class LevelManager implements Listener {
     private int calculateTotalExpForLevel(final int level) {
 
         int sum = 0;
-        for (int i = 1; i < level + 1; i++) {
+        for (int i = 1; i < level; i++) {
             sum += calculateExpForNextLevel(i);
         }
         return sum;
