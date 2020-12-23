@@ -200,31 +200,32 @@ public final class LevelManager implements Listener {
         skilledPlayer.addSkillPoints(skillpoints);
         skilledPlayer.addSkillSlots(skillslots, SkillSlot.Status.ELIGIBLE);
 
-        Messages.send(skilledPlayer.id(), Messages.addSkillPointsSelf(skilledPlayer, skillpoints));
-        Messages.send(skilledPlayer.id(), Messages.addSkillSlotsSelf(skilledPlayer, skillslots));
-
-        List<PlayerSkill> skills = ConfiguredSkill.find.query()
-                .where().eq("enabled", true)
-                .and().eq("level", event.getNewLevel())
-                .orderBy().desc("level")
-                .findList().stream()
-                .map(skill -> PlayerSkill.getOrCreate(skilledPlayer, skill))
-                .collect(Collectors.toList());
-
-        skills.stream().filter(skill -> skill.configuredSkill().autoUnlock())
-                .forEach(skill -> skilledPlayer.addSkill(skill.configuredSkill()));
-
-        if (skills.size() > 0) {
-            Messages.send(skilledPlayer.id(), text(skills.size(), GREEN)
-                    .append(text(" neue Skills freigeschaltet: ", YELLOW))
-                    .append(Messages.skills(skills))
-            );
-        }
-
-
+        int finalSkillpoints = skillpoints;
+        int finalSkillslots = skillslots;
         skilledPlayer.bukkitPlayer().ifPresent(player -> {
             if (event.getNewLevel() > event.getOldLevel()) {
                 Messages.send(player, Messages.levelUpSelf(skilledPlayer, event.getNewLevel()));
+                Messages.send(skilledPlayer.id(), Messages.addSkillPointsSelf(skilledPlayer, finalSkillpoints));
+                Messages.send(skilledPlayer.id(), Messages.addSkillSlotsSelf(skilledPlayer, finalSkillslots));
+
+                List<PlayerSkill> skills = ConfiguredSkill.find.query()
+                        .where().eq("enabled", true)
+                        .and().eq("level", event.getNewLevel())
+                        .orderBy().desc("level")
+                        .findList().stream()
+                        .map(skill -> PlayerSkill.getOrCreate(skilledPlayer, skill))
+                        .collect(Collectors.toList());
+
+                skills.stream().filter(skill -> skill.configuredSkill().autoUnlock())
+                        .forEach(skill -> skilledPlayer.addSkill(skill.configuredSkill()));
+
+                if (skills.size() > 0) {
+                    Messages.send(skilledPlayer.id(), text(skills.size(), GREEN)
+                            .append(text(" neue Skills freigeschaltet: ", YELLOW))
+                            .append(Messages.skills(skills))
+                    );
+                }
+
                 BukkitAudiences.create(plugin)
                         .player(player)
                         .showTitle(Messages.levelUpTitle(event.getNewLevel()));

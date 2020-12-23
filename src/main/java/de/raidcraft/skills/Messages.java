@@ -450,14 +450,18 @@ public final class Messages {
         return pagination.render(skills, page);
     }
 
-    public static Component skills(Collection<PlayerSkill> skills) {
+    public static Component skills(List<PlayerSkill> skills) {
 
         if (skills.isEmpty()) return empty();
 
         TextComponent.Builder builder = text();
-        for (PlayerSkill skill : skills) {
-            builder.append(skill(skill.configuredSkill(), skill.player()));
+        for (int i = 0; i < skills.size(); i++) {
+            builder.append(text("  - ", YELLOW)).append(skill(skills.get(i).configuredSkill(), skills.get(i).player()));
+            if (i != skills.size() - 1) {
+                builder.append(newline());
+            }
         }
+
         return builder.build();
     }
 
@@ -505,15 +509,14 @@ public final class Messages {
         builder.hoverEvent(skillInfo(skill, player));
 
         if (player != null) {
-            builder.append(text(" | ", YELLOW));
             PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
             if (showBuy && player.canBuy(skill)) {
-                builder.append(text(" [$] ", GREEN)
+                builder.append(text(" | ", YELLOW)).append(text(" [$] ", GREEN)
                         .hoverEvent(costs(playerSkill).append(text("Klicken um den Skill zu kaufen.", GRAY, ITALIC)))
                         .clickEvent(clickEvent(Action.RUN_COMMAND, PlayerCommands.buySkill(player, skill)))
                 );
             } else if (playerSkill.active()) {
-                builder.append(text("aktiv", AQUA).hoverEvent(HoverEvent.showText(
+                builder.append(text(" | ", YELLOW)).append(text("aktiv", AQUA).hoverEvent(HoverEvent.showText(
                         text("Der Skill ist aktiv.", GRAY).append(newline())
                                 .append(text("Gebe ", GRAY))
                                 .append(text(PlayerCommands.reset(player), GRAY, ITALIC))
@@ -522,7 +525,7 @@ public final class Messages {
                 );
             } else if (playerSkill.unlocked()) {
                 if (playerSkill.canActivate()) {
-                    builder.append(text("aktivieren", GREEN).hoverEvent(HoverEvent.showText(
+                    builder.append(text(" | ", YELLOW)).append(text("aktivieren", GREEN).hoverEvent(HoverEvent.showText(
                             text("Du besitzt den Skill, er ist aber nicht aktiv.", GRAY).append(newline())
                                     .append(text("Klicke um den Skill zu aktivieren und einem Slot zuzuweisen.", GRAY)).append(newline())
                                     .append(skillSlots(player))))
@@ -543,7 +546,7 @@ public final class Messages {
                     }
                     hover.append(text("Mit Events und Achievements kannst du jederzeit weitere Skill Slots erhalten.", GRAY, ITALIC));
 
-                    builder.append(text("aktivieren", GRAY).hoverEvent(showText(hover)));
+                    builder.append(text(" | ", YELLOW)).append(text("aktivieren", GRAY).hoverEvent(showText(hover)));
                 }
             }
         }
