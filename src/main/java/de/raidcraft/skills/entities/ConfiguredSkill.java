@@ -199,7 +199,9 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
                 .loadRequirements(config.getConfigurationSection("requirements"));
         this.costRequirements = new ArrayList<>();
 
-        requirements.add(new PermissionRequirement().add(SkillsPlugin.SKILL_PERMISSION_PREFIX + alias));
+        if (restricted) {
+            requirements.add(new PermissionRequirement().add(SkillsPlugin.SKILL_PERMISSION_PREFIX + alias));
+        }
 
         if (level > 0) {
             LevelRequirement levelRequirement = new LevelRequirement();

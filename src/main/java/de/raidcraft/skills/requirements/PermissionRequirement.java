@@ -15,7 +15,7 @@ import java.util.List;
 import static de.raidcraft.skills.Messages.msg;
 
 @Data
-@RequirementInfo(value = "permission", hidden = true)
+@RequirementInfo(value = "permission")
 @EqualsAndHashCode(callSuper = true)
 public class PermissionRequirement extends AbstractRequirement {
 
