@@ -1,3 +1,33 @@
+# [1.6.0](https://github.com/raidcraft/rcskills/compare/v1.5.0...v1.6.0) (2020-12-23)
+
+
+### Bug Fixes
+
+* convert skill uuid into string before saving in config ([75f690e](https://github.com/raidcraft/rcskills/commit/75f690ea88c190e9f88d5d30668bd55ef3138a42))
+* correctly update skill config values in the database ([bf0ba6b](https://github.com/raidcraft/rcskills/commit/bf0ba6b8b3d43307deb978dd1efb3896a60b8394))
+* deactivate disabled active skills ([896e642](https://github.com/raidcraft/rcskills/commit/896e64252389058e927f9c5f542019cef2aa2f11))
+* disable skills that do not exist as config ([1968e7f](https://github.com/raidcraft/rcskills/commit/1968e7fb5d2d911a8106109c2ca2171843b34354))
+* do not disable active and enabled skills when calling activate ([ec56c4c](https://github.com/raidcraft/rcskills/commit/ec56c4ca7ce072fff5977f69d2558da42ea3a0d0))
+* do not succeed in testing skills when skill is disabled ([58d0521](https://github.com/raidcraft/rcskills/commit/58d052135e0ad2ff96d1f38e217c570e4f24e02d))
+* hide disabled and hidden skills from list ([e5d966b](https://github.com/raidcraft/rcskills/commit/e5d966b1dfc5f6472696d831673827f4efc2a902))
+* make /rcs buy skill the default for /rcs buy ([f70a923](https://github.com/raidcraft/rcskills/commit/f70a923bda8a1c547b9fb98efc062df238148f22))
+* remove permissions before adding them to the server ([b57d899](https://github.com/raidcraft/rcskills/commit/b57d8994de22bb731db1a569017e7d8d8e118312))
+* save skill id in configuration after initial load ([af000ff](https://github.com/raidcraft/rcskills/commit/af000ff90425add2c74548539897a98b7de314ec))
+
+
+### Features
+
+* activate auto unlockable skills on login ([23c452e](https://github.com/raidcraft/rcskills/commit/23c452e499eb965ee9ce6706cde84213cfcf1259))
+* add /rcs buy slot command ([8475a5f](https://github.com/raidcraft/rcskills/commit/8475a5f37597e8ecd7b2803372e372bb8aed1a79))
+* add confirm command for buying skill slots ([49f5cf8](https://github.com/raidcraft/rcskills/commit/49f5cf8524e8787afb36eb20b5e903c61b9e7094))
+* add reset command to reset all skill slots ([ddf287e](https://github.com/raidcraft/rcskills/commit/ddf287e24a31a849389c33ecbd237c9d64672e1e))
+* add restricted property that requires the permission to obtain a skill ([54412df](https://github.com/raidcraft/rcskills/commit/54412df3ff9f6e84bc8fce4e218bfb7f6c976323))
+* add skill slot gui to player info ([5cd753c](https://github.com/raidcraft/rcskills/commit/5cd753c001b6b994a4c8e0ed9701bde70cde8b85))
+* add skill specific skill slots ([30bc910](https://github.com/raidcraft/rcskills/commit/30bc91099fab55f89052609ee71172b5b4f3b181))
+* auto unlock new auto unlockable skills at level up ([fdd8a35](https://github.com/raidcraft/rcskills/commit/fdd8a3505d44dcdd94627727fa4385d6032d3d38))
+* greatly improve displaying of skills and their status ([e76f4b9](https://github.com/raidcraft/rcskills/commit/e76f4b9efd0815b791e8f511851571c28de324d2))
+* show unlocked skills at level up ([00908dc](https://github.com/raidcraft/rcskills/commit/00908dc335a971e9d6692fc60f7fc374df6be023))
+
 # [1.5.0](https://github.com/raidcraft/rcskills/compare/v1.4.1...v1.5.0) (2020-12-21)
 
 
