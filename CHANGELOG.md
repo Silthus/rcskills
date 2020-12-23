@@ -1,3 +1,11 @@
+## [1.7.3](https://github.com/raidcraft/rcskills/compare/v1.7.2...v1.7.3) (2020-12-23)
+
+
+### Bug Fixes
+
+* create modules directory if not found ([6477d46](https://github.com/raidcraft/rcskills/commit/6477d46e609670f486a78fcde74a429a8e1cbed1))
+* show skills on separate lines when leveling up ([5170ed3](https://github.com/raidcraft/rcskills/commit/5170ed3ffb6644c369f8f3b04cc2b15cfbca6789))
+
 ## [1.7.2](https://github.com/raidcraft/rcskills/compare/v1.7.1...v1.7.2) (2020-12-23)
 
 
