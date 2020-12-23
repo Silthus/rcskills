@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/raidcraft/rcskills/compare/v1.7.0...v1.7.1) (2020-12-23)
+
+
+### Bug Fixes
+
+* remove player from level up displays ([d44a6b1](https://github.com/raidcraft/rcskills/commit/d44a6b1b257f2c297012f75f85ed103385559d1a))
+
 # [1.7.0](https://github.com/raidcraft/rcskills/compare/v1.6.0...v1.7.0) (2020-12-23)
 
 
