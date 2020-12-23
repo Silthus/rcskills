@@ -313,7 +313,9 @@ public final class Messages {
 
     public static Component skillSlots(SkilledPlayer player) {
 
-        List<SkillSlot> slots = player.skillSlots();
+        List<SkillSlot> slots = player.skillSlots().stream()
+                .sorted()
+                .collect(Collectors.toUnmodifiableList());
         int freeSkillSlots = player.freeSkillSlots();
 
         Optional<Integer> nextSlot = SkillsPlugin.instance().getPluginConfig()

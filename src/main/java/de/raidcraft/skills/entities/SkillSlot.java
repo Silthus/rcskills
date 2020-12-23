@@ -21,7 +21,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "rcs_skill_slots")
 @Accessors(fluent = true)
-public class SkillSlot extends BaseEntity {
+public class SkillSlot extends BaseEntity implements Comparable<SkillSlot> {
 
     public static final Finder<UUID, SkillSlot> find = new Finder<>(SkillSlot.class);
 
@@ -74,19 +74,25 @@ public class SkillSlot extends BaseEntity {
         return status == Status.ELIGIBLE;
     }
 
+    @Override
+    public int compareTo(SkillSlot o) {
+
+        return status.compareTo(o.status);
+    }
+
     public enum Status {
         /**
-         * The skill slot is available to the player and can be bought.
+         * The skill slot is used by a skill.
          */
-        ELIGIBLE,
+        IN_USE,
         /**
          * The skill slot was bought by the player and can now be used to host skills.
          */
         FREE,
         /**
-         * The skill slot is used by a skill.
+         * The skill slot is available to the player and can be bought.
          */
-        IN_USE;
+        ELIGIBLE;
 
         @DbEnumValue
         public String getValue() {
