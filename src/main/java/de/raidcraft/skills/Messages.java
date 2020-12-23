@@ -292,29 +292,48 @@ public final class Messages {
         List<SkillSlot> slots = player.skillSlots();
         int freeSkillSlots = player.freeSkillSlots();
 
-        return text()
+        Optional<Integer> nextSlot = SkillsPlugin.instance().getPluginConfig()
+                .getLevelUpConfig()
+                .getNextLevelUpSlot(player.level().getLevel());
+
+        SlotManager slotManager = SkillsPlugin.instance().getSlotManager();
+        int slotCount = player.slotCount();
+        double firstSlot = slotManager.calculateSlotCost(player, slotCount + 1);
+        double secondSlot = slotManager.calculateSlotCost(player, slotCount + 2);
+
+        TextComponent.Builder builder = text()
                 .append(text("Slots ", YELLOW))
                 .append(text("(", GRAY))
                 .append(text(freeSkillSlots, freeSkillSlots > 0 ? GREEN : RED))
                 .append(text("/", DARK_AQUA))
                 .append(text(slots.size(), AQUA))
                 .append(text(")", GRAY))
-                .append(text(": ", YELLOW))
-                .append(skillSlots(slots))
-                .build();
-    }
+                .append(text(" [?]", GRAY).hoverEvent(showText(text()
+                        .append(text("Nächster Slot: ", YELLOW))
+                        .append(nextSlot.map(integer -> text("auf Level " + integer, GREEN))
+                                .orElse(text("N/A", GRAY))).append(newline())
+                        .append(text("Slot Kosten: ", YELLOW))
+                        .append(text((slotCount + 1) + ". Slot: ", DARK_AQUA))
+                        .append(text(Economy.get().format(firstSlot), Economy.get().has(player.offlinePlayer(), firstSlot) ? GREEN : RED))
+                        .append(text(" | ", YELLOW))
+                        .append(text((slotCount + 2) + ". Slot: ", DARK_AQUA))
+                        .append(text(Economy.get().format(secondSlot), Economy.get().has(player.offlinePlayer(), secondSlot) ? GREEN : RED))
+                        .append(newline())
+                        .append(text("Du erhältst neue Skill Slots beim Level Aufstieg, " +
+                                "durch Events und Achievements.", GRAY, ITALIC))
+                )))
+                .append(text(": ", YELLOW));
 
-    public static Component skillSlots(List<SkillSlot> slots) {
+        if (slots.isEmpty()) {
+            builder.append(text("N/A", GRAY));
+        }
 
-        TextComponent.Builder builder = text();
         for (int i = 0; i < slots.size(); i++) {
             builder.append(skillSlot(slots.get(i)));
             if (i != slots.size() - 1) {
                 builder.append(text(" | ", YELLOW));
             }
         }
-
-        builder.append(text(" | ", YELLOW)).append(text("[X]", DARK_RED).hoverEvent(showText(text("Du erhältst neue Skill Slots beim Levelaufstieg und durch Events und Achievements.", GRAY))));
 
         return builder.build();
     }

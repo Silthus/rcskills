@@ -5,6 +5,7 @@ import de.exlll.configlib.annotation.ConfigurationElement;
 import de.exlll.configlib.annotation.ElementType;
 import de.exlll.configlib.configs.yaml.BukkitYamlConfiguration;
 import de.exlll.configlib.format.FieldNameFormatters;
+import de.raidcraft.skills.entities.SkilledPlayer;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -127,6 +128,23 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
             }
 
             return Optional.empty();
+        }
+
+        public Optional<Integer> getNextLevelUpSlot(int currentLevel) {
+
+            OptionalInt max = levels.keySet().stream().mapToInt(value -> value).max();
+            if (max.isEmpty()) return Optional.empty();
+
+            for (int i = currentLevel + 1; i <= max.getAsInt(); i++) {
+                if (levels.containsKey(i)) {
+                    if (levels.get(i).getSlots() > 0) {
+                        return Optional.of(i);
+                    }
+                }
+            }
+
+            return Optional.empty();
+
         }
     }
 
