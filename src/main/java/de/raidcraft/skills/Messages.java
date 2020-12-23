@@ -235,6 +235,7 @@ public final class Messages {
 
         float progress = exp * 1.0f / expToNextLevel;
         if (progress > 1f) progress = 1f;
+        if (progress < 0f) progress = 0f;
         return BossBar.bossBar(title, progress, BossBar.Color.BLUE, BossBar.Overlay.NOTCHED_20);
     }
 
