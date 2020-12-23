@@ -31,6 +31,7 @@ class ConfiguredSkillTest {
         MemoryConfiguration cfg = new MemoryConfiguration();
         cfg.set("type", "permission");
         cfg.set("name", "Test Skill");
+        cfg.set("restricted", true);
         cfg.set("level", 5);
         plugin.getSkillManager().loadSkill(TEST_SKILL, cfg);
     }
@@ -57,7 +58,7 @@ class ConfiguredSkillTest {
     }
 
     @Test
-    @DisplayName("should add implicit permission requirement for alias")
+    @DisplayName("should add implicit permission requirement for alias if restricted")
     void shouldHavePermissionRequirementForAlias() {
 
         assertThat(ConfiguredSkill.findByAliasOrName(TEST_SKILL))
