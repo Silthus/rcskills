@@ -251,7 +251,6 @@ public final class Messages {
         if (skillpoints == 0) return empty();
 
         return text().append(text("Du", GOLD, BOLD).hoverEvent(showText(playerInfo(player))))
-                .append(player(player))
                 .append(text(" hast ", GREEN))
                 .append(text(skillpoints + " Skillpunkt(e)", AQUA))
                 .append(text(" erhalten!", GREEN))
@@ -263,7 +262,6 @@ public final class Messages {
         if (slots == 0) return empty();
 
         return text().append(text("Du", GOLD, BOLD).hoverEvent(showText(playerInfo(player))))
-                .append(player(player))
                 .append(text(" hast ", GREEN))
                 .append(text(slots + " Skill Slot(s)", AQUA))
                 .append(text(" erhalten!", GREEN))
