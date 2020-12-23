@@ -168,7 +168,9 @@ public final class SkillManager {
 
     void loadSkillsFromModules() {
 
-        Path path = new File(plugin.getDataFolder(), config.getModulePath()).toPath();
+        File modules = new File(plugin.getDataFolder(), config.getModulePath());
+        modules.mkdirs();
+        Path path = modules.toPath();
         try {
             Files.walk(path, Integer.MAX_VALUE)
                     .filter(Files::isRegularFile)
