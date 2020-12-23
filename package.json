@@ -23,7 +23,7 @@
         {
           "assets": [
             {
-              "path": "bukkit/build/libs/*.jar"
+              "path": "**/build/libs/*.jar"
             }
           ]
         }
