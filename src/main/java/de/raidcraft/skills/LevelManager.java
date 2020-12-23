@@ -39,6 +39,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static net.kyori.adventure.text.Component.newline;
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.DARK_AQUA;
 import static net.kyori.adventure.text.format.NamedTextColor.DARK_GREEN;
@@ -221,7 +222,7 @@ public final class LevelManager implements Listener {
 
                 if (skills.size() > 0) {
                     Messages.send(skilledPlayer.id(), text(skills.size(), GREEN)
-                            .append(text(" neue Skills freigeschaltet: ", YELLOW))
+                            .append(text(" neue(r) Skill(s) freigeschaltet: ", YELLOW)).append(newline())
                             .append(Messages.skills(skills))
                     );
                 }
