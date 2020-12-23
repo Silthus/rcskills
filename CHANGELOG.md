@@ -1,3 +1,10 @@
+## [1.7.2](https://github.com/raidcraft/rcskills/compare/v1.7.1...v1.7.2) (2020-12-23)
+
+
+### Bug Fixes
+
+* **release:** release build artifacts ([413acea](https://github.com/raidcraft/rcskills/commit/413aceae82a78dbdaa000c79349da2e5807fbbc8))
+
 ## [1.7.1](https://github.com/raidcraft/rcskills/compare/v1.7.0...v1.7.1) (2020-12-23)
 
 
