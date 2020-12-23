@@ -299,10 +299,17 @@ public final class Messages {
                 .append(text("Level " + player.level().getLevel(), AQUA)).build();
     }
 
-    public static Component level(Level level) {
+    public static Component level(SkilledPlayer player) {
+
+        Level level = player.level();
+        LevelManager levelManager = SkillsPlugin.instance().getLevelManager();
+        int expToNext = levelManager.calculateExpToNextLevel(player);
+        long exp = level.getTotalExp() - levelManager.getTotalExpForLevel(level.getLevel());
 
         return text("Level: ", YELLOW).append(text(level.getLevel(), AQUA)).append(newline())
-                .append(text("EXP: ", YELLOW)).append(text(level.getTotalExp(), AQUA));
+                .append(text("EXP: ", YELLOW)).append(text(exp, GREEN)).append(text("/", YELLOW))
+                .append(text(expToNext, AQUA)).append(newline())
+                .append(text("Gesamt EXP: ", YELLOW)).append(text(level.getTotalExp(), AQUA));
     }
 
     public static Component skillPoints(SkilledPlayer player) {
@@ -325,6 +332,7 @@ public final class Messages {
         int slotCount = player.slotCount();
         double firstSlot = slotManager.calculateSlotCost(player, slotCount + 1);
         double secondSlot = slotManager.calculateSlotCost(player, slotCount + 2);
+        double resetCost = slotManager.calculateSlotResetCost(player);
 
         TextComponent.Builder builder = text()
                 .append(text("Slots ", YELLOW))
@@ -337,14 +345,17 @@ public final class Messages {
                         .append(text("Nächster Slot: ", YELLOW))
                         .append(nextSlot.map(integer -> text("auf Level " + integer, GREEN))
                                 .orElse(text("N/A", GRAY))).append(newline())
-                        .append(text("Slot Kosten: ", YELLOW))
-                        .append(text((slotCount + 1) + ". Slot: ", DARK_AQUA))
-                        .append(text(Economy.get().format(firstSlot), Economy.get().has(player.offlinePlayer(), firstSlot) ? GREEN : RED))
-                        .append(text(" | ", YELLOW))
-                        .append(text((slotCount + 2) + ". Slot: ", DARK_AQUA))
+                        .append(text("Slot Kosten: ", YELLOW)).append(newline())
+                        .append(text(" - ", YELLOW)).append(text((slotCount + 1) + ". Slot: ", DARK_AQUA))
+                        .append(text(Economy.get().format(firstSlot), Economy.get().has(player.offlinePlayer(), firstSlot) ? GREEN : RED)).append(newline())
+                        .append(text(" - ", YELLOW)).append(text((slotCount + 2) + ". Slot: ", DARK_AQUA))
                         .append(text(Economy.get().format(secondSlot), Economy.get().has(player.offlinePlayer(), secondSlot) ? GREEN : RED))
-                        .append(newline())
-                        .append(text("Du erhältst neue Skill Slots beim Level Aufstieg, " +
+                        .append(newline()).append(newline())
+                        .append(text("Du kannst deine Skill Slots mit ", GRAY)).append(text("/rcs reset", GOLD))
+                        .append(text(" für ")).append(text(Economy.get().format(resetCost), Economy.get().has(player.offlinePlayer(), resetCost) ? GREEN : RED))
+                        .append(text(" zurücksetzen. Die Kosten für das Zurücksetzen steigen jedes Mal weiter an.", GRAY))
+                        .append(newline()).append(newline())
+                        .append(text("Tipp: ", GREEN)).append(text("Du erhältst neue Skill Slots beim Level Aufstieg, " +
                                 "durch Events und Achievements.", GRAY, ITALIC))
                 )))
                 .append(text(": ", YELLOW));
@@ -411,7 +422,7 @@ public final class Messages {
         return text().append(text("--- [ ", DARK_AQUA))
                 .append(text(player.name(), GOLD))
                 .append(text(" ] ---", DARK_AQUA)).append(newline())
-                .append(level(player.level())).append(newline())
+                .append(level(player)).append(newline())
                 .append(skillPoints(player)).append(newline())
                 .append(skillSlots(player)).append(newline())
                 .append(activeSkills(player))
@@ -655,12 +666,6 @@ public final class Messages {
                 .matchLiteral("{player_id}").replacement(player.id().toString())
                 .matchLiteral("{skills_count}").replacement(player.skills().size() + "")
                 .build();
-    }
-
-    public static TextReplacementConfig replaceLevel(Level level) {
-
-        return TextReplacementConfig.builder()
-                .matchLiteral("{level}").replacement(level(level)).build();
     }
 
     public static TextReplacementConfig replaceSkill(PlayerSkill skill) {
