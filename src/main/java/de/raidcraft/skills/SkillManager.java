@@ -402,11 +402,13 @@ public final class SkillManager {
 
         SkilledPlayer skilledPlayer = SkilledPlayer.getOrCreate(player);
         skilledPlayer.activeSkills().forEach(PlayerSkill::enable);
+
+        ConfiguredSkill.autoUnlockSkills(skilledPlayer.level().getLevel())
+                .forEach(skilledPlayer::addSkill);
+
         skilledPlayer.unlockedSkills()
                 .stream()
-                .filter(skill -> !skill.active())
                 .filter(skill -> skill.configuredSkill().autoUnlock())
-                .filter(skill -> skill.configuredSkill().noSkillSlot())
                 .forEach(PlayerSkill::activate);
     }
 

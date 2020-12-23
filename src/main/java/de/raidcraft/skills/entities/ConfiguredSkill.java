@@ -69,11 +69,23 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
                 .findList();
     }
 
+    public static List<ConfiguredSkill> autoUnlockSkills(int level) {
+
+        return find.query()
+                .where().eq("enabled", true)
+                .and().eq("money", 0)
+                .and().eq("skillpoints", 0)
+                .and().eq("no_skill_slot", true)
+                .and().eq("restricted", false)
+                .and().eq("auto_unlock", true)
+                .and().le("level", level)
+                .findList();
+    }
+
     public static final Finder<UUID, ConfiguredSkill> find = new Finder<>(ConfiguredSkill.class);
 
     @Index
     private String alias;
-
     @Index
     private String name;
     private String type;
@@ -87,16 +99,17 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     private boolean restricted = false;
     private boolean autoUnlock = false;
     private List<String> categories = new ArrayList<>();
+
     @DbJson
     private Map<String, Object> config = new HashMap<>();
-
     @OneToMany(cascade = CascadeType.REMOVE)
     private List<PlayerSkill> playerSkills = new ArrayList<>();
-    @Transient
-    private List<Requirement> requirements = new ArrayList<>();
 
     @Transient
+    private List<Requirement> requirements = new ArrayList<>();
+    @Transient
     private List<Requirement> costRequirements = new ArrayList<>();
+
     private transient boolean loaded = false;
 
     ConfiguredSkill(UUID id) {
