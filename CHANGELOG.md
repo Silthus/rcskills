@@ -1,3 +1,12 @@
+## [1.7.5](https://github.com/raidcraft/rcskills/compare/v1.7.4...v1.7.5) (2020-12-23)
+
+
+### Bug Fixes
+
+* auto activate skills that are not unlocked by the player but unlockable ([0af4679](https://github.com/raidcraft/rcskills/commit/0af46792ce53a570a04a70bebf8e09a58dd6f975))
+* near 0 exp progress bar throws error ([791f3c9](https://github.com/raidcraft/rcskills/commit/791f3c93c32105ee98ecfb658ce7a2c66077666c))
+* npe when displaying skill with permission requirement ([b0d86c4](https://github.com/raidcraft/rcskills/commit/b0d86c4462e5886ea30d6bea2627c49eec57587c))
+
 ## [1.7.4](https://github.com/raidcraft/rcskills/compare/v1.7.3...v1.7.4) (2020-12-23)
 
 
