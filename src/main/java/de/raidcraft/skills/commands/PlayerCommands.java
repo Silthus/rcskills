@@ -37,7 +37,7 @@ import static net.kyori.adventure.text.event.HoverEvent.showText;
 import static net.kyori.adventure.text.format.NamedTextColor.*;
 import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 
-@CommandAlias("rcs|rcskills")
+@CommandAlias("rcs|skills|rcskills")
 public class PlayerCommands extends BaseCommand {
 
     public static String buySkill(SkilledPlayer player, ConfiguredSkill skill) {
@@ -117,7 +117,6 @@ public class PlayerCommands extends BaseCommand {
     }
 
     @Subcommand("skills|list")
-    @CommandAlias("skills")
     @CommandCompletion("@players")
     @CommandPermission("rcskills.player.skills")
     @Description("Zeigt alle aktiven und verfügbaren Skills an.")

@@ -109,4 +109,32 @@ class SkilledPlayerTest {
         assertThat(SkilledPlayer.getOrCreate(bukkitPlayer).hasActiveSkill(skill))
                 .isTrue();
     }
+
+    @Test
+    @DisplayName("delete should delete player and all related entries from the database")
+    void shouldDeletePlayer() {
+
+        ConfiguredSkill skill = new ConfiguredSkill(UUID.randomUUID())
+                .autoUnlock(true)
+                .skillpoints(0)
+                .level(5);
+        skill.save();
+
+        PlayerMock bukkitPlayer = server.addPlayer();
+        bukkitPlayer.setOp(true);
+
+        SkilledPlayer skilledPlayer = SkilledPlayer.getOrCreate(bukkitPlayer);
+        skilledPlayer.setLevel(4);
+        skilledPlayer.setSkillSlots(1, SkillSlot.Status.FREE);
+        assertThat(SkilledPlayer.getOrCreate(bukkitPlayer).hasSkill(skill))
+                .isFalse();
+
+        skilledPlayer.setLevel(5);
+        PlayerSkill.getOrCreate(skilledPlayer, skill).activate();
+        assertThat(SkilledPlayer.getOrCreate(bukkitPlayer).hasActiveSkill(skill))
+                .isTrue();
+
+        assertThat(skilledPlayer.delete()).isTrue();
+        assertThat(SkilledPlayer.find.byId(bukkitPlayer.getUniqueId())).isNull();
+    }
 }

@@ -236,12 +236,9 @@ public class PlayerSkill extends BaseEntity {
     @Override
     public boolean delete() {
 
-        status(SkillStatus.NOT_PRESENT);
-        save();
-
         disable();
 
-        return true;
+        return super.delete();
     }
 
     /**

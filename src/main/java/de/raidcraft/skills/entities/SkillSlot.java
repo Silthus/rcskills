@@ -75,6 +75,14 @@ public class SkillSlot extends BaseEntity implements Comparable<SkillSlot> {
     }
 
     @Override
+    public boolean delete() {
+
+        unassign().save();
+        refresh();
+        return super.delete();
+    }
+
+    @Override
     public int compareTo(SkillSlot o) {
 
         return status.compareTo(o.status);

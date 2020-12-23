@@ -362,4 +362,15 @@ public class SkilledPlayer extends BaseEntity {
                 .filter(SkillSlot::free)
                 .findFirst().orElse(new SkillSlot(this).status(SkillSlot.Status.FREE));
     }
+
+    @Override
+    public boolean delete() {
+
+        skillSlots().forEach(SkillSlot::delete);
+        refresh();
+        skills().forEach(PlayerSkill::delete);
+        refresh();
+
+        return super.delete();
+    }
 }

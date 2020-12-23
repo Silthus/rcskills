@@ -2,12 +2,8 @@ package de.raidcraft.skills.commands;
 
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandCompletion;
-import co.aikar.commands.annotation.CommandPermission;
-import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Description;
-import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.*;
+import com.google.common.base.Strings;
 import de.raidcraft.skills.Messages;
 import de.raidcraft.skills.SkillsPlugin;
 import de.raidcraft.skills.actions.AddSkillAction;
@@ -18,6 +14,7 @@ import de.raidcraft.skills.entities.SkilledPlayer;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.lang.enums.EnumUtils;
+import org.bukkit.Bukkit;
 
 @CommandAlias("rcsa|rcs:admin|rcskills:admin|skills:admin")
 @CommandPermission("rcskills.admin.*")
@@ -157,6 +154,28 @@ public class AdminCommands extends BaseCommand {
             PlayerSkill playerSkill = player.removeSkill(skill);
             Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.removeSkill(playerSkill));
         }
+    }
+
+    @Subcommand("purge")
+    @CommandCompletion("@players confirm")
+    @Description("Setzt einen Spieler komplett zurück.")
+    @CommandPermission("rcskills.admin.purge")
+    public void reset(SkilledPlayer player, @Optional String confirm) {
+
+        if (Strings.isNullOrEmpty(confirm) || !confirm.equalsIgnoreCase("confirm")) {
+            getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Bist du dir ganz sicher, dass du ALLE Skills, Level, Slots und EXP von " + player.name() + " zurücksetzen willst?");
+            getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Dieser Befehl kann nicht rückgängig gemacht werden und der Spieler verliert alles was er sich erspielt hat!");
+            getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Wenn du dir ganz sicher bist gebe \"/rcs:admin reset " + player.name() + " confirm\" ein.");
+            return;
+        }
+
+        player.bukkitPlayer().ifPresent(p -> p.kickPlayer("Dein RCSkills Profil wird zurückgesetzt. Bitte warte kurz..."));
+
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            if (player.delete() && getCurrentCommandIssuer() != null) {
+                getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + "Das RCSkills Profil des Spielers " + player.name() + " wurde komplett zurückgesetzt.");
+            }
+        });
     }
 
     @Subcommand("reload")

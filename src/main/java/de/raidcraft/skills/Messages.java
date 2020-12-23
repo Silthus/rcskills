@@ -352,8 +352,9 @@ public final class Messages {
                         .append(text(Economy.get().format(secondSlot), Economy.get().has(player.offlinePlayer(), secondSlot) ? GREEN : RED))
                         .append(newline()).append(newline())
                         .append(text("Du kannst deine Skill Slots mit ", GRAY)).append(text("/rcs reset", GOLD))
-                        .append(text(" für ")).append(text(Economy.get().format(resetCost), Economy.get().has(player.offlinePlayer(), resetCost) ? GREEN : RED))
-                        .append(text(" zurücksetzen. Die Kosten für das Zurücksetzen steigen jedes Mal weiter an.", GRAY))
+                        .append(text(" für ", GRAY)).append(text(Economy.get().format(resetCost), Economy.get().has(player.offlinePlayer(), resetCost) ? GREEN : RED))
+                        .append(text(" zurücksetzen.", GRAY)).append(newline())
+                        .append(text("Die Kosten für das Zurücksetzen steigen jedes Mal weiter an.", GRAY))
                         .append(newline()).append(newline())
                         .append(text("Tipp: ", GREEN)).append(text("Du erhältst neue Skill Slots beim Level Aufstieg, " +
                                 "durch Events und Achievements.", GRAY, ITALIC))
