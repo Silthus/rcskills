@@ -220,7 +220,7 @@ public final class LevelManager implements Listener {
         int finalSkillpoints = skillpoints;
         int finalSkillslots = skillslots;
 
-        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
             skilledPlayer.bukkitPlayer().ifPresent(player -> {
                 if (event.getNewLevel() > event.getOldLevel()) {
                     Messages.send(player, Messages.levelUpSelf(skilledPlayer, event.getNewLevel()));
