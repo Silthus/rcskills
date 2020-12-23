@@ -62,16 +62,10 @@ class LevelManagerTest {
     private static Stream levelTestValues() {
 
         return Stream.of(
-                Arguments.of(1, 10),
-                Arguments.of(2, 40),
-                Arguments.of(5, 250),
-                Arguments.of(10, 1000),
-                Arguments.of(20, 4000),
-                Arguments.of(30, 9000),
-                Arguments.of(40, 16000),
-                Arguments.of(50, 25000),
-                Arguments.of(60, 36000),
-                Arguments.of(100, 100000)
+                Arguments.of(1, 40),
+                Arguments.of(2, 90),
+                Arguments.of(5, 360),
+                Arguments.of(10, 1210)
         );
     }
 

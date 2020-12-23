@@ -292,8 +292,8 @@ public final class LevelManager implements Listener {
         if (clearCache) clearCache(player.id());
 
         return getCache(player).orElseGet(() ->
-                cache(player.id(), player.level().getLevel(),
-                        calculateExpForNextLevel(player.level().getLevel())));
+                cache(player.id(), player.level().getLevel() + 1,
+                        calculateExpForNextLevel(player.level().getLevel() + 1)));
     }
 
     public int calculateExpToNextLevel(SkilledPlayer player) {
