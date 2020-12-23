@@ -142,8 +142,9 @@ public class PlayerSkill extends BaseEntity {
 
     public PlayerSkill activate() {
 
+        if (checkDisable()) return this;
+
         if (!canActivate()) {
-            if (active()) deactivate();
             return this;
         }
 
@@ -240,5 +241,20 @@ public class PlayerSkill extends BaseEntity {
         disable();
 
         return true;
+    }
+
+    /**
+     * Checks if the skill needs to be disabled and disables it.
+     * <p>A skill should be considered disabled if the underlying configured skill is disabled.
+     *
+     * @return true if the skill should be disabled and was disabled
+     */
+    private boolean checkDisable() {
+
+        if (configuredSkill.disabled() && active()) {
+            deactivate();
+            return true;
+        }
+        return false;
     }
 }
