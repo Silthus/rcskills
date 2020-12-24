@@ -268,7 +268,7 @@ public final class SkillManager {
             Optional<ConfiguredSkill> skill = loadSkill(ConfigUtil.getFileIdentifier(base, file), config);
             config.save(file);
             skill.ifPresentOrElse(s -> {
-                log.info("loaded skill \"" + s.alias() + "\": " + s.type());
+                log.info("loaded skill \"" + s.alias() + "\" (" + s.type() + ") from: " + file);
             }, () -> log.warning("failed to load skill from config: " + file));
             return skill;
         } catch (IOException | InvalidConfigurationException e) {
@@ -611,7 +611,12 @@ public final class SkillManager {
         DefaultSkillContext context = getSkillType(playerSkill.configuredSkill().type())
                 .map(registration -> {
                     try {
-                        return new DefaultSkillContext(playerSkill, registration).init();
+                        DefaultSkillContext skillContext = new DefaultSkillContext(playerSkill, registration).init();
+                        if (plugin.getPluginConfig().isDebug()) {
+                            log.info("loaded skill context of " + playerSkill.configuredSkill().alias() + " for " + playerSkill.player().name());
+                            log.info(skillContext.get().toString());
+                        }
+                        return skillContext;
                     } catch (ConfigurationException e) {
                         log.severe("Failed to load skill " + registration.skillClass().getCanonicalName() + ": " + e.getMessage());
                         e.printStackTrace();

@@ -165,7 +165,12 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
 
     public ConfigurationSection getConfig() {
 
-        if (this.config == null) return new MemoryConfiguration();
+        if (this.config == null) {
+            refresh();
+            if (config == null) {
+                return new MemoryConfiguration();
+            }
+        }
 
         MemoryConfiguration config = new MemoryConfiguration();
         for (Map.Entry<String, Object> entry : this.config.entrySet()) {

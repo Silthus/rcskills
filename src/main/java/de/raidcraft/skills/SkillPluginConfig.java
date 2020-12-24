@@ -21,6 +21,7 @@ import java.util.OptionalInt;
 @Setter
 public class SkillPluginConfig extends BukkitYamlConfiguration {
 
+    private boolean debug = false;
     @Comment("The relative path where your skill configs are located.")
     private String skillsPath = "skills";
     @Comment("The relative path where your skill and effect modules (jar files) are located.")

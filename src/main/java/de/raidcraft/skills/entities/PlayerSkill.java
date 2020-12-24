@@ -18,11 +18,7 @@ import net.kyori.adventure.title.Title;
 import net.silthus.ebean.BaseEntity;
 import org.bukkit.Bukkit;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Optional;
 import java.util.UUID;
 
