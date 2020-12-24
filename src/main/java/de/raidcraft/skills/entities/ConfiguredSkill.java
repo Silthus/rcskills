@@ -106,9 +106,9 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     private List<PlayerSkill> playerSkills = new ArrayList<>();
 
     @Transient
-    private List<Requirement> requirements = new ArrayList<>();
+    private transient List<Requirement> requirements = new ArrayList<>();
     @Transient
-    private List<Requirement> costRequirements = new ArrayList<>();
+    private transient List<Requirement> costRequirements = new ArrayList<>();
 
     private transient boolean loaded = false;
 
@@ -123,7 +123,7 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
 
     public boolean hidden() {
 
-        return !enabled || hidden;
+        return disabled() || hidden;
     }
 
     public List<String> categories() {
@@ -165,15 +165,8 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
 
     public ConfigurationSection getConfig() {
 
-        if (this.config == null) {
-            refresh();
-            if (config == null) {
-                return new MemoryConfiguration();
-            }
-        }
-
         MemoryConfiguration config = new MemoryConfiguration();
-        for (Map.Entry<String, Object> entry : this.config.entrySet()) {
+        for (Map.Entry<String, Object> entry : config().entrySet()) {
             config.set(entry.getKey(), entry.getValue());
         }
 
@@ -242,12 +235,12 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
             costRequirements.add(skillPointRequirement);
         }
 
-        this.loaded = true;
+        loaded(true);
     }
 
     public ConfiguredSkill enabled(boolean enabled) {
 
-        if (enabled == this.enabled) return this;
+        if (enabled == this.enabled()) return this;
         this.enabled = enabled;
         if (enabled()) {
             playerSkills().forEach(PlayerSkill::enable);
@@ -294,6 +287,6 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     @Override
     public int compareTo(ConfiguredSkill o) {
 
-        return Integer.compare(level, o.level);
+        return Integer.compare(level(), o.level());
     }
 }

@@ -61,14 +61,6 @@ public class PlayerSkill extends BaseEntity {
         this.configuredSkill = configuredSkill;
     }
 
-    public DataStore data() {
-        if (data == null) {
-            data = new DataStore();
-            save();
-        }
-        return data;
-    }
-
     public String alias() {
         return configuredSkill.alias();
     }
@@ -92,21 +84,21 @@ public class PlayerSkill extends BaseEntity {
      * @return true if the skill is unlocked or active
      */
     public boolean unlocked() {
-        return status != null && status.isUnlocked();
+        return status() != null && status().isUnlocked();
     }
 
     /**
      * @return true if the skill is active
      */
     public boolean active() {
-        return status != null && status.isActive();
+        return status() != null && status().isActive();
     }
 
     public void enable() {
 
         if (!active()) return;
 
-        if (configuredSkill.disabled()) {
+        if (configuredSkill().disabled()) {
             deactivate();
             return;
         }
@@ -123,10 +115,10 @@ public class PlayerSkill extends BaseEntity {
 
     public boolean canActivate() {
 
-        if (configuredSkill.disabled()) return false;
+        if (configuredSkill().disabled()) return false;
         if (active()) return false;
-        if (configuredSkill.noSkillSlot()) return true;
-        if (player.hasFreeSkillSlot()) return true;
+        if (configuredSkill().noSkillSlot()) return true;
+        if (player().hasFreeSkillSlot()) return true;
 
         return player().bukkitPlayer()
                 .map(p -> p.hasPermission(SkillsPlugin.BYPASS_ACTIVE_SKILL_LIMIT))
@@ -147,8 +139,8 @@ public class PlayerSkill extends BaseEntity {
 
             if (event.isCancelled()) return false;
 
-            if (!configuredSkill.noSkillSlot()) {
-                player.freeSkillSlot().assign(this).save();
+            if (!configuredSkill().noSkillSlot()) {
+                player().freeSkillSlot().assign(this).save();
             }
 
             status(SkillStatus.ACTIVE);
@@ -209,20 +201,6 @@ public class PlayerSkill extends BaseEntity {
 //                .data("skill", name())
 //                .data("alias", alias())
 //                .save();
-
-        if (event.isPlayEffect()) {
-            player().bukkitPlayer().ifPresent(player -> {
-                Effects.playerUnlockSkill(player);
-
-                TextComponent heading = text("Skill freigeschaltet", NamedTextColor.GOLD);
-                TextComponent subheading = text("Skill '", NamedTextColor.GREEN).append(text(name(), NamedTextColor.AQUA))
-                        .append(text("' freigeschaltet!", NamedTextColor.GREEN));
-                Title title = Title.title(heading, subheading);
-                BukkitAudiences.create(SkillsPlugin.instance())
-                        .player(player)
-                        .showTitle(title);
-            });
-        }
 
         Bukkit.getPluginManager().callEvent(new PlayerUnlockedSkillEvent(player(), this));
 

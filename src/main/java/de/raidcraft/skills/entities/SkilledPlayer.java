@@ -51,7 +51,6 @@ public class SkilledPlayer extends BaseEntity {
     }
 
     private String name;
-    @Setter(AccessLevel.NONE)
     private int skillPoints = 0;
     @Setter(AccessLevel.PACKAGE)
     @DbDefault("0")
@@ -81,7 +80,7 @@ public class SkilledPlayer extends BaseEntity {
      */
     public int freeSkillSlots() {
 
-        return (int) skillSlots.stream().filter(SkillSlot::free).count();
+        return (int) skillSlots().stream().filter(SkillSlot::free).count();
     }
 
     public int slotCount() {
@@ -187,7 +186,7 @@ public class SkilledPlayer extends BaseEntity {
 
     public SkilledPlayer setLevel(int level) {
 
-        if (this.level.getLevel() == level) return this;
+        if (this.level().getLevel() == level) return this;
 
         Level playerLevel = level();
         SetPlayerLevelEvent event = new SetPlayerLevelEvent(this, playerLevel.getLevel(), level, playerLevel.getTotalExp());
@@ -208,7 +207,7 @@ public class SkilledPlayer extends BaseEntity {
 
     public SkilledPlayer addLevel(int level) {
 
-        return setLevel(this.level.getLevel() + level);
+        return setLevel(this.level().getLevel() + level);
     }
 
     public SkilledPlayer setExp(long exp) {
@@ -218,15 +217,15 @@ public class SkilledPlayer extends BaseEntity {
 
     public SkilledPlayer setExp(long exp, String reason) {
 
-        if (this.level.getTotalExp() == exp) return this;
+        if (this.level().getTotalExp() == exp) return this;
 
-        SetPlayerExpEvent event = new SetPlayerExpEvent(this, level.getTotalExp(), exp, level.getLevel(), reason);
+        SetPlayerExpEvent event = new SetPlayerExpEvent(this, level().getTotalExp(), exp, level().getLevel(), reason);
         Bukkit.getPluginManager().callEvent(event);
 
         if (event.isCancelled()) return this;
 
-        level.setTotalExp(event.getNewExp());
-        if (event.getLevel() != level.getLevel()) {
+        level().setTotalExp(event.getNewExp());
+        if (event.getLevel() != level().getLevel()) {
             setLevel(event.getLevel());
         }
         return this;
@@ -239,41 +238,41 @@ public class SkilledPlayer extends BaseEntity {
 
     public SkilledPlayer setSkillPoints(int skillPoints) {
 
-        if (this.skillPoints == skillPoints) return this;
+        if (this.skillPoints() == skillPoints) return this;
 
-        SetPlayerSkillPointsEvent event = new SetPlayerSkillPointsEvent(this, this.skillPoints, skillPoints);
+        SetPlayerSkillPointsEvent event = new SetPlayerSkillPointsEvent(this, this.skillPoints(), skillPoints);
         Bukkit.getPluginManager().callEvent(event);
 
         if (event.isCancelled()) return this;
 
         if (event.getNewSkillPoints() < 0) event.setNewSkillPoints(0);
 
-        this.skillPoints = event.getNewSkillPoints();
+        this.skillPoints(event.getNewSkillPoints());
         return this;
     }
 
     public SkilledPlayer addSkillPoints(int skillPoints) {
 
-        return this.setSkillPoints(this.skillPoints + skillPoints);
+        return this.setSkillPoints(this.skillPoints() + skillPoints);
     }
 
     public SkilledPlayer removeSkillPoints(int skillPoints) {
 
-        int points = this.skillPoints - skillPoints;
+        int points = this.skillPoints() - skillPoints;
         return this.setSkillPoints(points);
     }
 
     @Transactional
     public SkilledPlayer resetSkillSlots() {
 
-        List<SkillSlot> skills = skillSlots.stream()
+        List<SkillSlot> skills = skillSlots().stream()
                 .filter(skillSlot -> skillSlot.status() == SkillSlot.Status.IN_USE)
                 .collect(Collectors.toList());
 
         if (skills.isEmpty()) return this;
 
         skills.stream().map(SkillSlot::skill).forEach(PlayerSkill::deactivate);
-        resetCount++;
+        resetCount(resetCount() + 1);
         save();
 
         return this;
@@ -282,7 +281,7 @@ public class SkilledPlayer extends BaseEntity {
     @Transactional
     public SkilledPlayer setSkillSlots(int slots, SkillSlot.Status status) {
 
-        int currentSlotSize = this.skillSlots.size();
+        int currentSlotSize = this.skillSlots().size();
         if (currentSlotSize == slots) return this;
 
         SetPlayerSkillSlotsEvent event = new SetPlayerSkillSlotsEvent(this, currentSlotSize, slots);
@@ -312,18 +311,18 @@ public class SkilledPlayer extends BaseEntity {
         for (int i = 0; i < slots; i++) {
             SkillSlot skillSlot = new SkillSlot(this).status(status);
             skillSlot.save();
-            skillSlots.add(skillSlot);
+            skillSlots().add(skillSlot);
         }
         return this;
     }
 
     private void removeSkillSlot() {
 
-        List<SkillSlot> freeSlots = skillSlots.stream().filter(SkillSlot::free).collect(Collectors.toList());
+        List<SkillSlot> freeSlots = skillSlots().stream().filter(SkillSlot::free).collect(Collectors.toList());
         if (freeSlots.size() > 0) {
             freeSlots.get(0).delete();
         } else {
-            skillSlots.stream().findAny().ifPresent(SkillSlot::delete);
+            skillSlots().stream().findAny().ifPresent(SkillSlot::delete);
         }
         save();
     }
@@ -353,12 +352,12 @@ public class SkilledPlayer extends BaseEntity {
 
     public boolean hasFreeSkillSlot() {
 
-        return skillSlots.stream().anyMatch(SkillSlot::free);
+        return skillSlots().stream().anyMatch(SkillSlot::free);
     }
 
     public SkillSlot freeSkillSlot() {
 
-        return skillSlots.stream()
+        return skillSlots().stream()
                 .filter(SkillSlot::free)
                 .findFirst().orElse(new SkillSlot(this).status(SkillSlot.Status.FREE));
     }

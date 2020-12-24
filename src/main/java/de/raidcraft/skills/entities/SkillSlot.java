@@ -45,33 +45,38 @@ public class SkillSlot extends BaseEntity implements Comparable<SkillSlot> {
 
     public boolean free() {
 
-        return status == Status.FREE;
+        return status() == Status.FREE;
+    }
+
+    public boolean inUse() {
+
+        return status() == Status.IN_USE;
     }
 
     SkillSlot assign(PlayerSkill skill) {
 
-        if (skill == null && status == Status.IN_USE) {
-            status = Status.FREE;
+        if (skill() == null && inUse()) {
+            status(Status.FREE);
         } else if (skill != null) {
-            status = Status.IN_USE;
+            status(Status.IN_USE);
         }
 
-        this.skill = skill;
+        this.skill(skill);
         return this;
     }
 
     SkillSlot unassign() {
 
         if (this.skill != null) {
-            this.status = Status.FREE;
+            this.status(Status.FREE);
         }
-        this.skill = null;
+        this.skill(null);
         return this;
     }
 
     public boolean buyable() {
 
-        return status == Status.ELIGIBLE;
+        return status() == Status.ELIGIBLE;
     }
 
     @Override
@@ -85,7 +90,7 @@ public class SkillSlot extends BaseEntity implements Comparable<SkillSlot> {
     @Override
     public int compareTo(SkillSlot o) {
 
-        return status.compareTo(o.status);
+        return status().compareTo(o.status());
     }
 
     public enum Status {

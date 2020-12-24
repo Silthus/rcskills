@@ -51,7 +51,7 @@ public class LevelHistory extends BaseEntity {
 
     public LevelHistory data(String key, Object value) {
 
-        data.put(key, value);
+        data().put(key, value);
         return this;
     }
 }

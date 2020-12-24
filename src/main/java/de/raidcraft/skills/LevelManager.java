@@ -6,10 +6,8 @@ import de.raidcraft.skills.entities.LevelHistory;
 import de.raidcraft.skills.entities.PlayerSkill;
 import de.raidcraft.skills.entities.SkillSlot;
 import de.raidcraft.skills.entities.SkilledPlayer;
-import de.raidcraft.skills.events.PlayerLeveledEvent;
-import de.raidcraft.skills.events.PlayerSkillSlotsChangedEvent;
-import de.raidcraft.skills.events.SetPlayerExpEvent;
-import de.raidcraft.skills.events.SetPlayerLevelEvent;
+import de.raidcraft.skills.events.*;
+import de.raidcraft.skills.util.Effects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -18,7 +16,9 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
+import net.kyori.adventure.title.Title;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
@@ -176,6 +176,22 @@ public final class LevelManager implements Listener {
     public void onSkillSlotChange(PlayerSkillSlotsChangedEvent event) {
 
         Messages.send(event.getPlayer().id(), Messages.addSkillSlots(event.getPlayer(), event.getNewSkillSlots() - event.getOldSkillSlots()));
+    }
+
+    @EventHandler
+    public void onSkillUnlock(PlayerUnlockedSkillEvent event) {
+
+        event.getPlayer().bukkitPlayer().ifPresent(player -> {
+            Effects.playerUnlockSkill(player);
+
+            TextComponent heading = text("Skill freigeschaltet", NamedTextColor.GOLD);
+            TextComponent subheading = text("Skill '", NamedTextColor.GREEN).append(text(event.getSkill().name(), NamedTextColor.AQUA))
+                    .append(text("' freigeschaltet!", NamedTextColor.GREEN));
+            Title title = Title.title(heading, subheading);
+            BukkitAudiences.create(SkillsPlugin.instance())
+                    .player(player)
+                    .showTitle(title);
+        });
     }
 
     @EventHandler
