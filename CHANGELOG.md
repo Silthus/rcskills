@@ -1,3 +1,16 @@
+# [1.9.0](https://github.com/raidcraft/rcskills/compare/v1.8.2...v1.9.0) (2020-12-24)
+
+
+### Bug Fixes
+
+* skip serializing section root keys ([db9203e](https://github.com/raidcraft/rcskills/commit/db9203e28b923f14d14ff5d2b766b159cb31c339))
+* use getter/setter everywhere to make use of ebean lazy loading ([3820dff](https://github.com/raidcraft/rcskills/commit/3820dffcf3f200a0037d105ca2e592fb6d35de62))
+
+
+### Features
+
+* add configurable sounds for levelup and skill unlock ([d93f16c](https://github.com/raidcraft/rcskills/commit/d93f16cf6c03694250c0eac3fe550288e37f3cae))
+
 ## [1.8.2](https://github.com/raidcraft/rcskills/compare/v1.8.1...v1.8.2) (2020-12-24)
 
 
