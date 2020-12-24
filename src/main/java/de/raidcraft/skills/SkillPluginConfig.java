@@ -8,6 +8,8 @@ import de.exlll.configlib.format.FieldNameFormatters;
 import de.raidcraft.skills.entities.SkilledPlayer;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -41,6 +43,7 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
     private LevelUpConfig levelUpConfig = new LevelUpConfig();
     @Comment("Define the expression that calculates the cost for buying new skill slots.")
     private SkillSlotConfig slotConfig = new SkillSlotConfig();
+    private SoundConfig sounds = new SoundConfig();
 
     public SkillPluginConfig(Path path) {
 
@@ -56,6 +59,22 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
         private String password = "sa";
         private String driver = "h2";
         private String url = "jdbc:h2:~/skills.db";
+    }
+
+    @ConfigurationElement
+    @Getter
+    @Setter
+    public static class SoundConfig {
+
+        private float volume = 10f;
+        private float pitch = 1f;
+        private SoundCategory category = SoundCategory.MASTER;
+        private String levelUp = Sound.ENTITY_PLAYER_LEVELUP.getKey().toString();
+        private String skillUnlock = Sound.BLOCK_BEACON_POWER_SELECT.getKey().toString();
+        private String skillActivate = Sound.BLOCK_BEACON_ACTIVATE.getKey().toString();
+        private String skillReset = Sound.BLOCK_BEACON_DEACTIVATE.getKey().toString();
+        private String slotUnlock = Sound.ENTITY_WITHER_BREAK_BLOCK.getKey().toString();
+        private String slotActivate = Sound.BLOCK_ANVIL_USE.getKey().toString();
     }
 
     @ConfigurationElement

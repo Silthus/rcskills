@@ -195,6 +195,12 @@ public final class LevelManager implements Listener {
     }
 
     @EventHandler
+    public void activatedSkill(PlayerActivatedSkillEvent event) {
+
+        event.getPlayer().bukkitPlayer().ifPresent(Effects::activateSkill);
+    }
+
+    @EventHandler
     public void onLeveledUp(PlayerLeveledEvent event) {
 
         SkillPluginConfig.LevelUpConfig config = getPlugin().getPluginConfig().getLevelUpConfig();
@@ -242,6 +248,8 @@ public final class LevelManager implements Listener {
                     Messages.send(player, Messages.levelUpSelf(skilledPlayer, event.getNewLevel()));
                     Messages.send(skilledPlayer.id(), Messages.addSkillPointsSelf(skilledPlayer, finalSkillpoints));
                     Messages.send(skilledPlayer.id(), Messages.addSkillSlotsSelf(skilledPlayer, finalSkillslots));
+
+                    Effects.levelUp(player);
 
                     if (skills.size() > 0) {
                         Messages.send(skilledPlayer.id(), text(skills.size(), GREEN)

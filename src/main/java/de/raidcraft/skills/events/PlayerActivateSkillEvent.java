@@ -18,7 +18,6 @@ public class PlayerActivateSkillEvent extends PlayerEvent implements Cancellable
     private static final HandlerList handlerList = new HandlerList();
 
     private final PlayerSkill playerSkill;
-    private boolean playEffect = true;
     private boolean cancelled;
 
     public PlayerActivateSkillEvent(SkilledPlayer player, PlayerSkill playerSkill) {

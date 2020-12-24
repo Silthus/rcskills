@@ -148,10 +148,6 @@ public class PlayerSkill extends BaseEntity {
 
             context().ifPresent(SkillContext::enable);
 
-            if (event.isPlayEffect()) {
-                player().bukkitPlayer().ifPresent(Effects::playerActivateSkill);
-            }
-
             Bukkit.getPluginManager().callEvent(new PlayerActivatedSkillEvent(player(), this));
             return true;
         } catch (Exception e) {
