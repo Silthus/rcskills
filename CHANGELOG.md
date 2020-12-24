@@ -1,3 +1,10 @@
+## [1.8.2](https://github.com/raidcraft/rcskills/compare/v1.8.1...v1.8.2) (2020-12-24)
+
+
+### Bug Fixes
+
+* load skill config from database before loading skill ([b93aab4](https://github.com/raidcraft/rcskills/commit/b93aab4229ccfd7d013caaee8704e71856bbdc2e))
+
 ## [1.8.1](https://github.com/raidcraft/rcskills/compare/v1.8.0...v1.8.1) (2020-12-24)
 
 
