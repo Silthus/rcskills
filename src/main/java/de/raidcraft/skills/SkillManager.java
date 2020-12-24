@@ -267,6 +267,9 @@ public final class SkillManager {
             config.load(file);
             Optional<ConfiguredSkill> skill = loadSkill(ConfigUtil.getFileIdentifier(base, file), config);
             config.save(file);
+            skill.ifPresentOrElse(s -> {
+                log.info("loaded skill \"" + s.alias() + "\": " + s.type());
+            }, () -> log.warning("failed to load skill from config: " + file));
             return skill;
         } catch (IOException | InvalidConfigurationException e) {
             log.severe("unable to load skill config " + file.getAbsolutePath() + ": " + e.getMessage());
