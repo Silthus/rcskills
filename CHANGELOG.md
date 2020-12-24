@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/raidcraft/rcskills/compare/v1.8.0...v1.8.1) (2020-12-24)
+
+
+### Bug Fixes
+
+* print information about loaded skills ([6b2c597](https://github.com/raidcraft/rcskills/commit/6b2c59795ca230f32588c4978f90b8b91844a03f))
+
 # [1.8.0](https://github.com/raidcraft/rcskills/compare/v1.7.5...v1.8.0) (2020-12-23)
 
 
