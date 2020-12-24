@@ -155,7 +155,9 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
 
     public ConfiguredSkill load(ConfigurationSection config) {
         this.config = new HashMap<>();
-        config.getKeys(true).forEach(key -> this.config.put(key, config.get(key)));
+        config.getKeys(true)
+                .stream().filter(key -> !config.isConfigurationSection(key))
+                .forEach(key -> this.config.put(key, config.get(key)));
 
         load(true);
         save();

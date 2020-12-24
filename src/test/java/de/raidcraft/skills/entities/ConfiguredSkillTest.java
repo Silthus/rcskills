@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,6 +34,7 @@ class ConfiguredSkillTest {
         cfg.set("name", "Test Skill");
         cfg.set("restricted", true);
         cfg.set("level", 5);
+        cfg.set("with.permissions", Arrays.asList("foobar", "foo"));
         plugin.getSkillManager().loadSkill(TEST_SKILL, cfg);
     }
 
@@ -71,5 +73,15 @@ class ConfiguredSkillTest {
                 .extracting("permissions")
                 .asList()
                 .contains(Collections.singletonList(SkillsPlugin.SKILL_PERMISSION_PREFIX + TEST_SKILL));
+    }
+
+    @Test
+    @DisplayName("should only serialize config pure values and not nested top level keys")
+    void shouldSerializeConfigWithoutConfigSectionToStrings() {
+
+        ConfiguredSkill skill = ConfiguredSkill.findByAliasOrName(TEST_SKILL).get();
+        assertThat(skill.config())
+                .doesNotContainKey("with")
+                .containsKey("with.permissions");
     }
 }
