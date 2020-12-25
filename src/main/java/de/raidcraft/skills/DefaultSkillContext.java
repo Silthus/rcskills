@@ -9,6 +9,8 @@ import net.silthus.configmapper.ConfigurationException;
 import net.silthus.configmapper.bukkit.BukkitConfigMap;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.UUID;
@@ -100,6 +102,10 @@ class DefaultSkillContext implements SkillContext {
             );
         }
 
+        if (skill instanceof Listener) {
+            Bukkit.getPluginManager().registerEvents((Listener) skill, SkillsPlugin.instance());
+        }
+
         enabled(true);
     }
 
@@ -113,7 +119,11 @@ class DefaultSkillContext implements SkillContext {
             task = null;
         }
 
-        get().remove();
+        Skill skill = get();
+        if (skill instanceof Listener) {
+            HandlerList.unregisterAll((Listener) skill);
+        }
+        skill.remove();
 
         enabled(false);
     }
