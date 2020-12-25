@@ -1,3 +1,10 @@
+## [1.9.1](https://github.com/raidcraft/rcskills/compare/v1.9.0...v1.9.1) (2020-12-25)
+
+
+### Bug Fixes
+
+* register event listener of skills ([5ccb3c0](https://github.com/raidcraft/rcskills/commit/5ccb3c0d07987fee93f9490bfa54a760ebdec37e))
+
 # [1.9.0](https://github.com/raidcraft/rcskills/compare/v1.8.2...v1.9.0) (2020-12-24)
 
 
