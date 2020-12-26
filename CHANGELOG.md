@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/raidcraft/rcskills/compare/v1.9.1...v1.10.0) (2020-12-26)
+
+
+### Features
+
+* add active_skills counter to slot formula ([b4596c8](https://github.com/raidcraft/rcskills/commit/b4596c804a4addd82b534d09414729b7daffa817))
+
 ## [1.9.1](https://github.com/raidcraft/rcskills/compare/v1.9.0...v1.9.1) (2020-12-25)
 
 
