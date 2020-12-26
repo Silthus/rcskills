@@ -90,6 +90,13 @@ public class SkilledPlayer extends BaseEntity {
                 .count();
     }
 
+    public int activeSlotCount() {
+
+        return (int) skillSlots().stream()
+                .filter(SkillSlot::inUse)
+                .count();
+    }
+
     public int skillCount() {
 
         return unlockedSkills().size();

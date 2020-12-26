@@ -69,6 +69,7 @@ public class SlotManager {
                     "c",
                     "level",
                     "slots",
+                    "active_slots",
                     "skills",
                     "resets"
             }, new Class[] {
@@ -78,6 +79,7 @@ public class SlotManager {
                     double.class,
                     double.class,
                     double.class,
+                    int.class,
                     int.class,
                     int.class,
                     int.class,
@@ -105,6 +107,7 @@ public class SlotManager {
                     c,
                     config.level,
                     config.slots,
+                    config.activeSlots,
                     config.skills,
                     config.resetCount
             ));
@@ -121,12 +124,14 @@ public class SlotManager {
 
         int level = 1;
         int slots = 0;
+        int activeSlots = 0;
         int skills = 0;
         int resetCount = 0;
 
         private CalculationConfig(SkilledPlayer player) {
             level = player.level().getLevel();
             slots = player.slotCount();
+            activeSlots = player.activeSlotCount();
             skills = player.skillCount();
             resetCount = player.resetCount();
         }
