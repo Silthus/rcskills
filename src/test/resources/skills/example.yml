@@ -1,0 +1,56 @@
+# the id of the skill will be generated on first load
+#
+# !!! make sure to delete it if you copy the skill !!!
+#
+# id: 4929215e-0c3a-46a1-864c-6ec68e99c8ed
+name: Example
+description: Example Skill
+# The alias is what is used in commands and permissions
+alias: example
+# The type is provided by the different skill implementations
+# each type brings its own config that is provided in the "with" section
+type: permission
+# disabled skills will be removed from player slots automatically
+enabled: true
+# the skill points this skill needs when bought
+skillpoints: 0
+# the minimum level required to obtain the skill
+level: 1
+# the money this skill costs
+money: 0.0
+# set to true to not require a skill slot upon activation of the skill
+no-skill-slot: false
+# set to true to hide the skill from players
+hidden: false
+# set to true to require the rcskills.skill.<alias> permission for this skill
+restricted: false
+# set to true to auto unlock the skill if all requirements are met
+auto-unlock: false
+# define the categories of the skill here
+categories:
+  - test
+
+# these values fine tune the execution of the skill
+execution:
+  # only applicable to targeted skills
+  # defines the range of the skill, e.g. when shooting fireballs, or teleporting at the looked block
+  range: 30
+  # all of the following values can be defined with this time pattern:
+  # 1y2mo3w4d5h6m10s5
+  # 1 year 2 months 3 weeks 4 days 5 hours 6 minutes 10 seconds 5 ticks
+  # the delay before executing the skill
+  delay: 0
+  # the warmup differs from the delay as it requires the player to not move and aborts on damage
+  warmup: 0
+  # the cooldown of the skill
+  cooldown: 0
+
+task:
+  # the interval of the task timer in ticks
+  # is only applicable to periodic skills
+  interval: 10
+
+# see the documentation of each skill for these values
+with:
+  permissions:
+    - foobar
