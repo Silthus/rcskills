@@ -3,8 +3,6 @@ package de.raidcraft.skills.util;
 import de.raidcraft.skills.SkillsPlugin;
 import de.slikey.effectlib.effect.DnaEffect;
 import lombok.NonNull;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 
 public final class Effects {

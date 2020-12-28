@@ -13,7 +13,6 @@ import de.raidcraft.skills.entities.SkillSlot;
 import de.raidcraft.skills.entities.SkilledPlayer;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
-import org.apache.commons.lang.enums.EnumUtils;
 import org.bukkit.Bukkit;
 
 @CommandAlias("rcsa|rcs:admin|rcskills:admin|skills:admin")

@@ -1,9 +1,6 @@
 package de.raidcraft.skills.listener;
 
 import de.raidcraft.skills.SkillManager;
-import de.raidcraft.skills.SkillsPlugin;
-import de.raidcraft.skills.events.PlayerActivateSkillEvent;
-import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;

@@ -1,6 +1,5 @@
 package de.raidcraft.skills;
 
-import de.raidcraft.skills.entities.PlayerSkill;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.bukkit.configuration.ConfigurationSection;

@@ -4,7 +4,6 @@ import de.raidcraft.skills.entities.SkilledPlayer;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 
 @Getter
