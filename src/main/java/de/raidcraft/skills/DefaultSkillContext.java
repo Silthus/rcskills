@@ -9,10 +9,12 @@ import net.silthus.configmapper.ConfigurationException;
 import net.silthus.configmapper.bukkit.BukkitConfigMap;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Data
@@ -126,5 +128,29 @@ class DefaultSkillContext implements SkillContext {
         skill.remove();
 
         enabled(false);
+    }
+
+    @Override
+    public ExecutionResult execute() {
+
+        ExecutionContext context = ExecutionContext.of(this);
+
+        Skill skill = get();
+        if (!(skill instanceof Executable)) {
+            return context.failure("Skill is not executable.");
+        }
+
+        Optional<Player> player = player();
+        if (player.isEmpty()) {
+            return context.failure("Der Besitzer des Skills ist nicht online.");
+        }
+
+        try {
+            return ((Executable) skill).execute(context);
+        } catch (Exception e) {
+            log.severe("an error occurred while executing skill \"" + configuredSkill().name() + " (" + configuredSkill().alias() + "): " + e.getMessage());
+            e.printStackTrace();
+            return context.failure(e.getMessage());
+        }
     }
 }

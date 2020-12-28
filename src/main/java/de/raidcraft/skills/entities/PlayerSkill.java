@@ -1,5 +1,6 @@
 package de.raidcraft.skills.entities;
 
+import de.raidcraft.skills.ExecutionResult;
 import de.raidcraft.skills.SkillContext;
 import de.raidcraft.skills.SkillStatus;
 import de.raidcraft.skills.SkillsPlugin;
@@ -104,6 +105,14 @@ public class PlayerSkill extends BaseEntity {
         if (!active()) return;
 
         context().ifPresent(SkillContext::disable);
+    }
+
+    public ExecutionResult execute() {
+
+        if (!active()) return ExecutionResult.failure(null, "Der Skill ist nicht aktiv.");
+
+        return context().map(SkillContext::execute)
+                .orElse(ExecutionResult.failure(null, "Der Skill konnte nicht geladen werden."));
     }
 
     public boolean canActivate() {

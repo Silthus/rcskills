@@ -48,6 +48,13 @@ public interface SkillContext {
     void disable();
 
     /**
+     * Executes this skill if it is an executable skill and if the player is online.
+     *
+     * @return the result of the execution
+     */
+    ExecutionResult execute();
+
+    /**
      * Gets the player that owns this skill.
      *
      * @return the player of this skill

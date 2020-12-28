@@ -50,6 +50,8 @@ public class SkillsPlugin extends JavaPlugin {
     private LevelManager levelManager;
     @Getter
     private SlotManager slotManager;
+    @Getter
+    private TargetManager targetManager;
     private Database database;
     @Getter
     @Setter(AccessLevel.PACKAGE)
@@ -82,6 +84,7 @@ public class SkillsPlugin extends JavaPlugin {
         setupSkillManager();
         setupLevelManager();
         setupSlotManager();
+        setupTargetManager();
         setupEffectManager();
         setupListener();
         if (!isTesting()) {
@@ -141,6 +144,12 @@ public class SkillsPlugin extends JavaPlugin {
     private void setupEffectManager() {
 
         this.effectManager = new EffectManager(this);
+    }
+
+    private void setupTargetManager() {
+
+        this.targetManager = new TargetManager(this);
+        targetManager.load();
     }
 
     private void setupLevelManager() {

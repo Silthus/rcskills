@@ -6,6 +6,7 @@ import co.aikar.commands.ConditionFailedException;
 import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.annotation.*;
 import de.raidcraft.economy.wrapper.Economy;
+import de.raidcraft.skills.ExecutionResult;
 import de.raidcraft.skills.Messages;
 import de.raidcraft.skills.SkillsPlugin;
 import de.raidcraft.skills.actions.BuySkillAction;
@@ -115,6 +116,20 @@ public class PlayerCommands extends BaseCommand {
     public void list(@Conditions("others:perm=player.skills") SkilledPlayer player, @Default("1") int page) {
 
         Messages.skills(player, page).forEach(component -> Messages.send(getCurrentCommandIssuer(), component));
+    }
+
+    @Subcommand("use|cast|execute")
+    @CommandCompletion("@executable-skills")
+    @CommandPermission("rcskills.skill.execute")
+    @Description("Führt den Skill aus.")
+    public void use(PlayerSkill skill) {
+
+        ExecutionResult result = skill.execute();
+        if (result.success()) {
+            getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + "Der Skill " + skill.name() + " wurde ausgeführt.");
+        } else {
+            getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Beim Ausführen des Skills ist ein Fehler aufgetreten: " + String.join(";", result.errors()));
+        }
     }
 
     @Subcommand("myskills|active")
