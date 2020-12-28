@@ -5,19 +5,13 @@ import de.exlll.configlib.annotation.ConfigurationElement;
 import de.exlll.configlib.annotation.ElementType;
 import de.exlll.configlib.configs.yaml.BukkitYamlConfiguration;
 import de.exlll.configlib.format.FieldNameFormatters;
-import de.raidcraft.skills.entities.SkilledPlayer;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.*;
 
 @Getter
 @Setter

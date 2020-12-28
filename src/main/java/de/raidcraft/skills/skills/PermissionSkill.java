@@ -1,7 +1,6 @@
 package de.raidcraft.skills.skills;
 
 import de.raidcraft.skills.*;
-import de.raidcraft.skills.entities.PlayerSkill;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.permissions.PermissionAttachment;
 

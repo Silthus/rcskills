@@ -1,11 +1,7 @@
 package de.raidcraft.skills;
 
 import com.google.common.base.Strings;
-import de.raidcraft.skills.entities.ConfiguredSkill;
-import de.raidcraft.skills.entities.LevelHistory;
-import de.raidcraft.skills.entities.PlayerSkill;
-import de.raidcraft.skills.entities.SkillSlot;
-import de.raidcraft.skills.entities.SkilledPlayer;
+import de.raidcraft.skills.entities.*;
 import de.raidcraft.skills.events.*;
 import de.raidcraft.skills.util.Effects;
 import lombok.AccessLevel;
@@ -32,21 +28,12 @@ import org.codehaus.commons.compiler.IExpressionEvaluator;
 import org.codehaus.janino.CompilerFactory;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static net.kyori.adventure.text.Component.newline;
 import static net.kyori.adventure.text.Component.text;
-import static net.kyori.adventure.text.format.NamedTextColor.DARK_AQUA;
-import static net.kyori.adventure.text.format.NamedTextColor.DARK_GREEN;
-import static net.kyori.adventure.text.format.NamedTextColor.DARK_RED;
-import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
-import static net.kyori.adventure.text.format.NamedTextColor.RED;
-import static net.kyori.adventure.text.format.NamedTextColor.YELLOW;
+import static net.kyori.adventure.text.format.NamedTextColor.*;
 import static net.kyori.adventure.text.format.TextDecoration.BOLD;
 import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 

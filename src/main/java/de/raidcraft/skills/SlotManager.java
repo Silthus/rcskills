@@ -1,10 +1,7 @@
 package de.raidcraft.skills;
 
 import de.raidcraft.skills.entities.SkilledPlayer;
-import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Value;
 import lombok.experimental.Accessors;
 import lombok.extern.java.Log;
 import org.codehaus.commons.compiler.CompileException;
