@@ -11,30 +11,35 @@ import java.util.Set;
 class DefaultExecutionResult implements ExecutionResult {
 
     ExecutionContext context;
-    boolean success;
+    Status status;
     Set<String> errors;
+    Throwable exception;
 
     public DefaultExecutionResult(ExecutionContext context) {
         this.context = context;
-        this.success = true;
+        this.status = Status.SUCCESS;
         this.errors = new HashSet<>();
-    }
-
-    public DefaultExecutionResult(ExecutionContext context, boolean success) {
-        this.context = context;
-        this.success = success;
-        this.errors = new HashSet<>();
+        this.exception = null;
     }
 
     public DefaultExecutionResult(ExecutionContext context, boolean success, String... errors) {
         this.context = context;
-        this.success = success;
+        this.status = success ? Status.SUCCESS : Status.FAILURE;
         this.errors = Set.of(errors);
+        this.exception = null;
     }
 
-    public DefaultExecutionResult(ExecutionContext context, String... errors) {
+    public DefaultExecutionResult(ExecutionContext context, Status status, String... errors) {
         this.context = context;
-        this.success = false;
+        this.status = status;
         this.errors = Set.of(errors);
+        this.exception = null;
+    }
+
+    public DefaultExecutionResult(ExecutionContext context, Throwable throwable) {
+        this.context = context;
+        this.status = Status.EXCEPTION;
+        this.errors = Set.of(throwable.getMessage());
+        this.exception = throwable;
     }
 }

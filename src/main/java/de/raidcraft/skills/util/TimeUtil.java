@@ -131,7 +131,7 @@ public final class TimeUtil {
         return (sb.toString());
     }
 
-    public static String getAccurrateShortFormatedTime(long millis) {
+    public static String formatTime(long millis) {
 
         if (millis < 0) {
             throw new IllegalArgumentException("Duration must be greater than zero!");

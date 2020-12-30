@@ -17,6 +17,7 @@ import org.bukkit.Bukkit;
 import javax.persistence.*;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 @Entity
 @Getter
@@ -107,12 +108,15 @@ public class PlayerSkill extends BaseEntity {
         context().ifPresent(SkillContext::disable);
     }
 
-    public ExecutionResult execute() {
+    public void execute(Consumer<ExecutionResult> callback) {
 
-        if (!active()) return ExecutionResult.failure(null, "Der Skill ist nicht aktiv.");
+        if (!active()) {
+            callback.accept(ExecutionResult.failure(null, "Der Skill ist nicht aktiv."));
+            return;
+        }
 
-        return context().map(SkillContext::execute)
-                .orElse(ExecutionResult.failure(null, "Der Skill konnte nicht geladen werden."));
+        context().ifPresentOrElse(context -> context.execute(callback),
+                () -> callback.accept(ExecutionResult.failure(null, "Der Skill konnte nicht geladen werden.")));
     }
 
     public boolean canActivate() {

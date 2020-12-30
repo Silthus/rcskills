@@ -30,7 +30,48 @@ public interface ExecutionResult {
      */
     static ExecutionResult failure(ExecutionContext context, String... errors) {
 
-        return new DefaultExecutionResult(context, errors);
+        return new DefaultExecutionResult(context, Status.FAILURE, errors);
+    }
+
+    /**
+     * Creates a delayed execution result representing the state of the skill.
+     *
+     * @param context the context of the execution
+     * @return the created result
+     */
+    static ExecutionResult delayed(ExecutionContext context) {
+
+        return new DefaultExecutionResult(context, Status.DELAYED);
+    }
+
+    /**
+     * Creates an execution result that marks the skill as on cooldown.
+     * <p>The result will be treated as a failure.
+     *
+     * @param context the context of the execution
+     * @return the created result
+     */
+    static ExecutionResult cooldown(ExecutionContext context) {
+
+        return new DefaultExecutionResult(context, Status.COOLDOWN);
+    }
+
+    /**
+     * Creates a new execution result with the given status.
+     *
+     * @param context the context of the execution
+     * @param status the status
+     * @param errors any error that occurred
+     * @return the created result
+     */
+    static ExecutionResult of(ExecutionContext context, Status status, String... errors) {
+
+        return new DefaultExecutionResult(context, status, errors);
+    }
+
+    static ExecutionResult exception(ExecutionContext context, Throwable e) {
+
+        return new DefaultExecutionResult(context, e);
     }
 
     /**
@@ -62,15 +103,57 @@ public interface ExecutionResult {
     Collection<String> errors();
 
     /**
-     * @return true if the skill execution succeeded.
+     * Gets the current status of the skill result.
+     * <p>Check if the skill execution as {@link #delayed()},
+     * a {@link #success()} or {@link #failure()}.
+     *
+     * @return the status of the skill execution
      */
-    boolean success();
+    Status status();
 
     /**
-     * @return true if the skill execution failed.
+     * @return true if the skill execution succeeded.
+     */
+    default boolean success() {
+
+        return status() == Status.SUCCESS;
+    }
+
+    /**
+     * @return true if the skill execution failed, throws an exception or the skill is on cooldown
      */
     default boolean failure() {
 
-        return !success();
+        return status() == Status.FAILURE || status() == Status.EXCEPTION || status() == Status.COOLDOWN;
+    }
+
+    /**
+     * Returns any exception that was thrown during the execution or null if none.
+     * <p>The exception is never null if the status is {@link Status#EXCEPTION}.
+     *
+     * @return the thrown exception or null
+     */
+    Throwable exception();
+
+    /**
+     * @return true if the execution of the skill is delayed due to warmup or a delay
+     */
+    default boolean delayed() {
+
+        return status() == Status.DELAYED || status() == Status.WARMUP;
+    }
+
+    default boolean cooldown() {
+
+        return status() == Status.COOLDOWN;
+    }
+
+    enum Status {
+        SUCCESS,
+        FAILURE,
+        EXCEPTION,
+        DELAYED,
+        WARMUP,
+        COOLDOWN
     }
 }

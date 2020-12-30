@@ -5,23 +5,25 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * The ExecutionContext holds additional information about the execution of the skill.
  * <p>Use it to get the source of the execution, the player and more.
  * <p>A new execution context is created everytime a skill is executed.
  */
-public interface ExecutionContext {
+public interface ExecutionContext extends Runnable {
 
     /**
      * Creates a new execution context based of the given skill context.
      *
      * @param context the skill context of this execution
+     * @param callback the callback that is executed when the execution of the skill finished
      * @return the new execution context
      */
-    static ExecutionContext of(SkillContext context) {
+    static ExecutionContext of(SkillContext context, Consumer<ExecutionResult> callback) {
 
-        return new DefaultExecutionContext(context);
+        return new DefaultExecutionContext(context, callback);
     }
 
     /**
@@ -95,5 +97,21 @@ public interface ExecutionContext {
      */
     default ExecutionResult resultOf(boolean success, String... errors) {
         return ExecutionResult.of(this, success, errors);
+    }
+
+    /**
+     * @see ExecutionResult#delayed(ExecutionContext)
+     */
+    default ExecutionResult delayed() {
+
+        return ExecutionResult.delayed(this);
+    }
+
+    /**
+     * @see ExecutionResult#cooldown(ExecutionContext)
+     */
+    default ExecutionResult cooldown() {
+
+        return ExecutionResult.cooldown(this);
     }
 }

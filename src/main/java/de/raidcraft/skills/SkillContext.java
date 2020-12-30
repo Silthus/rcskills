@@ -4,10 +4,12 @@ import de.raidcraft.skills.entities.ConfiguredSkill;
 import de.raidcraft.skills.entities.DataStore;
 import de.raidcraft.skills.entities.PlayerSkill;
 import de.raidcraft.skills.entities.SkilledPlayer;
+import de.raidcraft.skills.util.TimeUtil;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public interface SkillContext {
 
@@ -50,9 +52,29 @@ public interface SkillContext {
     /**
      * Executes this skill if it is an executable skill and if the player is online.
      *
-     * @return the result of the execution
+     * @param callback the callback that is called when the skill executed or failed
      */
-    ExecutionResult execute();
+    void execute(Consumer<ExecutionResult> callback);
+
+    /**
+     * Checks if the skill is on cooldown.
+     * <p>Will return false if the skill has no configured cooldown.
+     *
+     * @return true if the skill is on cooldown and cannot be excuted
+     */
+    default boolean isOnCooldown() {
+
+        return getRemainingCooldown() > 0;
+    }
+
+    /**
+     * Gets the remaining cooldown of the skill in milliseconds.
+     * <p>Use the {@link TimeUtil#formatTime(long)} method to get a pretty formatted time output.
+     * <p>The cooldown will be -1 if no cooldown is configured.
+     *
+     * @return the remaining cooldown of the skill or -1 if no cooldown is configured
+     */
+    long getRemainingCooldown();
 
     /**
      * Gets the player that owns this skill.
