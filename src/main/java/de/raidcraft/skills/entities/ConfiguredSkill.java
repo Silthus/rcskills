@@ -1,5 +1,6 @@
 package de.raidcraft.skills.entities;
 
+import de.raidcraft.skills.ExecutionConfig;
 import de.raidcraft.skills.Requirement;
 import de.raidcraft.skills.SkillsPlugin;
 import de.raidcraft.skills.TestResult;
@@ -161,6 +162,13 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         }
 
         return config;
+    }
+
+    public ExecutionConfig getExecutionConfig() {
+
+        ConfigurationSection config = getConfig();
+        ConfigurationSection section = config.getConfigurationSection("execution");
+        return new ExecutionConfig(section == null ? config.createSection("execution") : section);
     }
 
     public ConfigurationSection getSkillConfig() {

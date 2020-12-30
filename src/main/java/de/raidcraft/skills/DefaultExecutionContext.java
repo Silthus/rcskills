@@ -2,27 +2,42 @@ package de.raidcraft.skills;
 
 import lombok.Value;
 import lombok.experimental.Accessors;
-import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 @Value
 @Accessors(fluent = true)
 class DefaultExecutionContext implements ExecutionContext {
 
     SkillContext source;
+    Skill skill;
+    Consumer<ExecutionResult> callback;
     ExecutionConfig config;
 
-    DefaultExecutionContext(SkillContext source) {
+    DefaultExecutionContext(SkillContext source, Consumer<ExecutionResult> callback) {
         this.source = source;
-        ConfigurationSection config = source.configuredSkill().getConfig();
-        ConfigurationSection section = config.getConfigurationSection("execution");
-        this.config = new ExecutionConfig(section == null ? config.createSection("execution") : section);
+        this.skill = source.get();
+        this.callback = callback;
+        this.config = source.configuredSkill().getExecutionConfig();
     }
 
     @Override
     public <TTarget> Optional<TTarget> target(Class<TTarget> targetClass) {
 
         return SkillsPlugin.instance().getTargetManager().resolve(this, targetClass);
+    }
+
+    @Override
+    public void run() {
+
+        if (skill instanceof Executable) {
+            try {
+                ((Executable) skill).execute(this);
+                callback.accept(ExecutionResult.success(this));
+            } catch (Exception e) {
+                callback.accept(ExecutionResult.exception(this, e));
+            }
+        }
     }
 }

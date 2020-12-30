@@ -124,12 +124,13 @@ public class PlayerCommands extends BaseCommand {
     @Description("Führt den Skill aus.")
     public void use(PlayerSkill skill) {
 
-        ExecutionResult result = skill.execute();
-        if (result.success()) {
-            getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + "Der Skill " + skill.name() + " wurde ausgeführt.");
-        } else {
-            getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Beim Ausführen des Skills ist ein Fehler aufgetreten: " + String.join(";", result.errors()));
-        }
+        skill.execute(result -> {
+            if (result.success()) {
+                getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + "Der Skill " + skill.name() + " wurde ausgeführt.");
+            } else {
+                getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Beim Ausführen des Skills ist ein Fehler aufgetreten: " + String.join(";", result.errors()));
+            }
+        });
     }
 
     @Subcommand("myskills|active")

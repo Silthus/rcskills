@@ -1,6 +1,7 @@
 package de.raidcraft.skills;
 
 import de.raidcraft.skills.entities.PlayerSkill;
+import de.raidcraft.skills.util.TimeUtil;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
@@ -14,14 +15,19 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 @Data
 @Accessors(fluent = true)
 @Log(topic = "RCSkills")
 @ToString(of = { "playerSkillId", "registration", "enabled" })
 class DefaultSkillContext implements SkillContext {
+
+    private static final String COOLDOWN_LAST_USED = "cooldown_last_used";
 
     private final UUID playerSkillId;
     private final PlayerSkill playerSkill;
@@ -131,26 +137,59 @@ class DefaultSkillContext implements SkillContext {
     }
 
     @Override
-    public ExecutionResult execute() {
+    public void execute(Consumer<ExecutionResult> callback) {
 
-        ExecutionContext context = ExecutionContext.of(this);
+        ExecutionContext context = ExecutionContext.of(this, callback);
 
         Skill skill = get();
         if (!(skill instanceof Executable)) {
-            return context.failure("Skill is not executable.");
+            callback.accept(context.failure("Skill is not executable."));
+            return;
         }
 
         Optional<Player> player = player();
         if (player.isEmpty()) {
-            return context.failure("Der Besitzer des Skills ist nicht online.");
+            callback.accept(context.failure("Der Besitzer des Skills ist nicht online."));
+            return;
         }
 
-        try {
-            return ((Executable) skill).execute(context);
-        } catch (Exception e) {
-            log.severe("an error occurred while executing skill \"" + configuredSkill().name() + " (" + configuredSkill().alias() + "): " + e.getMessage());
-            e.printStackTrace();
-            return context.failure(e.getMessage());
+        long cooldown = context.config().cooldown();
+        if (cooldown > 0) {
+            Instant lastUsed = store().get(COOLDOWN_LAST_USED, Instant.class, Instant.EPOCH);
+            long remainingCooldown = lastUsed.plus(cooldown, ChronoUnit.MILLIS).toEpochMilli() - Instant.now().toEpochMilli();
+            if (remainingCooldown > 0) {
+                callback.accept(context.cooldown());
+                return;
+            }
         }
+
+        if (context.config().delay() > 0) {
+            Bukkit.getScheduler().runTaskLater(SkillsPlugin.instance(),
+                    context,
+                    context.config().delay()
+            );
+            callback.accept(context.delayed());
+        } else {
+            context.run();
+        }
+    }
+
+    @Override
+    public long getRemainingCooldown() {
+
+        if (configuredSkill().getExecutionConfig().cooldown() > 0) {
+            return getCooldown().toEpochMilli() - Instant.now().toEpochMilli();
+        }
+
+        return -1;
+    }
+
+    private Instant getCooldown() {
+
+        return store().get(
+                COOLDOWN_LAST_USED,
+                Instant.class,
+                Instant.EPOCH.plus(configuredSkill().getExecutionConfig().cooldown(), ChronoUnit.MILLIS)
+        );
     }
 }
