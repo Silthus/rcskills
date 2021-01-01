@@ -121,8 +121,6 @@ public final class SkillManager {
 
     public void unload() {
 
-        if (SkillsPlugin.isTesting()) return;
-
         clearCache();
         skillTypes.clear();
         requirements.clear();

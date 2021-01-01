@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
 class LevelManagerTest {
 
-
     private ServerMock server;
     private SkillsPlugin plugin;
     private LevelManager levelManager;
