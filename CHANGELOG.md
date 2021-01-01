@@ -1,3 +1,16 @@
+# [1.11.0](https://github.com/raidcraft/rcskills/compare/v1.10.0...v1.11.0) (2021-01-01)
+
+
+### Bug Fixes
+
+* set and update last used to calculate cooldown ([515fd36](https://github.com/raidcraft/rcskills/commit/515fd368a5ea3e476c81cd7fc920b1b8d9433c64))
+
+
+### Features
+
+* add Executable skills ([c9227c4](https://github.com/raidcraft/rcskills/commit/c9227c4e7b7f81b9dd12e9681ebf390bfbfef0d3))
+* implemented delayed and cooldown skills ([df11bfc](https://github.com/raidcraft/rcskills/commit/df11bfc9dc3b296778fed8c372c441e81da49d41))
+
 # [1.10.0](https://github.com/raidcraft/rcskills/compare/v1.9.1...v1.10.0) (2020-12-26)
 
 
