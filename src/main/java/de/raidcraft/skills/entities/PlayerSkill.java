@@ -6,6 +6,7 @@ import de.raidcraft.skills.SkillStatus;
 import de.raidcraft.skills.SkillsPlugin;
 import de.raidcraft.skills.events.*;
 import io.ebean.Finder;
+import io.ebean.annotation.DbDefault;
 import io.ebean.annotation.Index;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import net.silthus.ebean.BaseEntity;
 import org.bukkit.Bukkit;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -48,6 +50,7 @@ public class PlayerSkill extends BaseEntity {
     @ManyToOne(optional = false)
     private ConfiguredSkill configuredSkill;
     private SkillStatus status = SkillStatus.NOT_PRESENT;
+    private Instant lastUsed = Instant.EPOCH;
     @OneToOne(cascade = CascadeType.ALL)
     private DataStore data = new DataStore();
 
@@ -66,6 +69,12 @@ public class PlayerSkill extends BaseEntity {
 
     public String description() {
         return configuredSkill.description();
+    }
+
+    public Instant lastUsed() {
+
+        if (lastUsed == null) return Instant.EPOCH;
+        return lastUsed;
     }
 
     Optional<SkillContext> context() {

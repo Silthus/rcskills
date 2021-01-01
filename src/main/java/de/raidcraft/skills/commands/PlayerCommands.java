@@ -14,6 +14,7 @@ import de.raidcraft.skills.entities.ConfiguredSkill;
 import de.raidcraft.skills.entities.PlayerSkill;
 import de.raidcraft.skills.entities.SkillSlot;
 import de.raidcraft.skills.entities.SkilledPlayer;
+import de.raidcraft.skills.util.TimeUtil;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -127,6 +128,9 @@ public class PlayerCommands extends BaseCommand {
         skill.execute(result -> {
             if (result.success()) {
                 getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + "Der Skill " + skill.name() + " wurde ausgeführt.");
+            } else if (result.cooldown()) {
+                getCurrentCommandIssuer().sendMessage(ChatColor.YELLOW + "Der Skill hat noch einen Cooldown von: "
+                        + ChatColor.AQUA + result.formattedCooldown());
             } else {
                 getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Beim Ausführen des Skills ist ein Fehler aufgetreten: " + String.join(";", result.errors()));
             }

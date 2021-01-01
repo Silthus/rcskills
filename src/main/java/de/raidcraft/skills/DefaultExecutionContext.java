@@ -3,6 +3,7 @@ package de.raidcraft.skills;
 import lombok.Value;
 import lombok.experimental.Accessors;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -19,7 +20,7 @@ class DefaultExecutionContext implements ExecutionContext {
         this.source = source;
         this.skill = source.get();
         this.callback = callback;
-        this.config = source.configuredSkill().getExecutionConfig();
+        this.config = source.configuredSkill().executionConfig();
     }
 
     @Override
@@ -34,6 +35,7 @@ class DefaultExecutionContext implements ExecutionContext {
         if (skill instanceof Executable) {
             try {
                 ((Executable) skill).execute(this);
+                source().playerSkill().lastUsed(Instant.now()).save();
                 callback.accept(ExecutionResult.success(this));
             } catch (Exception e) {
                 callback.accept(ExecutionResult.exception(this, e));

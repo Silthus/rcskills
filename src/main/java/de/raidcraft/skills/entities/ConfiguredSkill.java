@@ -1,9 +1,6 @@
 package de.raidcraft.skills.entities;
 
-import de.raidcraft.skills.ExecutionConfig;
-import de.raidcraft.skills.Requirement;
-import de.raidcraft.skills.SkillsPlugin;
-import de.raidcraft.skills.TestResult;
+import de.raidcraft.skills.*;
 import de.raidcraft.skills.requirements.LevelRequirement;
 import de.raidcraft.skills.requirements.MoneyRequirement;
 import de.raidcraft.skills.requirements.PermissionRequirement;
@@ -76,8 +73,8 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     @Index
     private String alias;
     @Index
-    private String name;
-    private String type;
+    private String name = alias();
+    private String type = "permission";
     private String description;
     private int level = 1;
     private double money = 0d;
@@ -100,6 +97,8 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     private transient List<Requirement> costRequirements = new ArrayList<>();
 
     private transient boolean loaded = false;
+    @Transient
+    private transient ExecutionConfig executionConfig;
 
     ConfiguredSkill(UUID id) {
         this.id(id);
@@ -142,6 +141,15 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         return costRequirements;
     }
 
+    public ExecutionConfig executionConfig() {
+
+        if (executionConfig == null) {
+            this.executionConfig = new ExecutionConfig(new MemoryConfiguration());
+            load(false);
+        }
+        return executionConfig;
+    }
+
     public ConfiguredSkill load(ConfigurationSection config) {
         this.config = new HashMap<>();
         config.getKeys(true)
@@ -164,13 +172,6 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         return config;
     }
 
-    public ExecutionConfig getExecutionConfig() {
-
-        ConfigurationSection config = getConfig();
-        ConfigurationSection section = config.getConfigurationSection("execution");
-        return new ExecutionConfig(section == null ? config.createSection("execution") : section);
-    }
-
     public ConfigurationSection getSkillConfig() {
 
         ConfigurationSection config = getConfig();
@@ -190,8 +191,8 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         ConfigurationSection config = getConfig();
 
         this.alias = config.getString("alias", alias);
-        this.name = config.getString("name", alias());
-        this.type = config.getString("type", "permission");
+        this.name = config.getString("name", name);
+        this.type = config.getString("type", type);
         this.description = config.getString("description", description);
         this.level = config.getInt("level", level);
         this.money = config.getDouble("money", money);
@@ -203,6 +204,10 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         this.autoUnlock = config.getBoolean("auto-unlock", autoUnlock);
         if (config.isSet("categories"))
             this.categories = config.getStringList("categories");
+
+        ConfigurationSection section = config.getConfigurationSection("execution");
+        this.executionConfig = new ExecutionConfig(Objects.requireNonNullElseGet(section,
+                () -> config.createSection("execution")));
 
         this.requirements = SkillsPlugin.instance().getSkillManager()
                 .loadRequirements(config.getConfigurationSection("requirements"));
