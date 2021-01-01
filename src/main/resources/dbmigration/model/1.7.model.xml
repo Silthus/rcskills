@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<migration xmlns="http://ebean-orm.github.io/xml/ns/dbmigration">
+    <changeSet type="apply">
+        <addColumn tableName="rcs_player_skills">
+            <column name="last_used" type="timestamp"/>
+        </addColumn>
+        <alterColumn columnName="status" tableName="rcs_skill_slots" checkConstraint="check ( status in ('IN_USE','FREE','ELIGIBLE'))" checkConstraintName="ck_rcs_skill_slots_status"/>
+    </changeSet>
+</migration>

@@ -1,5 +1,7 @@
 package de.raidcraft.skills;
 
+import de.raidcraft.skills.util.TimeUtil;
+
 import java.util.Collection;
 
 /**
@@ -146,6 +148,16 @@ public interface ExecutionResult {
     default boolean cooldown() {
 
         return status() == Status.COOLDOWN;
+    }
+
+    default long remainingCooldown() {
+
+        return context().source().getRemainingCooldown();
+    }
+
+    default String formattedCooldown() {
+
+        return TimeUtil.formatTime(remainingCooldown());
     }
 
     enum Status {

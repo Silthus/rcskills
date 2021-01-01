@@ -1,14 +1,15 @@
 package de.raidcraft.skills;
 
 import de.raidcraft.skills.util.TimeUtil;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Value;
+import lombok.*;
 import lombok.experimental.Accessors;
 import lombok.extern.java.Log;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemoryConfiguration;
 
 @Value
+@Builder
+@AllArgsConstructor
 @Log(topic = "RCSkills")
 @Accessors(fluent = true)
 public class ExecutionConfig {
@@ -35,7 +36,7 @@ public class ExecutionConfig {
     public ExecutionConfig(ConfigurationSection config) {
         this.config = config;
         this.range = config.getInt("range", 30);
-        cooldown = TimeUtil.parseTimeAsTicks(config.getString("cooldown", "0"));
+        cooldown = TimeUtil.parseTimeAsMilliseconds(config.getString("cooldown", "0"));
         warmup = TimeUtil.parseTimeAsTicks(config.getString("warmup", "0"));
         delay = TimeUtil.parseTimeAsTicks(config.getString("delay", "0"));
     }

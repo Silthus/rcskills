@@ -27,8 +27,6 @@ import java.util.function.Consumer;
 @ToString(of = { "playerSkillId", "registration", "enabled" })
 class DefaultSkillContext implements SkillContext {
 
-    private static final String COOLDOWN_LAST_USED = "cooldown_last_used";
-
     private final UUID playerSkillId;
     private final PlayerSkill playerSkill;
     private final Skill.Registration<?> registration;
@@ -153,14 +151,9 @@ class DefaultSkillContext implements SkillContext {
             return;
         }
 
-        long cooldown = context.config().cooldown();
-        if (cooldown > 0) {
-            Instant lastUsed = store().get(COOLDOWN_LAST_USED, Instant.class, Instant.EPOCH);
-            long remainingCooldown = lastUsed.plus(cooldown, ChronoUnit.MILLIS).toEpochMilli() - Instant.now().toEpochMilli();
-            if (remainingCooldown > 0) {
-                callback.accept(context.cooldown());
-                return;
-            }
+        if (isOnCooldown()) {
+            callback.accept(context.cooldown());
+            return;
         }
 
         if (context.config().delay() > 0) {
@@ -177,7 +170,7 @@ class DefaultSkillContext implements SkillContext {
     @Override
     public long getRemainingCooldown() {
 
-        if (configuredSkill().getExecutionConfig().cooldown() > 0) {
+        if (configuredSkill().executionConfig().cooldown() > 0) {
             return getCooldown().toEpochMilli() - Instant.now().toEpochMilli();
         }
 
@@ -186,10 +179,7 @@ class DefaultSkillContext implements SkillContext {
 
     private Instant getCooldown() {
 
-        return store().get(
-                COOLDOWN_LAST_USED,
-                Instant.class,
-                Instant.EPOCH.plus(configuredSkill().getExecutionConfig().cooldown(), ChronoUnit.MILLIS)
-        );
+        return playerSkill().lastUsed()
+                .plus(configuredSkill().executionConfig().cooldown(), ChronoUnit.MILLIS);
     }
 }
