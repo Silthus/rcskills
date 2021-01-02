@@ -1,6 +1,9 @@
 package de.raidcraft.skills.entities;
 
-import de.raidcraft.skills.*;
+import de.raidcraft.skills.ExecutionConfig;
+import de.raidcraft.skills.Requirement;
+import de.raidcraft.skills.SkillsPlugin;
+import de.raidcraft.skills.TestResult;
 import de.raidcraft.skills.requirements.LevelRequirement;
 import de.raidcraft.skills.requirements.MoneyRequirement;
 import de.raidcraft.skills.requirements.PermissionRequirement;
@@ -75,7 +78,7 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     @Index
     private String name = alias();
     private String type = "permission";
-    private String description;
+    private String description = "N/A";
     private int level = 1;
     private double money = 0d;
     private int skillpoints = 0;
