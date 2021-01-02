@@ -1,3 +1,11 @@
+## [1.12.1](https://github.com/raidcraft/rcskills/compare/v1.12.0...v1.12.1) (2021-01-02)
+
+
+### Bug Fixes
+
+* award level specific skillpoints and slots when skipping level ([d521ef0](https://github.com/raidcraft/rcskills/commit/d521ef08ebc557fea31c09becc8bdbb13dcd21f4)), closes [#44](https://github.com/raidcraft/rcskills/issues/44)
+* default skill description to N/A ([0457805](https://github.com/raidcraft/rcskills/commit/0457805b4b47ff31ffbaa0dc0cf09aa13f8b9087)), closes [#50](https://github.com/raidcraft/rcskills/issues/50)
+
 # [1.12.0](https://github.com/raidcraft/rcskills/compare/v1.11.0...v1.12.0) (2021-01-02)
 
 
