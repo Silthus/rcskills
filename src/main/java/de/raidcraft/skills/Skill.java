@@ -99,5 +99,10 @@ public interface Skill {
 
             return info().value();
         }
+
+        public boolean activeSkill() {
+
+            return Executable.class.isAssignableFrom(skillClass);
+        }
     }
 }

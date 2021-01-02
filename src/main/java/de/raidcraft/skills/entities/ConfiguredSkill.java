@@ -79,6 +79,7 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     private String name = alias();
     private String type = "permission";
     private String description = "N/A";
+    private boolean active = false;
     private int level = 1;
     private double money = 0d;
     private int skillpoints = 0;
@@ -197,6 +198,7 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         this.name = config.getString("name", name);
         this.type = config.getString("type", type);
         this.description = config.getString("description", description);
+        this.active = config.getBoolean("active", active);
         this.level = config.getInt("level", level);
         this.money = config.getDouble("money", money);
         this.skillpoints = config.getInt("skillpoints", skillpoints);

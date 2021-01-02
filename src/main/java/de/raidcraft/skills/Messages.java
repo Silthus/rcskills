@@ -573,7 +573,8 @@ public final class Messages {
 
         TextComponent.Builder builder = text().append(text(skill.name(), GOLD))
                 .append(text(" (" + skill.alias() + ")", GRAY, ITALIC)).append(newline())
-                .append(text("Level: ", YELLOW).append(text(skill.level(), AQUA))).append(newline());
+                .append(text("Level: ", YELLOW).append(text(skill.level(), AQUA))).append(newline())
+                .append(text("Typ: ", YELLOW).append(text(skill.active() ? "AKTIV" : "PASSIV", AQUA))).append(newline());
         if (skill.money() > 0d) {
             builder.append(text("Kosten: ", YELLOW))
                     .append(text(Economy.get().format(skill.money()), AQUA))
