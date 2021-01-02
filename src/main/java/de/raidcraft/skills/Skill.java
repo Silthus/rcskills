@@ -1,9 +1,12 @@
 package de.raidcraft.skills;
 
+import de.raidcraft.skills.entities.DataStore;
+import de.raidcraft.skills.entities.PlayerSkill;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.bukkit.configuration.ConfigurationSection;
 
+import java.time.Instant;
 import java.util.function.Function;
 
 public interface Skill {
@@ -16,6 +19,50 @@ public interface Skill {
      * @return the executing context of this skill
      */
     SkillContext context();
+
+    /**
+     * @return the datastore of the skill for storing persistent data
+     * @see SkillContext#store()
+     */
+    default DataStore store() {
+
+        return context().store();
+    }
+
+    /**
+     * @return the remaining cooldown of the skill in milliseconds
+     *         zero or less if no cooldown is configured or the cooldown is over
+     * @see SkillContext#getRemainingCooldown()
+     */
+    default long getRemainingCooldown() {
+
+        return context().getRemainingCooldown();
+    }
+
+    /**
+     * Gets the time the skill was last used.
+     * <p>{@link Instant#EPOCH} will be returned if the skill was never used.
+     *
+     * @return the time the skill was last used
+     * @see PlayerSkill#lastUsed()
+     */
+    default Instant lastUsed() {
+
+        return context().playerSkill().lastUsed();
+    }
+
+    /**
+     * Sets the time the skill was last used to the given Instant.
+     *
+     * @param instant the instant the skill was last used
+     * @return this skill instance
+     * @see PlayerSkill#lastUsed(Instant)
+     */
+    default Skill lastUsed(Instant instant) {
+
+        context().playerSkill().lastUsed(instant);
+        return this;
+    }
 
     /**
      * Load is called with the config of the configured skill after the creation of this skill.

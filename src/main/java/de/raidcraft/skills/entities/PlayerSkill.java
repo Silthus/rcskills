@@ -71,6 +71,12 @@ public class PlayerSkill extends BaseEntity {
         return configuredSkill.description();
     }
 
+    /**
+     * Gets the time the skill was last used.
+     * <p>Will never return null and an instant with the start of the epoch instead.
+     *
+     * @return the last time the skill was used
+     */
     public Instant lastUsed() {
 
         if (lastUsed == null) return Instant.EPOCH;
