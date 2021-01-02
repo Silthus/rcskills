@@ -44,7 +44,7 @@ public final class LevelManager implements Listener {
     private final SkillsPlugin plugin;
     private final Map<UUID, Map<Integer, Integer>> cache = new HashMap<>();
     private Map<Integer, Integer> levelToExpMap = new HashMap<>();
-    private Map<UUID, Map.Entry<BossBar, BukkitTask>> activeExpBars = new HashMap<>();
+    private final Map<UUID, Map.Entry<BossBar, BukkitTask>> activeExpBars = new HashMap<>();
 
     @Getter(AccessLevel.PACKAGE)
     @Accessors(fluent = true)
@@ -200,7 +200,7 @@ public final class LevelManager implements Listener {
 
         SkilledPlayer skilledPlayer = event.getPlayer();
         for (int i = 0; i < levelDiff; i++) {
-            int level = event.getOldLevel() + 1;
+            int level = event.getOldLevel() + 1 + i;
             SkillPluginConfig.LevelUp levelUp = config.getLevels().get(level);
             if (levelUp != null) {
                 skillpoints += levelUp.getSkillpoints();

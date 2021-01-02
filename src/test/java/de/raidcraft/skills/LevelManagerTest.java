@@ -158,4 +158,24 @@ class LevelManagerTest {
                 .extracting(Level::getLevel, Level::getTotalExp)
                 .contains(7, 910L);
     }
+
+    @Test
+    @DisplayName("should award player rewards for leveling")
+    void shouldAwardPlayerRewardsForLeveling() {
+
+        assertThatCode(() -> levelManager.load()).doesNotThrowAnyException();
+        SkillPluginConfig.LevelUp levelUp = new SkillPluginConfig.LevelUp();
+        levelUp.setSlots(1);
+        plugin.getPluginConfig().getLevelUpConfig().getLevels().put(5, levelUp);
+        plugin.getPluginConfig().getLevelUpConfig().getLevels().put(10, levelUp);
+        plugin.getPluginConfig().getLevelUpConfig().getLevels().put(15, levelUp);
+        plugin.getPluginConfig().getLevelUpConfig().getLevels().put(16, levelUp);
+
+        player.setLevel(3).save();
+        assertThat(player.skillSlots().size()).isEqualTo(0);
+
+        player.addLevel(12).save();
+
+        assertThat(player.skillSlots().size()).isEqualTo(3);
+    }
 }
