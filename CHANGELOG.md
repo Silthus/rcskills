@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/raidcraft/rcskills/compare/v1.12.1...v1.13.0) (2021-01-02)
+
+
+### Features
+
+* display active/passive status in skill info ([9a5312c](https://github.com/raidcraft/rcskills/commit/9a5312c8f02b4bcda9ae1a61e20ef43a3cbc12fa)), closes [#41](https://github.com/raidcraft/rcskills/issues/41)
+
 ## [1.12.1](https://github.com/raidcraft/rcskills/compare/v1.12.0...v1.12.1) (2021-01-02)
 
 
