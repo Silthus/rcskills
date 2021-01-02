@@ -1,3 +1,10 @@
+# [1.12.0](https://github.com/raidcraft/rcskills/compare/v1.11.0...v1.12.0) (2021-01-02)
+
+
+### Features
+
+* **api:** add delegation methods for simpler access inside Skill ([f4d70c9](https://github.com/raidcraft/rcskills/commit/f4d70c9d6a346160cfab07493a61b304dad2ed74))
+
 # [1.11.0](https://github.com/raidcraft/rcskills/compare/v1.10.0...v1.11.0) (2021-01-01)
 
 
