@@ -27,7 +27,6 @@ import java.util.function.Consumer;
 class DefaultSkillContext implements SkillContext {
 
     private final UUID playerSkillId;
-    private final PlayerSkill playerSkill;
     private final Skill.Registration<?> registration;
     private Skill skill;
     private long interval;
@@ -36,7 +35,6 @@ class DefaultSkillContext implements SkillContext {
 
     DefaultSkillContext(PlayerSkill playerSkill, Skill.Registration<?> registration) {
         this.playerSkillId = playerSkill.id();
-        this.playerSkill = playerSkill;
         this.registration = registration;
         this.interval = registration().info().taskInterval();
     }
@@ -56,6 +54,7 @@ class DefaultSkillContext implements SkillContext {
     DefaultSkillContext init() throws ConfigurationException {
 
         skill = registration.supplier().apply(this);
+        PlayerSkill playerSkill = playerSkill();
         this.interval = playerSkill.configuredSkill().getConfig().getLong("task.interval", interval);
         ConfigurationSection skillConfig = playerSkill.configuredSkill().getSkillConfig();
         skill = BukkitConfigMap.of(skill)
@@ -67,8 +66,7 @@ class DefaultSkillContext implements SkillContext {
 
     public PlayerSkill playerSkill() {
 
-        playerSkill.refresh();
-        return playerSkill;
+        return PlayerSkill.find.byId(playerSkillId);
     }
 
     public Skill get() {
