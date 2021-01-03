@@ -1,7 +1,6 @@
 package de.raidcraft.skills;
 
 import de.raidcraft.skills.entities.PlayerSkill;
-import de.raidcraft.skills.util.TimeUtil;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
@@ -59,10 +58,10 @@ class DefaultSkillContext implements SkillContext {
         skill = registration.supplier().apply(this);
         this.interval = playerSkill.configuredSkill().getConfig().getLong("task.interval", interval);
         ConfigurationSection skillConfig = playerSkill.configuredSkill().getSkillConfig();
-        skill.load(skillConfig);
         skill = BukkitConfigMap.of(skill)
                 .with(skillConfig)
                 .applyTo(skill);
+        skill.load(skillConfig);
         return this;
     }
 
