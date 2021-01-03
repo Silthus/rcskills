@@ -1,3 +1,10 @@
+## [1.14.2](https://github.com/raidcraft/rcskills/compare/v1.14.1...v1.14.2) (2021-01-03)
+
+
+### Bug Fixes
+
+* actively fetch the player skill when requested ([3e1aad1](https://github.com/raidcraft/rcskills/commit/3e1aad1b308553ec46d5276424dc9947a4074b66))
+
 ## [1.14.1](https://github.com/raidcraft/rcskills/compare/v1.14.0...v1.14.1) (2021-01-03)
 
 
