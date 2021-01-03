@@ -294,7 +294,20 @@ public class SkillsPlugin extends JavaPlugin {
         commandManager.getCommandContexts().registerContext(PlayerSkill.class, context -> {
 
             SkilledPlayer player = null;
-            ConfiguredSkill skill = ConfiguredSkill.findByAliasOrName(context.popFirstArg()).orElse(null);
+            ConfiguredSkill skill;
+            PlayerSkill playerSkill = null;
+            String arg = context.popFirstArg();
+            try {
+                UUID id = UUID.fromString(arg);
+                skill = ConfiguredSkill.find.byId(id);
+                if (skill == null) {
+                    playerSkill = PlayerSkill.find.byId(id);
+                }
+            } catch (Exception e) {
+                skill = ConfiguredSkill.findByAliasOrName(arg).orElse(null);
+            }
+
+            if (playerSkill != null) return playerSkill;
 
             if (context.getPlayer() != null) {
                 player = SkilledPlayer.getOrCreate(context.getPlayer());
