@@ -88,13 +88,14 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     private boolean enabled = true;
     private boolean restricted = false;
     private boolean autoUnlock = false;
-    private List<String> categories = new ArrayList<>();
 
     @DbJson
     private Map<String, Object> config = new HashMap<>();
     @OneToMany(cascade = CascadeType.REMOVE)
     private List<PlayerSkill> playerSkills = new ArrayList<>();
 
+    @Transient
+    private transient List<String> categories = new ArrayList<>();
     @Transient
     private transient List<Requirement> requirements = new ArrayList<>();
     @Transient
@@ -207,8 +208,9 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         this.enabled = config.getBoolean("enabled", enabled);
         this.restricted = config.getBoolean("restricted", restricted);
         this.autoUnlock = config.getBoolean("auto-unlock", autoUnlock);
-        if (config.isSet("categories"))
+        if (config.isSet("categories")) {
             this.categories = config.getStringList("categories");
+        }
 
         ConfigurationSection section = config.getConfigurationSection("execution");
         this.executionConfig = new ExecutionConfig(Objects.requireNonNullElseGet(section,
