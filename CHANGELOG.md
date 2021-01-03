@@ -1,3 +1,10 @@
+# [1.14.0](https://github.com/raidcraft/rcskills/compare/v1.13.0...v1.14.0) (2021-01-03)
+
+
+### Features
+
+* add /bind commands for active skills ([99e8c09](https://github.com/raidcraft/rcskills/commit/99e8c0988436b31c7eb34834e35ff1a6748c7366)), closes [#51](https://github.com/raidcraft/rcskills/issues/51)
+
 # [1.13.0](https://github.com/raidcraft/rcskills/compare/v1.12.1...v1.13.0) (2021-01-02)
 
 
