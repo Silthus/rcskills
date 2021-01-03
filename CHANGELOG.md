@@ -1,3 +1,10 @@
+## [1.14.1](https://github.com/raidcraft/rcskills/compare/v1.14.0...v1.14.1) (2021-01-03)
+
+
+### Bug Fixes
+
+* load skill config after initializing config map ([1569480](https://github.com/raidcraft/rcskills/commit/1569480fefc99b0994ac0bc6c5ca69f69c21c627))
+
 # [1.14.0](https://github.com/raidcraft/rcskills/compare/v1.13.0...v1.14.0) (2021-01-03)
 
 
