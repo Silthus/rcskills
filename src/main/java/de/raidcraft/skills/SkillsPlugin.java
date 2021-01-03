@@ -7,6 +7,7 @@ import com.google.common.base.Strings;
 import de.raidcraft.skills.commands.AdminCommands;
 import de.raidcraft.skills.commands.PlayerCommands;
 import de.raidcraft.skills.entities.*;
+import de.raidcraft.skills.listener.BindingListener;
 import de.raidcraft.skills.listener.PlayerListener;
 import de.slikey.effectlib.EffectManager;
 import io.ebean.Database;
@@ -28,6 +29,7 @@ import org.bukkit.plugin.java.JavaPluginLoader;
 import org.codehaus.commons.compiler.CompileException;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -58,6 +60,8 @@ public class SkillsPlugin extends JavaPlugin {
     private SkillPluginConfig pluginConfig;
     private Messages messages;
     private PlayerListener playerListener;
+    @Getter
+    private BindingListener bindingListener;
     private PaperCommandManager commandManager;
     @Getter
     private EffectManager effectManager;
@@ -179,6 +183,9 @@ public class SkillsPlugin extends JavaPlugin {
 
         this.playerListener = new PlayerListener(skillManager);
         Bukkit.getPluginManager().registerEvents(playerListener, this);
+
+        this.bindingListener = new BindingListener();
+        Bukkit.getPluginManager().registerEvents(bindingListener, this);
     }
 
     void setupCommands() {
@@ -195,16 +202,32 @@ public class SkillsPlugin extends JavaPlugin {
         registerSkilledPlayerContext(commandManager);
         registerSkillContext(commandManager);
         registerPlayerSkillContext(commandManager);
+        registerBindActionContext(commandManager);
 
         registerOthersCondition(commandManager);
         registerUnlockedCondition(commandManager);
         registerActiveCondition(commandManager);
+        registerExecutableCondition(commandManager);
+
+        registerSkillsCompletion(commandManager);
+        registerUnlockedSkillsCompletion(commandManager);
+        registerActiveSkillsCompletion(commandManager);
+        registerBindActions(commandManager);
+
+        commandManager.registerCommand(new PlayerCommands(this));
+        commandManager.registerCommand(new AdminCommands(this));
+    }
+
+    private void registerSkillsCompletion(PaperCommandManager commandManager) {
 
         commandManager.getCommandCompletions().registerAsyncCompletion("skills", context -> ConfiguredSkill.find
                 .query().findSet().stream()
                 .filter(ConfiguredSkill::enabled)
                 .map(ConfiguredSkill::alias)
                 .collect(Collectors.toSet()));
+    }
+
+    private void registerUnlockedSkillsCompletion(PaperCommandManager commandManager) {
 
         commandManager.getCommandCompletions().registerAsyncCompletion("unlocked-skills", context -> PlayerSkill.find
                 .query().where()
@@ -215,9 +238,38 @@ public class SkillsPlugin extends JavaPlugin {
                 .map(PlayerSkill::alias)
                 .collect(Collectors.toSet())
         );
+    }
 
-        commandManager.registerCommand(new PlayerCommands(this));
-        commandManager.registerCommand(new AdminCommands(this));
+    private void registerActiveSkillsCompletion(PaperCommandManager commandManager) {
+
+        commandManager.getCommandCompletions().registerAsyncCompletion("active-skills", context -> PlayerSkill.find.query().where()
+                .eq("status", SkillStatus.ACTIVE.getValue())
+                .findSet().stream()
+                .filter(skill -> skill.configuredSkill().active())
+                .map(PlayerSkill::alias)
+                .collect(Collectors.toSet()));
+    }
+
+    private void registerBindActions(PaperCommandManager commandManager) {
+
+        commandManager.getCommandCompletions().registerAsyncCompletion("bind-actions", context -> Arrays.
+                stream(ItemBinding.Action.values())
+                .map(Enum::name)
+                .collect(Collectors.toSet())
+        );
+    }
+
+    private void registerBindActionContext(PaperCommandManager commandManager) {
+
+        commandManager.getCommandContexts().registerContext(ItemBinding.Action.class,
+                context -> {
+                    String name = context.popFirstArg();
+                    try {
+                        return ItemBinding.Action.valueOf(name);
+                    } catch (IllegalArgumentException e) {
+                        throw new InvalidCommandArgument("Es gibt keine Bind Action mit dem Namen " + name);
+                    }
+                });
     }
 
     private void registerSkillContext(PaperCommandManager commandManager) {
@@ -239,32 +291,12 @@ public class SkillsPlugin extends JavaPlugin {
 
     private void registerPlayerSkillContext(PaperCommandManager commandManager) {
 
-        commandManager.getCommandContexts().registerIssuerAwareContext(PlayerSkill.class, context -> {
+        commandManager.getCommandContexts().registerContext(PlayerSkill.class, context -> {
+
             SkilledPlayer player = null;
-            ConfiguredSkill skill = null;
-            PlayerSkill playerSkill = null;
-            for (String arg : context.getArgs()) {
-                try {
-                    UUID id = UUID.fromString(arg);
-                    if (player == null)
-                        player = SkilledPlayer.find.byId(id);
-                    if (skill == null)
-                        skill = ConfiguredSkill.find.byId(id);
-                    if (playerSkill == null)
-                        playerSkill = PlayerSkill.find.byId(id);
-                } catch (Exception ignored) {
-                    if (player == null)
-                        player = SkilledPlayer.find.query().where().eq("name", arg).findOne();
-                    if (skill == null)
-                        skill = ConfiguredSkill.findByAliasOrName(arg).orElse(null);
-                }
-            }
+            ConfiguredSkill skill = ConfiguredSkill.findByAliasOrName(context.popFirstArg()).orElse(null);
 
-            if (playerSkill != null) {
-                return playerSkill;
-            }
-
-            if (player == null && context.getPlayer() != null) {
+            if (context.getPlayer() != null) {
                 player = SkilledPlayer.getOrCreate(context.getPlayer());
             }
 
@@ -274,6 +306,7 @@ public class SkillsPlugin extends JavaPlugin {
             if (player == null) {
                 throw new ConditionFailedException("Es konnte kein Spieler mit einer ID oder Namen gefunden werden: " + String.join(",", context.getArgs()));
             }
+
             return PlayerSkill.getOrCreate(player, skill);
         });
     }
@@ -324,6 +357,15 @@ public class SkillsPlugin extends JavaPlugin {
         });
     }
 
+    private void registerExecutableCondition(PaperCommandManager commandManager) {
+
+        commandManager.getCommandConditions().addCondition(PlayerSkill.class, "executable", (context, execContext, value) -> {
+            if (!value.configuredSkill().active()) {
+                throw new ConditionFailedException("Der Skill " + value.name() + " kann nicht aktiv ausgeführt werden.");
+            }
+        });
+    }
+
     private void setupDatabase() {
 
         this.database = new EbeanWrapper(Config.builder(this)
@@ -334,7 +376,8 @@ public class SkillsPlugin extends JavaPlugin {
                         Level.class,
                         LevelHistory.class,
                         DataStore.class,
-                        SkillSlot.class
+                        SkillSlot.class,
+                        ItemBinding.class
                 )
                 .build()).connect();
     }

@@ -160,6 +160,11 @@ public interface ExecutionResult {
         return TimeUtil.formatTime(remainingCooldown());
     }
 
+    default String formattedDelay() {
+
+        return TimeUtil.formatTime(TimeUtil.ticksToMillis(context().config().delay()));
+    }
+
     enum Status {
         SUCCESS,
         FAILURE,

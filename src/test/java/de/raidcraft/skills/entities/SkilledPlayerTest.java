@@ -4,6 +4,7 @@ import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import de.raidcraft.skills.SkillsPlugin;
+import org.bukkit.Material;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,7 +13,10 @@ import org.junit.jupiter.api.Test;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+@SuppressWarnings("ALL")
 class SkilledPlayerTest {
 
     private ServerMock server;
@@ -136,5 +140,52 @@ class SkilledPlayerTest {
 
         assertThat(skilledPlayer.delete()).isTrue();
         assertThat(SkilledPlayer.find.byId(bukkitPlayer.getUniqueId())).isNull();
+    }
+
+    @Test
+    @DisplayName("should set and store the given skill binding")
+    void shouldSetTheSkillBinding() {
+
+        UUID skillId = UUID.randomUUID();
+        SkilledPlayer player = SkilledPlayer.getOrCreate(server.addPlayer());
+        PlayerSkill playerSkill = mock(PlayerSkill.class);
+        when(playerSkill.id()).thenReturn(skillId);
+        when(playerSkill.player()).thenReturn(player);
+
+        ItemBindings bindings = player.bindings();
+        bindings.bind(
+                playerSkill,
+                Material.STICK,
+                ItemBinding.Action.RIGHT_CLICK
+        );
+
+        assertThat(ItemBinding.find(player.id()))
+                .asList()
+                .hasSize(1);
+        assertThat(bindings.contains(Material.STICK, ItemBinding.Action.RIGHT_CLICK)).isTrue();
+    }
+
+    @Test
+    @DisplayName("should remove the player binding for the given material")
+    void shouldRemoveTheBinding() {
+
+        SkilledPlayer player = SkilledPlayer.getOrCreate(server.addPlayer());
+        PlayerSkill playerSkill = mock(PlayerSkill.class);
+        when(playerSkill.id()).thenReturn(UUID.randomUUID());
+        when(playerSkill.player()).thenReturn(player);
+
+        ItemBindings bindings = player.bindings();
+        bindings.bind(
+                playerSkill,
+                Material.STICK,
+                ItemBinding.Action.RIGHT_CLICK
+        );
+
+        bindings.unbind(Material.STICK);
+
+        assertThat(ItemBinding.find(player.id()))
+                .asList()
+                .isEmpty();
+        assertThat(bindings.contains(Material.STICK)).isFalse();
     }
 }

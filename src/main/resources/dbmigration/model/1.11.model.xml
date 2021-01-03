@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<migration xmlns="http://ebean-orm.github.io/xml/ns/dbmigration">
+    <changeSet type="apply">
+        <alterColumn columnName="material" tableName="rcs_player_bindings" type="varchar" currentType="integer" currentNotnull="false" dropCheckConstraint="ck_rcs_player_bindings_material"/>
+        <alterColumn columnName="action" tableName="rcs_player_bindings" type="varchar(11)" currentType="integer" currentNotnull="false" checkConstraint="check ( action in ('RIGHT_CLICK','LEFT_CLICK'))" checkConstraintName="ck_rcs_player_bindings_action"/>
+    </changeSet>
+</migration>

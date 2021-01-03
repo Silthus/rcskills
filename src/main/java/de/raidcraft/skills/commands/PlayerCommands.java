@@ -6,20 +6,18 @@ import co.aikar.commands.ConditionFailedException;
 import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.annotation.*;
 import de.raidcraft.economy.wrapper.Economy;
-import de.raidcraft.skills.ExecutionResult;
 import de.raidcraft.skills.Messages;
 import de.raidcraft.skills.SkillsPlugin;
 import de.raidcraft.skills.actions.BuySkillAction;
-import de.raidcraft.skills.entities.ConfiguredSkill;
-import de.raidcraft.skills.entities.PlayerSkill;
-import de.raidcraft.skills.entities.SkillSlot;
-import de.raidcraft.skills.entities.SkilledPlayer;
-import de.raidcraft.skills.util.TimeUtil;
+import de.raidcraft.skills.entities.*;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
+import java.util.Optional;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -120,21 +118,84 @@ public class PlayerCommands extends BaseCommand {
     }
 
     @Subcommand("use|cast|execute")
-    @CommandCompletion("@executable-skills")
+    @CommandCompletion("@active-skills")
     @CommandPermission("rcskills.skill.execute")
     @Description("Führt den Skill aus.")
     public void use(PlayerSkill skill) {
 
-        skill.execute(result -> {
-            if (result.success()) {
-                getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + "Der Skill " + skill.name() + " wurde ausgeführt.");
-            } else if (result.cooldown()) {
-                getCurrentCommandIssuer().sendMessage(ChatColor.YELLOW + "Der Skill hat noch einen Cooldown von: "
-                        + ChatColor.AQUA + result.formattedCooldown());
-            } else {
-                getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Beim Ausführen des Skills ist ein Fehler aufgetreten: " + String.join(";", result.errors()));
-            }
-        });
+        skill.execute(result -> send(getCurrentCommandIssuer(), Messages.resultOf(result)));
+    }
+
+    @Subcommand("bind")
+    @CommandAlias("bind")
+    @CommandCompletion("@active-skills @bind-actions")
+    @CommandPermission("rcskills.skill.bind")
+    @Description("Bindet den skill auf das Item in deiner Hand.")
+    public void bind(@Conditions("active|executable") PlayerSkill skill, ItemBinding.Action action) {
+
+        if (!getCurrentCommandIssuer().isPlayer()) {
+            throw new ConditionFailedException("Dieser Befehl kann nur als Spieler ausgeführt werden.");
+        }
+
+        SkilledPlayer skilledPlayer = skill.player();
+        Material material = ((Player) getCurrentCommandIssuer().getIssuer()).getInventory().getItemInMainHand().getType();
+
+        ItemBindings bindings = skilledPlayer.bindings();
+
+        Optional<ItemBinding> itemBinding = bindings.get(material, action);
+        if (itemBinding.isPresent()) {
+            send(getCurrentCommandIssuer(), text("Es besteht bereits ein Binding für den Skill ", RED)
+                    .append(skill(itemBinding.get().skill(), false))
+                    .append(text(". Entferne das Binding mit ", RED))
+                    .append(text("/rcs unbind " + material.getKey().getKey() + " " + action.name(), GOLD))
+                    .hoverEvent(showText(text("Klicke um das Binding zu entfernen.", GRAY, ITALIC)))
+                    .clickEvent(runCommand("/rcs unbind " + material.getKey().getKey() + " " + action.name()))
+            );
+            return;
+        }
+
+        bindings.bind(skill, material, action);
+        plugin.getBindingListener().getUpdateBindings().accept(skilledPlayer.id());
+
+        send(getCurrentCommandIssuer(), text("Der Skill ", YELLOW).append(skill(skill, false))
+                .append(text(" wurde erfolgreich mit einem ", YELLOW))
+                .append(text(action.friendlyName(), AQUA))
+                .append(text(" auf ", YELLOW))
+                .append(text(material.getKey().getKey(), AQUA))
+                .append(text(" gebunden.", YELLOW))
+        );
+    }
+
+    @Subcommand("unbind")
+    @CommandAlias("unbind")
+    @CommandPermission("rcskills.skill.bind")
+    @Description("Entfernt alle Bindings für das Item in deiner Hand.")
+    public void unbind(SkilledPlayer player) {
+
+        if (!getCurrentCommandIssuer().isPlayer()) {
+            throw new ConditionFailedException("Dieser Befehl kann nur als Spieler ausgeführt werden.");
+        }
+
+        Material material = ((Player) getCurrentCommandIssuer().getIssuer()).getInventory().getItemInMainHand().getType();
+        ItemBindings bindings = player.bindings();
+        if (bindings.contains(material)) {
+            bindings.unbind(material);
+            plugin.getBindingListener().getUpdateBindings().accept(player.id());
+            send(getCurrentCommandIssuer(), text("Alle Bindings auf dem Item ", GREEN).append(text(material.getKey().getKey(), AQUA)).append(text(" wurden entfernt.", GREEN)));
+        } else {
+            send(getCurrentCommandIssuer(), text("Du hast keine Bindings auf dem Item ", RED).append(text(material.getKey().getKey(), AQUA)).append(text(".", RED)));
+        }
+    }
+
+    @CommandAlias("unbindall")
+    @Subcommand("clearbindings|unbindall")
+    @CommandPermission("rcskills.skill.bind")
+    @Description("Entfernt alle deine Skill Item Bindings.")
+    public void unbindAll(SkilledPlayer player) {
+
+        player.bindings().clear();
+        send(getCurrentCommandIssuer(), text("Alle deine Bindings wurden erfolgreich entfernt.", GREEN));
+        plugin.getBindingListener().getUpdateBindings().accept(player.id());
     }
 
     @Subcommand("myskills|active")

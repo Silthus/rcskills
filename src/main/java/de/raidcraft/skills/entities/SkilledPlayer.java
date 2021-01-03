@@ -3,6 +3,7 @@ package de.raidcraft.skills.entities;
 import de.raidcraft.skills.actions.AddSkillAction;
 import de.raidcraft.skills.actions.BuySkillAction;
 import de.raidcraft.skills.events.*;
+import de.raidcraft.skills.settings.Setting;
 import io.ebean.Finder;
 import io.ebean.annotation.DbDefault;
 import io.ebean.annotation.Transactional;
@@ -61,6 +62,15 @@ public class SkilledPlayer extends BaseEntity {
     @OneToMany(cascade = CascadeType.REMOVE)
     private List<SkillSlot> skillSlots = new ArrayList<>();
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @Setter(AccessLevel.PRIVATE)
+    private DataStore settings = new DataStore();
+
+    @Getter(AccessLevel.PACKAGE)
+    @Setter(AccessLevel.PACKAGE)
+    @OneToMany(cascade = CascadeType.REMOVE)
+    private List<ItemBinding> itemBindings = new ArrayList<>();
+
     SkilledPlayer(OfflinePlayer player) {
 
         id(player.getUniqueId());
@@ -114,6 +124,58 @@ public class SkilledPlayer extends BaseEntity {
                 .collect(Collectors.toUnmodifiableList());
     }
 
+    public DataStore settings() {
+
+        if (settings == null) {
+            this.settings = new DataStore();
+        }
+
+        return settings;
+    }
+
+    /**
+     * Sets the value of the given setting for this player.
+     *
+     * @param setting the setting to set
+     * @param value the value of the setting
+     * @param <TType> the value type of the setting
+     * @return this player
+     */
+    public <TType> SkilledPlayer setting(Setting<TType> setting, TType value) {
+
+        settings().set(setting.getKey(), value);
+        return this;
+    }
+
+    /**
+     * Gets the given setting if it exists.
+     *
+     * @param setting the setting to get
+     * @param <TType> the type of the setting
+     * @return the value of the setting or an empty optional
+     */
+    public <TType> Optional<TType> setting(Setting<TType> setting) {
+
+        return settings().get(setting.getKey(), setting.getType());
+    }
+
+    /**
+     * @return the item to skill bindings of this player
+     */
+    public ItemBindings bindings() {
+
+        return new ItemBindings(this);
+    }
+
+    /**
+     * Adds the given skill to this player performing checks but without subtracting costs.
+     * <p>Use the {@link #buySkill(ConfiguredSkill)} method to subtract the costs.
+     * <p>Use the {@link #addSkill(ConfiguredSkill, boolean)} with the true flag to bypass all checks when adding the skill.
+     *
+     * @param skill the skill to add
+     * @return the result for adding the skill
+     * @see AddSkillAction
+     */
     public AddSkillAction.Result addSkill(ConfiguredSkill skill) {
 
         return addSkill(skill, false);
@@ -126,6 +188,7 @@ public class SkilledPlayer extends BaseEntity {
      * @param skill the skill to buy
      * @param bypassChecks set to true to bypass all checks and force add the skill
      * @return the result of the add operation
+     * @see AddSkillAction
      */
     public AddSkillAction.Result addSkill(ConfiguredSkill skill, boolean bypassChecks) {
 

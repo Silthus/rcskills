@@ -470,7 +470,7 @@ public final class Messages {
 
     public static Component skill(PlayerSkill skill, boolean showBuy) {
 
-        return skill(skill.configuredSkill(), skill.player());
+        return skill(skill.configuredSkill(), skill.player(), showBuy);
     }
 
     public static Component skill(ConfiguredSkill skill, SkilledPlayer player) {
@@ -511,9 +511,9 @@ public final class Messages {
 
         builder.hoverEvent(skillInfo(skill, player));
 
-        if (player != null) {
+        if (player != null && showBuy) {
             PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
-            if (showBuy && player.canBuy(skill)) {
+            if (player.canBuy(skill)) {
                 builder.append(text(" | ", YELLOW)).append(text(" [$] ", GREEN)
                         .hoverEvent(costs(playerSkill).append(text("Klicken um den Skill zu kaufen.", GRAY, ITALIC)))
                         .clickEvent(clickEvent(Action.RUN_COMMAND, PlayerCommands.buySkill(player, skill)))
@@ -565,6 +565,15 @@ public final class Messages {
             builder.append(text("Status: ", YELLOW)).append(text(playerSkill.configuredSkill().disabled() ? "deaktiviert" : playerSkill.status().localized(), AQUA)).append(newline())
                     .append(costs(playerSkill)).append(newline())
                     .append(requirements(playerSkill));
+            if (skill.active()) {
+                builder.append(newline())
+                        .append(text("Tipp: ", GREEN).append(text("Du kannst deine aktiven Skills mit /bind " +
+                                "auf Gegenstände binden um sie mit einem Rechts oder Linksklick auszuführen.", GRAY, ITALIC)))
+                        .append(newline()).append(text("Klicke auf den Skill um ", GRAY, ITALIC))
+                        .append(text("/bind " + skill.alias() + " ", GOLD, ITALIC))
+                        .append(text(" auszuführen.", GRAY, ITALIC))
+                        .clickEvent(suggestCommand("/bind " + skill.alias() + " "));
+            }
         }
         return builder.build();
     }
@@ -574,7 +583,13 @@ public final class Messages {
         TextComponent.Builder builder = text().append(text(skill.name(), GOLD))
                 .append(text(" (" + skill.alias() + ")", GRAY, ITALIC)).append(newline())
                 .append(text("Level: ", YELLOW).append(text(skill.level(), AQUA))).append(newline())
-                .append(text("Typ: ", YELLOW).append(text(skill.active() ? "AKTIV" : "PASSIV", AQUA))).append(newline());
+                .append(text("Typ: ", YELLOW));
+        if (skill.active()) {
+            builder.append(text("AKTIV", GREEN, BOLD)).append(newline());
+        } else {
+            builder.append(text("PASSIV", DARK_AQUA)).append(newline());
+        }
+
         if (skill.money() > 0d) {
             builder.append(text("Kosten: ", YELLOW))
                     .append(text(Economy.get().format(skill.money()), AQUA))
@@ -642,6 +657,38 @@ public final class Messages {
                 .append(newline())
                 .append(text(requirement.description(), GRAY, ITALIC))
                 .build();
+    }
+
+    public static Component resultOf(ExecutionResult executionResult) {
+
+        TextComponent.Builder builder = text().append(text("Der Skill ", YELLOW)
+                .append(skill(executionResult.context().source().playerSkill(), false)));
+
+        switch (executionResult.status()) {
+            case SUCCESS:
+                return builder.append(text(" wurde ", YELLOW)
+                        .append(text("erfolgreich", GREEN))
+                        .append(text(" ausgeführt.", YELLOW)))
+                        .build();
+            case COOLDOWN:
+                return builder.append(text(" hat noch einen Cooldown von ", YELLOW)
+                        .append(text(executionResult.formattedCooldown(), AQUA))
+                        .append(text(".", YELLOW)))
+                        .build();
+            case DELAYED:
+                return builder.append(text(" wird in ", YELLOW)
+                        .append(text(executionResult.formattedDelay(), AQUA))
+                        .append(text(" ausgeführt.", YELLOW)))
+                        .build();
+            case EXCEPTION:
+            case FAILURE:
+                return builder.append(text(" konnte nicht ausgeführt werden.", YELLOW).append(newline())
+                        .append(text("Bei der Ausführung des Skills ist ein Fehler aufgetreten: ", RED))
+                        .append(text(String.join(",", executionResult.errors()), RED)))
+                        .build();
+        }
+
+        return builder.append(text(" wurde ausgeführt.", YELLOW)).build();
     }
 
     public static TextColor requirementColor(Requirement requirement, SkilledPlayer player) {
