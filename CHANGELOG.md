@@ -1,3 +1,11 @@
+## [1.14.3](https://github.com/raidcraft/rcskills/compare/v1.14.2...v1.14.3) (2021-01-03)
+
+
+### Bug Fixes
+
+* accept skill id as command input for PlayerSkill ([e0b15de](https://github.com/raidcraft/rcskills/commit/e0b15de346d9415495af308fcd137826fec6c5c8))
+* don't store categories in database ([0c19b29](https://github.com/raidcraft/rcskills/commit/0c19b29b561313019cf15c1373c28274fe950211))
+
 ## [1.14.2](https://github.com/raidcraft/rcskills/compare/v1.14.1...v1.14.2) (2021-01-03)
 
 
