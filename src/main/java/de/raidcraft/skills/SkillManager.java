@@ -507,7 +507,7 @@ public final class SkillManager {
 
         final UUID id = UUID.fromString(Objects.requireNonNull(config.getString("id", UUID.randomUUID().toString())));
         config.set("alias", config.getString("alias", identifier));
-        config.set("active", config.getBoolean("active", skillTypes.get(skillType).activeSkill()));
+        config.set("executable", config.getBoolean("executable", skillTypes.get(skillType).executableSkill()));
         String alias = config.getString("alias");
 
         ConfiguredSkill skill = Optional.ofNullable(ConfiguredSkill.find.byId(id))

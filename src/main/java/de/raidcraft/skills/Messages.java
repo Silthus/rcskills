@@ -565,7 +565,7 @@ public final class Messages {
             builder.append(text("Status: ", YELLOW)).append(text(playerSkill.configuredSkill().disabled() ? "deaktiviert" : playerSkill.status().localized(), AQUA)).append(newline())
                     .append(costs(playerSkill)).append(newline())
                     .append(requirements(playerSkill));
-            if (skill.active()) {
+            if (skill.executable()) {
                 builder.append(newline())
                         .append(text("Tipp: ", GREEN).append(text("Du kannst deine aktiven Skills mit /bind " +
                                 "auf Gegenstände binden um sie mit einem Rechts oder Linksklick auszuführen.", GRAY, ITALIC)))
@@ -584,7 +584,7 @@ public final class Messages {
                 .append(text(" (" + skill.alias() + ")", GRAY, ITALIC)).append(newline())
                 .append(text("Level: ", YELLOW).append(text(skill.level(), AQUA))).append(newline())
                 .append(text("Typ: ", YELLOW));
-        if (skill.active()) {
+        if (skill.executable()) {
             builder.append(text("AKTIV", GREEN, BOLD)).append(newline());
         } else {
             builder.append(text("PASSIV", DARK_AQUA)).append(newline());

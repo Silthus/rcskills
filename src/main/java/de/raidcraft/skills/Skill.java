@@ -100,7 +100,7 @@ public interface Skill {
             return info().value();
         }
 
-        public boolean activeSkill() {
+        public boolean executableSkill() {
 
             return Executable.class.isAssignableFrom(skillClass);
         }
