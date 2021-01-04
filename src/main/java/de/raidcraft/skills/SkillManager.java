@@ -19,7 +19,6 @@ import net.silthus.ebean.BaseEntity;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
@@ -42,6 +41,8 @@ import java.util.stream.Collectors;
 @Getter
 @Accessors(fluent = true)
 public final class SkillManager {
+
+    public static final String SUB_SKILL_SECTION = "skills";
 
     private final Map<String, Requirement.Registration<?>> requirements = new HashMap<>();
     private final Map<String, Skill.Registration<?>> skillTypes = new HashMap<>();
@@ -91,6 +92,7 @@ public final class SkillManager {
 
         ConfiguredSkill.find.query()
                 .where().eq("enabled", true)
+                .where().isNull("parent")
                 .where().notIn("id", loadedSkills.stream().map(BaseEntity::id).collect(Collectors.toUnmodifiableList()))
                 .findList()
                 .forEach(skill -> {
@@ -100,6 +102,7 @@ public final class SkillManager {
 
         ConfiguredSkill.find.query()
                 .where().eq("enabled", false)
+                .where().isNull("parent")
                 .where().in("id", loadedSkills.stream().map(BaseEntity::id).collect(Collectors.toUnmodifiableList()))
                 .findList()
                 .forEach(skill -> {
@@ -215,14 +218,6 @@ public final class SkillManager {
                     .map(file -> loadSkill(path, file))
                     .flatMap(Optional::stream)
                     .collect(Collectors.toList());
-
-            PluginManager pluginManager = Bukkit.getServer().getPluginManager();
-            skills.stream()
-                    .map(ConfiguredSkill::requirements)
-                    .filter(r -> r instanceof PermissionRequirement)
-                    .flatMap(r -> ((PermissionRequirement) r).getPermissions().stream())
-                    .map(s -> new Permission(s, PermissionDefault.FALSE))
-                    .forEach(pluginManager::addPermission);
 
             log.info("Loaded " + skills.size() + "/" + fileCount + " skills from " + path);
             return skills;
@@ -519,18 +514,28 @@ public final class SkillManager {
         config.set("id", skill.id().toString());
         config.set("enabled", skill.enabled());
 
+        PluginManager pluginManager = Bukkit.getPluginManager();
+        configuredSkill.requirements().stream()
+                .filter(r -> r instanceof PermissionRequirement)
+                .flatMap(r -> ((PermissionRequirement) r).getPermissions().stream())
+                .map(s -> new Permission(s, PermissionDefault.FALSE))
+                .forEach(pluginManager::addPermission);
+
+        ConfigurationSection skills = config.getConfigurationSection(SUB_SKILL_SECTION);
+        if (skills != null) {
+            for (String key : skills.getKeys(false)) {
+                ConfigurationSection section = skills.getConfigurationSection(key);
+                if (section == null) continue;
+                section.set("parent", skill.id().toString());
+                String subIdentifier = config.getString("alias") + ":" + key;
+                loadSkill(
+                        subIdentifier,
+                        section
+                ).ifPresent(subSkill -> log.info("loaded sub skill " + subIdentifier + " of " + identifier));
+            }
+        }
+
         return Optional.of(configuredSkill);
-    }
-
-    public ConfiguredSkill loadSkill(Class<? extends Skill> skillClass) {
-
-        return loadSkill(skillClass, new MemoryConfiguration());
-    }
-
-    public ConfiguredSkill loadSkill(Class<? extends Skill> skillClass, MemoryConfiguration config) {
-
-        config.set("type", getSkillType(skillClass));
-        return loadSkill(skillClass.getName().toLowerCase(), config).orElse(null);
     }
 
     /**

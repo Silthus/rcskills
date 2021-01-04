@@ -133,4 +133,16 @@ task:
 with:
   permissions:
     - foobar
+
+# the skills section allows you to define an infinite amount ob sub skills
+# each sub skill automatically inherits all properties from its parent skill
+# simply set the properties you want to override.
+# a parent: UUID property will be set with the parent id
+# child skills can be configured recursively
+skills:
+  foobar:
+    type: permission
+    with:
+      permissions:
+        - bar
 ```
