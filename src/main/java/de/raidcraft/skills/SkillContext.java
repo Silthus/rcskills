@@ -142,7 +142,7 @@ public interface SkillContext {
 
         if (player == null) return false;
 
-        return offlinePlayer().equals(player);
+        return offlinePlayer().getUniqueId().equals(skilledPlayer().id());
     }
 
     /**
@@ -153,6 +153,8 @@ public interface SkillContext {
      * @return true if the player is null or not the player of this skill
      */
     default boolean notApplicable(OfflinePlayer player) {
+
+        if (player == null) return true;
 
         return !applicable(player);
     }

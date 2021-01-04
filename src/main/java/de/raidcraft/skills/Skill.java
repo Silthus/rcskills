@@ -4,6 +4,7 @@ import de.raidcraft.skills.entities.DataStore;
 import de.raidcraft.skills.entities.PlayerSkill;
 import lombok.Value;
 import lombok.experimental.Accessors;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.time.Instant;
@@ -86,6 +87,30 @@ public interface Skill {
      * when the player loses access to it, e.g. when logging out.
      */
     default void remove() {}
+
+    /**
+     * Checks if this skill is applicable to the given player.
+     * <p>This will check if the given player is the same as the skilled player.
+     *
+     * @param player the player to check. can be null.
+     * @return false if the player is null or not the same as the skilled player of this skill
+     */
+    default boolean applicable(OfflinePlayer player) {
+
+        return context().applicable(player);
+    }
+
+    /**
+     * This is a shortcut to the {@link #applicable(OfflinePlayer)} method
+     * inverting the result.
+     *
+     * @param player the player to check. can be null.
+     * @return true if the player is null or not the player of this skill
+     */
+    default boolean notApplicable(OfflinePlayer player) {
+
+        return context().notApplicable(player);
+    }
 
     @Value
     @Accessors(fluent = true)
