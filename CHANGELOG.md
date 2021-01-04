@@ -1,3 +1,10 @@
+# [1.15.0](https://github.com/raidcraft/rcskills/compare/v1.14.3...v1.15.0) (2021-01-04)
+
+
+### Features
+
+* improve binding messages and hint ([5e4e862](https://github.com/raidcraft/rcskills/commit/5e4e8621dc5eab00e4d081bfb3206a25c706c7db))
+
 ## [1.14.3](https://github.com/raidcraft/rcskills/compare/v1.14.2...v1.14.3) (2021-01-03)
 
 
