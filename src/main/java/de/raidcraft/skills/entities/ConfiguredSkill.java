@@ -2,10 +2,7 @@ package de.raidcraft.skills.entities;
 
 import com.google.common.base.Strings;
 import de.raidcraft.skills.*;
-import de.raidcraft.skills.requirements.LevelRequirement;
-import de.raidcraft.skills.requirements.MoneyRequirement;
-import de.raidcraft.skills.requirements.PermissionRequirement;
-import de.raidcraft.skills.requirements.SkillPointRequirement;
+import de.raidcraft.skills.requirements.*;
 import io.ebean.Finder;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.Index;
@@ -58,10 +55,11 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
                 .findList();
     }
 
-    public static List<ConfiguredSkill> autoUnlockSkills(int level) {
+    public static List<ConfiguredSkill> autoUnlockableSkills(int level) {
 
         return find.query()
                 .where().eq("enabled", true)
+                .and().isNull("parent")
                 .and().eq("money", 0)
                 .and().eq("skillpoints", 0)
                 .and().eq("no_skill_slot", true)
@@ -231,10 +229,10 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         setSkillpoints(config);
         setMoney(config);
         setNoSkillSlot(config);
-        setHidden(config);
         setEnabled(config);
         setRestricted(config);
         setAutoUnlock(config);
+        setHidden(config);
 
         setCategories(config);
         setExecutionConfig(config);
@@ -265,6 +263,14 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
             costRequirements.add(skillPointRequirement);
         }
 
+        if (isChild()) {
+            SkillRequirement skillRequirement = new SkillRequirement();
+            skillRequirement.load(new MemoryConfiguration());
+            skillRequirement.skill(parent());
+            skillRequirement.hidden(true);
+            requirements.add(skillRequirement);
+        }
+
         loaded(true);
     }
 
@@ -282,6 +288,20 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
 
     public void addRequirement(Requirement... requirements) {
         this.requirements().addAll(Arrays.asList(requirements));
+    }
+
+    public boolean canAutoUnlock(SkilledPlayer player) {
+
+        return canAutoUnlock()
+                && test(player).success();
+    }
+
+    public boolean canAutoUnlock() {
+
+        return autoUnlock()
+                && noSkillSlot()
+                && skillpoints() <= 0
+                && money() <= 0;
     }
 
     public TestResult test(SkilledPlayer player) {
@@ -346,22 +366,23 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
 
     private void setSkillpoints(ConfigurationSection config) {
 
-        skillpoints(config.getInt("skillpoints", isChild() ? parent().skillpoints() : skillpoints()));
+        skillpoints(config.getInt("skillpoints", isChild() ? 0 : skillpoints()));
     }
 
     private void setMoney(ConfigurationSection config) {
 
-        money(config.getDouble("money", isChild() ? parent().money() : money()));
+        money(config.getDouble("money", isChild() ? 0 : money()));
     }
 
     private void setNoSkillSlot(ConfigurationSection config) {
 
-        noSkillSlot(config.getBoolean("no-skill-slot", isChild() ? parent().noSkillSlot() : noSkillSlot()));
+        noSkillSlot(config.getBoolean("no-skill-slot", isChild() || noSkillSlot()));
     }
 
     private void setHidden(ConfigurationSection config) {
 
-        hidden(config.getBoolean("hidden", hidden() || isChild()));
+        boolean hidden = hidden() || (isChild() && canAutoUnlock());
+        hidden(config.getBoolean("hidden", hidden));
     }
 
     private void setEnabled(ConfigurationSection config) {
@@ -376,7 +397,7 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
 
     private void setAutoUnlock(ConfigurationSection config) {
 
-        autoUnlock(config.getBoolean("auto-unlock", isChild() ? parent().autoUnlock() : autoUnlock()));
+        autoUnlock(config.getBoolean("auto-unlock", isChild() || autoUnlock()));
     }
 
     private void setCategories(ConfigurationSection config) {

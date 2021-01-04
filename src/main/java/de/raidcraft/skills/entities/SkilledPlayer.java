@@ -1,5 +1,6 @@
 package de.raidcraft.skills.entities;
 
+import de.raidcraft.skills.SkillsPlugin;
 import de.raidcraft.skills.actions.AddSkillAction;
 import de.raidcraft.skills.actions.BuySkillAction;
 import de.raidcraft.skills.events.*;
@@ -195,12 +196,12 @@ public class SkilledPlayer extends BaseEntity {
         return new AddSkillAction(this, skill).execute(bypassChecks);
     }
 
-    public BuySkillAction.Result buySkill(ConfiguredSkill skill) {
+    public AddSkillAction.Result buySkill(ConfiguredSkill skill) {
 
         return buySkill(skill, false);
     }
 
-    public BuySkillAction.Result buySkill(ConfiguredSkill skill, boolean bypassChecks) {
+    public AddSkillAction.Result buySkill(ConfiguredSkill skill, boolean bypassChecks) {
 
         return new BuySkillAction(this, skill).execute(bypassChecks);
     }
@@ -431,10 +432,8 @@ public class SkilledPlayer extends BaseEntity {
     @Override
     public boolean delete() {
 
-        skillSlots().forEach(SkillSlot::delete);
-        refresh();
-        skills().forEach(PlayerSkill::delete);
-        refresh();
+        SkillsPlugin.instance().getSkillManager().clearPlayerCache(id());
+//        skillSlots().forEach(SkillSlot::delete);
 
         return super.delete();
     }

@@ -67,7 +67,7 @@ public class SkillSlot extends BaseEntity implements Comparable<SkillSlot> {
 
     SkillSlot unassign() {
 
-        if (this.skill != null) {
+        if (this.skill() != null) {
             this.status(Status.FREE);
         }
         this.skill(null);
@@ -82,8 +82,6 @@ public class SkillSlot extends BaseEntity implements Comparable<SkillSlot> {
     @Override
     public boolean delete() {
 
-        unassign().save();
-        refresh();
         return super.delete();
     }
 
