@@ -16,6 +16,8 @@ import org.bukkit.Bukkit;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -29,15 +31,33 @@ import java.util.function.Consumer;
 @Log(topic = "RCSkills")
 public class PlayerSkill extends BaseEntity {
 
-    public static PlayerSkill getOrCreate(SkilledPlayer player, ConfiguredSkill skill) {
+    public static Optional<PlayerSkill> find(SkilledPlayer player, ConfiguredSkill skill) {
 
         return find.query()
                 .where().eq("player_id", player.id())
                 .and().eq("configured_skill_id", skill.id())
-                .findOneOrEmpty()
+                .findOneOrEmpty();
+    }
+
+    public static PlayerSkill getOrCreate(SkilledPlayer player, ConfiguredSkill skill) {
+
+        return find(player, skill)
                 .orElseGet(() -> {
                     PlayerSkill playerSkill = new PlayerSkill(player, skill);
                     playerSkill.insert();
+
+                    if (skill.isChild()) {
+                        playerSkill.parent(PlayerSkill.getOrCreate(player, skill.parent()));
+                    }
+
+                    if (skill.isParent()) {
+                        for (ConfiguredSkill child : skill.children()) {
+                            playerSkill.children().add(PlayerSkill.getOrCreate(player, child));
+                        }
+                    }
+
+                    playerSkill.save();
+
                     return playerSkill;
                 });
     }
@@ -46,12 +66,20 @@ public class PlayerSkill extends BaseEntity {
 
     @ManyToOne(optional = false)
     private SkilledPlayer player;
+
     @ManyToOne(optional = false)
     private ConfiguredSkill configuredSkill;
     private SkillStatus status = SkillStatus.NOT_PRESENT;
     private Instant lastUsed = Instant.EPOCH;
+
     @OneToOne(cascade = CascadeType.ALL)
     private DataStore data = new DataStore();
+
+    @ManyToOne
+    private PlayerSkill parent;
+
+    @OneToMany(cascade = CascadeType.REMOVE)
+    private List<PlayerSkill> children = new ArrayList<>();
 
     PlayerSkill(SkilledPlayer player, ConfiguredSkill configuredSkill) {
         this.player = player;
@@ -59,15 +87,25 @@ public class PlayerSkill extends BaseEntity {
     }
 
     public String alias() {
-        return configuredSkill.alias();
+        return configuredSkill().alias();
     }
 
     public String name() {
-        return configuredSkill.name();
+        return configuredSkill().name();
     }
 
     public String description() {
-        return configuredSkill.description();
+        return configuredSkill().description();
+    }
+
+    public boolean isChild() {
+
+        return parent() != null;
+    }
+
+    public boolean isParent() {
+
+        return !children().isEmpty();
     }
 
     /**
@@ -106,19 +144,17 @@ public class PlayerSkill extends BaseEntity {
     public void enable() {
 
         if (!active()) return;
-
-        if (configuredSkill().disabled()) {
-            deactivate();
-            return;
-        }
+        if (checkDisable()) return;
 
         context().ifPresent(SkillContext::enable);
+        children().forEach(PlayerSkill::enable);
     }
 
     public void disable() {
 
         if (!active()) return;
 
+        children().forEach(PlayerSkill::disable);
         context().ifPresent(SkillContext::disable);
     }
 
@@ -131,6 +167,7 @@ public class PlayerSkill extends BaseEntity {
 
         context().ifPresentOrElse(context -> context.execute(callback),
                 () -> callback.accept(ExecutionResult.failure(null, "Der Skill konnte nicht geladen werden.")));
+        children().forEach(skill -> skill.execute(callback));
     }
 
     public boolean canActivate() {
@@ -169,6 +206,8 @@ public class PlayerSkill extends BaseEntity {
             context().ifPresent(SkillContext::enable);
 
             Bukkit.getPluginManager().callEvent(new PlayerActivatedSkillEvent(player(), this));
+
+            children().forEach(PlayerSkill::activate);
             return true;
         } catch (Exception e) {
             log.severe("An error occured while activating the skill " + alias() + " of " + player().name() + ": " + e.getMessage());
@@ -192,6 +231,8 @@ public class PlayerSkill extends BaseEntity {
             context().ifPresent(SkillContext::disable);
             player().bindings().unbind(this);
             Bukkit.getPluginManager().callEvent(new PlayerDeactivatedSkillEvent(player(), this));
+
+            children().forEach(PlayerSkill::deactivate);
             return true;
         } catch (Exception e) {
             log.severe("An error occured while deactivating the skill " + alias() + " of " + player().name() + ": " + e.getMessage());
@@ -210,14 +251,12 @@ public class PlayerSkill extends BaseEntity {
         if (event.isCancelled()) return false;
 
         status(SkillStatus.UNLOCKED);
-        save();
 
-        // TODO: create own skill history table
-//        LevelHistory.create(player())
-//                .data("action", "unlocked_skill")
-//                .data("skill", name())
-//                .data("alias", alias())
-//                .save();
+        if (configuredSkill().noSkillSlot()) {
+            activate();
+        }
+
+        save();
 
         Bukkit.getPluginManager().callEvent(new PlayerUnlockedSkillEvent(player(), this));
 
@@ -227,7 +266,7 @@ public class PlayerSkill extends BaseEntity {
     @Override
     public boolean delete() {
 
-        disable();
+        context().ifPresent(SkillContext::disable);
 
         return super.delete();
     }

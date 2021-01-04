@@ -13,7 +13,6 @@ import mockit.MockUp;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.MockitoAnnotations;
@@ -29,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("ALL")
+public
 class DefaultSkillContextTest {
 
     private String skillAlias;
@@ -234,9 +234,9 @@ class DefaultSkillContextTest {
     }
 
     @SkillInfo("test")
-    public class TestSkill extends AbstractSkill implements Executable {
+    public static class TestSkill extends AbstractSkill implements Executable {
 
-        protected TestSkill(SkillContext context) {
+        public TestSkill(SkillContext context) {
             super(context);
         }
 

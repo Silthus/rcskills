@@ -40,11 +40,13 @@ public class AddSkillAction {
         PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
         playerSkill.unlock();
 
-        if (playerSkill.configuredSkill().noSkillSlot()) {
-            playerSkill.activate();
-        }
+        playerSkill.children().stream()
+                .filter(child -> child.configuredSkill().canAutoUnlock(player))
+                .forEach(child -> {
+                    child.refresh();
+                    child.unlock();
+                });
 
-        player.save();
         return new Result(this, playerSkill, testResult);
     }
 
@@ -80,6 +82,11 @@ public class AddSkillAction {
 
         public boolean success() {
             return Strings.isNullOrEmpty(error);
+        }
+
+        public boolean failure() {
+
+            return !success();
         }
     }
 }

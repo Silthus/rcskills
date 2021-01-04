@@ -5,6 +5,7 @@ import de.raidcraft.skills.entities.ConfiguredSkill;
 import de.raidcraft.skills.entities.PlayerSkill;
 import de.raidcraft.skills.entities.SkilledPlayer;
 import de.raidcraft.skills.requirements.*;
+import de.raidcraft.skills.skills.EmptySkill;
 import de.raidcraft.skills.skills.PermissionSkill;
 import de.raidcraft.skills.util.ConfigUtil;
 import de.raidcraft.skills.util.JarUtil;
@@ -70,6 +71,7 @@ public final class SkillManager {
         registerRequirement(SkillPointRequirement.class, SkillPointRequirement::new);
 
         registerSkill(new PermissionSkill.PermissionSkillFactory());
+        registerSkill(new EmptySkill.Factory());
     }
 
     public void reload() {
@@ -389,7 +391,7 @@ public final class SkillManager {
         SkilledPlayer skilledPlayer = SkilledPlayer.getOrCreate(player);
         skilledPlayer.activeSkills().forEach(PlayerSkill::enable);
 
-        ConfiguredSkill.autoUnlockSkills(skilledPlayer.level().getLevel())
+        ConfiguredSkill.autoUnlockableSkills(skilledPlayer.level().getLevel())
                 .forEach(skilledPlayer::addSkill);
 
         skilledPlayer.unlockedSkills()
@@ -423,7 +425,7 @@ public final class SkillManager {
         cachedPlayerSkills.clear();
     }
 
-    private void clearPlayerCache(UUID uuid) {
+    public void clearPlayerCache(UUID uuid) {
 
         Map<UUID, SkillContext> cache = cachedPlayerSkills.remove(uuid);
         if (cache != null) {

@@ -3,34 +3,48 @@ package de.raidcraft.skills.entities;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
+import de.raidcraft.skills.DefaultSkillContextTest;
+import de.raidcraft.skills.ExecutionResult;
 import de.raidcraft.skills.SkillsPlugin;
+import de.raidcraft.skills.actions.AddSkillAction;
 import de.raidcraft.skills.util.RandomString;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.MockitoAnnotations;
 
 import java.util.Collections;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
+@SuppressWarnings("ALL")
 public class PlayerSkillTest {
 
     private static final RandomString rnd = new RandomString();
     private String TEST_SKILL = "test";
 
-    private ServerMock server;
-    private SkillsPlugin plugin;
+    private static ServerMock server;
+    private static SkillsPlugin plugin;
 
     private SkilledPlayer player;
 
     private ConfiguredSkill skill;
-    @BeforeEach
-    void setUp() {
+
+    @BeforeAll
+    static void beforeAll() {
 
         server = MockBukkit.mock();
         plugin = MockBukkit.load(SkillsPlugin.class);
+    }
+
+    @BeforeEach
+    void setUp() {
+
         TEST_SKILL = rnd.nextString();
         MemoryConfiguration cfg = new MemoryConfiguration();
         cfg.set("type", "permission");
@@ -45,8 +59,8 @@ public class PlayerSkillTest {
         skill = ConfiguredSkill.findByAliasOrName(TEST_SKILL).get();
     }
 
-    @AfterEach
-    void tearDown() {
+    @AfterAll
+    static void afterAll() {
 
         MockBukkit.unmock();
     }
@@ -71,5 +85,205 @@ public class PlayerSkillTest {
         playerSkill.activate();
 
         assertThat(playerSkill.active()).isFalse();
+    }
+
+    @Nested
+    @DisplayName("Parent -> Child")
+    class ParentChildSkills {
+
+        private static final String parent = "parent";
+        private static final String child1 = "parent:child1";
+        private static final String child2 = "parent:child1:child2";
+
+        @Captor
+        private ArgumentCaptor<ExecutionResult> captor;
+
+        @BeforeEach
+        void setUp() {
+
+            MockitoAnnotations.openMocks(this);
+            plugin.getSkillManager().registerSkill(DefaultSkillContextTest.TestSkill.class, context -> {
+                return spy(new DefaultSkillContextTest.TestSkill(context));
+            });
+        }
+
+        private Consumer<ExecutionResult> callback() {
+
+            Consumer<ExecutionResult> consumer = spy(new Consumer<ExecutionResult>() {
+                @Override
+                public void accept(ExecutionResult executionResult) {
+
+                }
+            });
+            return consumer;
+        }
+
+        private ConfiguredSkill loadSkill() {
+
+            return loadSkill(parent, configurationSection -> {
+            });
+        }
+
+        private ConfiguredSkill loadSkill(String alias) {
+
+            return loadSkill(alias, configurationSection -> {
+            });
+        }
+
+        private ConfiguredSkill loadSkill(String alias, Consumer<ConfigurationSection> config) {
+
+            MemoryConfiguration cfg = new MemoryConfiguration();
+            cfg.set("type", "none");
+            cfg.set("skills.child1.name", child1);
+            cfg.set("skills.child1.skills.child2.name", child2);
+            cfg.set("skills.child1.skills.child2.type", "test");
+            config.accept(cfg);
+
+            plugin.getSkillManager().loadSkill(parent, cfg);
+
+            return getOrAssertSkill(alias);
+        }
+
+        private ConfiguredSkill getOrAssertSkill(String name) {
+
+            Optional<ConfiguredSkill> skill = ConfiguredSkill.findByAliasOrName(name);
+            assertThat(skill).isPresent();
+            return skill.get();
+        }
+
+        private void assertActiveStatus(AddSkillAction.Result result, boolean parent, boolean child1, boolean child2) {
+
+            assertThat(result.playerSkill())
+                    .extracting(PlayerSkill::active, PlayerSkill::unlocked, PlayerSkill::isParent, PlayerSkill::isChild)
+                    .contains(parent, true, true, false);
+
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child1)))
+                    .extracting(PlayerSkill::active, PlayerSkill::unlocked, PlayerSkill::isParent, PlayerSkill::isChild)
+                    .contains(child1, true, true, true);
+
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child2)))
+                    .extracting(PlayerSkill::active, PlayerSkill::unlocked, PlayerSkill::isParent, PlayerSkill::isChild)
+                    .contains(child2, false, true, true);
+        }
+
+        @Test
+        @DisplayName("should create nested player skills")
+        void shouldCreateNestedPlayerSkills() {
+
+            ConfiguredSkill parent = loadSkill();
+            PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, parent);
+
+            assertThat(playerSkill)
+                    .extracting(PlayerSkill::isParent, PlayerSkill::isChild, s -> s.children().size())
+                    .contains(true, false, 1);
+
+            assertThat(PlayerSkill.find(player, getOrAssertSkill(child2)))
+                    .isPresent().get()
+                    .extracting(PlayerSkill::isParent, PlayerSkill::parent, PlayerSkill::isChild)
+                    .contains(false, PlayerSkill.find(player, getOrAssertSkill(child1)).orElseThrow(), true);
+
+            assertThat(PlayerSkill.find(player, getOrAssertSkill(child1)))
+                    .isPresent().get()
+                    .extracting(PlayerSkill::isParent, PlayerSkill::parent, PlayerSkill::isChild)
+                    .contains(true, PlayerSkill.find(player, getOrAssertSkill(ParentChildSkills.parent)).orElseThrow(), true);
+
+        }
+
+        @Test
+        @DisplayName("should add and activate all child skills")
+        void shouldActivateAllSkills() {
+
+            ConfiguredSkill parent = loadSkill();
+
+            AddSkillAction.Result result = player.addSkill(parent);
+
+            assertThat(result.success()).isTrue();
+            assertActiveStatus(result, true, true, true);
+        }
+
+        @Test
+        @DisplayName("should not activate child skills with level requirement")
+        void shouldNotActivateChildSkillsWithRequirement() {
+
+            ConfiguredSkill parent = loadSkill(ParentChildSkills.parent, cfg -> {
+                cfg.set("skills.child1.level", 5);
+            });
+
+            AddSkillAction.Result result = player.addSkill(parent);
+
+            assertThat(result.success()).isTrue();
+            assertActiveStatus(result, true, false, false);
+        }
+
+        @Test
+        @DisplayName("should not activate nested child skills with level requirement")
+        void shouldNotActivateNestedChildSkillsWithRequirement() {
+
+            ConfiguredSkill parent = loadSkill(ParentChildSkills.parent, cfg -> {
+                cfg.set("skills.child1.skills.child2.skillpoints", 5);
+            });
+
+            AddSkillAction.Result result = player.addSkill(parent);
+
+            assertThat(result.success()).isTrue();
+            assertActiveStatus(result, true, true, false);
+        }
+
+        @Test
+        @DisplayName("should auto activate child skills on level up")
+        void shouldAutoActivateChildSkillsOnLevelUp() {
+
+            ConfiguredSkill parent = loadSkill(ParentChildSkills.parent, cfg -> {
+                cfg.set("skills.child1.level", 5);
+            });
+
+            AddSkillAction.Result result = player.addSkill(parent);
+
+            assertThat(result.success()).isTrue();
+            assertActiveStatus(result, true, false, false);
+
+            player.addLevel(5);
+
+            assertActiveStatus(result, true, true, true);
+        }
+
+        @Test
+        @DisplayName("should allow buying child skills")
+        void shouldAllowBuyingChildSkills() {
+
+            ConfiguredSkill parent = loadSkill(ParentChildSkills.parent, cfg -> {
+                cfg.set("skills.child1.money", 500);
+            });
+
+            AddSkillAction.Result result = player.buySkill(parent);
+
+            assertThat(result.success()).isTrue();
+            assertActiveStatus(result, true, false, false);
+
+            player.buySkill(getOrAssertSkill(child1), true);
+
+            assertActiveStatus(result, true, true, true);
+        }
+
+        @Test
+        @DisplayName("should execute executable child skills")
+        void shouldExecuteExecutableChildSkills() {
+
+            ConfiguredSkill skill = loadSkill();
+
+            AddSkillAction.Result result = player.addSkill(skill);
+
+            assertThat(result.success()).isTrue();
+            assertActiveStatus(result, true, true, true);
+
+            Consumer<ExecutionResult> callback = callback();
+            PlayerSkill.getOrCreate(player, skill).execute(callback);
+
+            verify(callback, times(1)).accept(captor.capture());
+
+            assertThat(captor.getValue())
+                    .extracting(ExecutionResult::success)
+                    .isEqualTo(true);
+        }
     }
 }

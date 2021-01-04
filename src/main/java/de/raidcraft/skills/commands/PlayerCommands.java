@@ -8,6 +8,7 @@ import co.aikar.commands.annotation.*;
 import de.raidcraft.economy.wrapper.Economy;
 import de.raidcraft.skills.Messages;
 import de.raidcraft.skills.SkillsPlugin;
+import de.raidcraft.skills.actions.AddSkillAction;
 import de.raidcraft.skills.actions.BuySkillAction;
 import de.raidcraft.skills.entities.*;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -349,7 +350,7 @@ public class PlayerCommands extends BaseCommand {
                 if (buySkillAction == null) {
                     getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Der Zeitraum zum Kaufen des Skills ist abgelaufen bitte gebe den Befehl erneut ein.");
                 } else {
-                    BuySkillAction.Result result = buySkillAction.execute(getCurrentCommandIssuer().hasPermission(SkillsPlugin.BYPASS_REQUIREMENT_CHECKS));
+                    AddSkillAction.Result result = buySkillAction.execute(getCurrentCommandIssuer().hasPermission(SkillsPlugin.BYPASS_REQUIREMENT_CHECKS));
                     if (result.success()) {
                         Messages.send(getCurrentCommandIssuer(), Messages.buySkill(buySkillAction.player(), result.playerSkill()));
                     } else {
