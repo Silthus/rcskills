@@ -1,3 +1,11 @@
+## [1.15.1](https://github.com/raidcraft/rcskills/compare/v1.15.0...v1.15.1) (2021-01-04)
+
+
+### Bug Fixes
+
+* only show bindings for active skills ([50c023f](https://github.com/raidcraft/rcskills/commit/50c023fccf4b37486340483e5c31e82b31d635fa))
+* remove bindings when skill is deactivated ([9c58fda](https://github.com/raidcraft/rcskills/commit/9c58fda4a0def0c875543c80287accaafc791afc))
+
 # [1.15.0](https://github.com/raidcraft/rcskills/compare/v1.14.3...v1.15.0) (2021-01-04)
 
 
