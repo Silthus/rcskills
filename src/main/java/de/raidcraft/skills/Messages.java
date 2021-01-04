@@ -557,7 +557,7 @@ public final class Messages {
                     builder.append(text(" | ", YELLOW)).append(text("aktivieren", GRAY).hoverEvent(showText(hover)));
                 }
             }
-            if (skill.executable()) {
+            if (skill.executable() && playerSkill.active()) {
                 builder.append(text(" | ", YELLOW));
                 List<ItemBinding> bindings = player.bindings().get(playerSkill);
                 TextComponent.Builder hover = text().append(text("Klicke um den Skill auf das Item in deiner Hand zu binden.", GRAY));
