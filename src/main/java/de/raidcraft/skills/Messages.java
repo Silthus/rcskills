@@ -468,9 +468,9 @@ public final class Messages {
         return builder.build();
     }
 
-    public static Component skill(PlayerSkill skill, boolean showBuy) {
+    public static Component skill(PlayerSkill skill, boolean showDetails) {
 
-        return skill(skill.configuredSkill(), skill.player(), showBuy);
+        return skill(skill.configuredSkill(), skill.player(), showDetails);
     }
 
     public static Component skill(ConfiguredSkill skill, SkilledPlayer player) {
@@ -478,18 +478,18 @@ public final class Messages {
         return skill(skill, player, true);
     }
 
-    public static Component skill(ConfiguredSkill skill, SkilledPlayer player, boolean showBuy) {
+    public static Component skill(ConfiguredSkill skill, SkilledPlayer player, boolean showDetails) {
 
         TextColor color = GRAY;
         if (skill.disabled()) {
             color = DARK_GRAY;
         } else if (player != null) {
             if (player.hasActiveSkill(skill)) {
-                color = AQUA;
+                color = GREEN;
             } else if (player.hasSkill(skill)) {
                 color = DARK_AQUA;
             } else {
-                color = player.canBuy(skill) ? GREEN : RED;
+                color = player.canBuy(skill) ? GRAY : RED;
             }
         }
 
@@ -498,12 +498,15 @@ public final class Messages {
             levelColor = player.level().getLevel() >= skill.level() ? GREEN : RED;
         }
 
-        TextComponent.Builder builder = text()
-                .append(text("[", YELLOW))
-                .append(text(skill.level(), levelColor))
-                .append(text("] ", YELLOW))
-                .append(text(skill.name(), color, BOLD));
+        TextComponent.Builder builder = text();
 
+        if (showDetails) {
+            builder.append(text("[", YELLOW))
+                    .append(text(skill.level(), levelColor))
+                    .append(text("] ", YELLOW));
+        }
+
+        builder.append(text(skill.name(), color, BOLD));
 
         if (skill.disabled()) {
             return builder.hoverEvent(showText(text("Der Skill ist deaktiviert.", RED))).build();
@@ -511,7 +514,7 @@ public final class Messages {
 
         builder.hoverEvent(skillInfo(skill, player));
 
-        if (player != null && showBuy) {
+        if (player != null && showDetails) {
             PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
             if (player.canBuy(skill)) {
                 builder.append(text(" | ", YELLOW)).append(text(" [$] ", GREEN)
@@ -522,8 +525,10 @@ public final class Messages {
                 builder.append(text(" | ", YELLOW)).append(text("aktiv", AQUA).hoverEvent(HoverEvent.showText(
                         text("Der Skill ist aktiv.", GRAY).append(newline())
                                 .append(text("Gebe ", GRAY))
-                                .append(text(PlayerCommands.reset(player), GRAY, ITALIC))
-                                .append(text(" ein um alle deine Skills zurückzusetzen.", GRAY))
+                                .append(text(PlayerCommands.reset(player), GOLD, ITALIC))
+                                .append(text(" ein um alle deine Skills zurückzusetzen.", GRAY)).append(newline())
+                            .append(text("Klicke um ", GRAY, ITALIC).append(text(PlayerCommands.reset(player), GOLD, ITALIC)))
+                            .append(text(" auszuführen.", GRAY, ITALIC))
                         )).clickEvent(suggestCommand(PlayerCommands.reset(player)))
                 );
             } else if (playerSkill.unlocked()) {
@@ -552,6 +557,23 @@ public final class Messages {
                     builder.append(text(" | ", YELLOW)).append(text("aktivieren", GRAY).hoverEvent(showText(hover)));
                 }
             }
+            if (skill.executable()) {
+                builder.append(text(" | ", YELLOW));
+                List<ItemBinding> bindings = player.bindings().get(playerSkill);
+                TextComponent.Builder hover = text().append(text("Klicke um den Skill auf das Item in deiner Hand zu binden.", GRAY));
+                if (!bindings.isEmpty()) {
+                    hover.append(newline()).append(text("Bestehende Item Bindings: ", YELLOW)).append(newline());
+                    for (ItemBinding binding : bindings) {
+                        hover.append(text(" - ", YELLOW))
+                                .append(text(binding.material().getKey().getKey(), DARK_AQUA))
+                                .append(text(" (" + binding.action().friendlyName() + ")")).append(newline());
+                    }
+                }
+                builder.append(text("bind", GOLD)
+                        .hoverEvent(hover.build())
+                        .clickEvent(suggestCommand(PlayerCommands.bindSkill(playerSkill)))
+                );
+            }
         }
 
         return builder.build();
@@ -567,12 +589,9 @@ public final class Messages {
                     .append(requirements(playerSkill));
             if (skill.executable()) {
                 builder.append(newline())
-                        .append(text("Tipp: ", GREEN).append(text("Du kannst deine aktiven Skills mit /bind " +
-                                "auf Gegenstände binden um sie mit einem Rechts oder Linksklick auszuführen.", GRAY, ITALIC)))
-                        .append(newline()).append(text("Klicke auf den Skill um ", GRAY, ITALIC))
-                        .append(text("/bind " + skill.alias() + " ", GOLD, ITALIC))
-                        .append(text(" auszuführen.", GRAY, ITALIC))
-                        .clickEvent(suggestCommand("/bind " + skill.alias() + " "));
+                        .append(text("Tipp: ", GREEN).append(text("Du kannst den Skill mit "))
+                                .append(text("/bind " + skill.alias(), GOLD, ITALIC))
+                                .append(text("auf Gegenstände binden um sie mit einem Rechts oder Linksklick auszuführen.", GRAY, ITALIC)));
             }
         }
         return builder.build();

@@ -19,6 +19,8 @@ import lombok.experimental.Accessors;
 import net.silthus.ebean.Config;
 import net.silthus.ebean.EbeanWrapper;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
@@ -203,6 +205,7 @@ public class SkillsPlugin extends JavaPlugin {
         registerSkillContext(commandManager);
         registerPlayerSkillContext(commandManager);
         registerBindActionContext(commandManager);
+        registerMaterialContext(commandManager);
 
         registerOthersCondition(commandManager);
         registerUnlockedCondition(commandManager);
@@ -213,6 +216,7 @@ public class SkillsPlugin extends JavaPlugin {
         registerUnlockedSkillsCompletion(commandManager);
         registerActiveSkillsCompletion(commandManager);
         registerBindActions(commandManager);
+        registerMaterialCompletion(commandManager);
 
         commandManager.registerCommand(new PlayerCommands(this));
         commandManager.registerCommand(new AdminCommands(this));
@@ -250,6 +254,16 @@ public class SkillsPlugin extends JavaPlugin {
                 .collect(Collectors.toSet()));
     }
 
+    private void registerMaterialCompletion(PaperCommandManager commandManager) {
+
+        commandManager.getCommandCompletions().registerAsyncCompletion("materials", context ->
+                Arrays.stream(Material.values())
+                .map(Material::getKey)
+                .map(NamespacedKey::getKey)
+                .collect(Collectors.toSet())
+        );
+    }
+
     private void registerBindActions(PaperCommandManager commandManager) {
 
         commandManager.getCommandCompletions().registerAsyncCompletion("bind-actions", context -> Arrays.
@@ -270,6 +284,11 @@ public class SkillsPlugin extends JavaPlugin {
                         throw new InvalidCommandArgument("Es gibt keine Bind Action mit dem Namen " + name);
                     }
                 });
+    }
+
+    private void registerMaterialContext(PaperCommandManager commandManager) {
+
+        commandManager.getCommandContexts().registerContext(Material.class, context -> Material.matchMaterial(context.popFirstArg()));
     }
 
     private void registerSkillContext(PaperCommandManager commandManager) {
@@ -327,6 +346,10 @@ public class SkillsPlugin extends JavaPlugin {
     private void registerSkilledPlayerContext(PaperCommandManager commandManager) {
 
         commandManager.getCommandContexts().registerIssuerAwareContext(SkilledPlayer.class, context -> {
+            if (context.hasFlag("self")) {
+                return SkilledPlayer.getOrCreate(context.getPlayer());
+            }
+
             String playerName = context.popFirstArg();
             if (Strings.isNullOrEmpty(playerName)) {
                 return SkilledPlayer.getOrCreate(context.getPlayer());

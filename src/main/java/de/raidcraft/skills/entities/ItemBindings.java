@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Handles and caches the item bindings for the given player.
@@ -70,10 +71,12 @@ public class ItemBindings {
      * <p>Nothing will happen if no binding exists.
      *
      * @param material the material to unbind
-     * @param action the action to unbind
+     * @param action the action to unbind can be null
      * @return the item bindings of this player
      */
     public ItemBindings unbind(Material material, ItemBinding.Action action) {
+
+        if (action == null) return unbind(material);
 
         ItemBinding.find(playerId, material, action).ifPresent(itemBinding -> {
             bindings.remove(itemBinding);
@@ -130,5 +133,18 @@ public class ItemBindings {
                 .filter(itemBinding -> itemBinding.material().equals(material))
                 .filter(itemBinding -> itemBinding.action().equals(action))
                 .findAny();
+    }
+
+    /**
+     * Gets all bindings that are associated with the given skill.
+     *
+     * @param skill the skill to get bindings for
+     * @return all bindings that are bound to the given skill
+     */
+    public List<ItemBinding> get(PlayerSkill skill) {
+
+        return bindings().stream()
+                .filter(itemBinding -> itemBinding.skill().equals(skill))
+                .collect(Collectors.toList());
     }
 }

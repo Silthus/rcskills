@@ -82,6 +82,16 @@ public class PlayerCommands extends BaseCommand {
         return "/rcskills abortreset";
     }
 
+    public static String bindSkill(PlayerSkill skill) {
+
+        return "/bind " + skill.alias() + " ";
+    }
+
+    public static String unbind(ItemBinding binding) {
+
+        return "/unbind " + binding.action().name() + " " + binding.material().getKey().getKey();
+    }
+
     private final SkillsPlugin plugin;
 
     public PlayerCommands(SkillsPlugin plugin) {
@@ -168,20 +178,34 @@ public class PlayerCommands extends BaseCommand {
 
     @Subcommand("unbind")
     @CommandAlias("unbind")
+    @CommandCompletion("@bind-actions @materials")
     @CommandPermission("rcskills.skill.bind")
     @Description("Entfernt alle Bindings für das Item in deiner Hand.")
-    public void unbind(SkilledPlayer player) {
+    public void unbind(@co.aikar.commands.annotation.Optional ItemBinding.Action action,
+                       @co.aikar.commands.annotation.Optional Material material,
+                       @Flags("self") SkilledPlayer player) {
 
         if (!getCurrentCommandIssuer().isPlayer()) {
             throw new ConditionFailedException("Dieser Befehl kann nur als Spieler ausgeführt werden.");
         }
 
-        Material material = ((Player) getCurrentCommandIssuer().getIssuer()).getInventory().getItemInMainHand().getType();
+        if (material == null) {
+            material = ((Player) getCurrentCommandIssuer().getIssuer()).getInventory().getItemInMainHand().getType();
+        }
+
         ItemBindings bindings = player.bindings();
         if (bindings.contains(material)) {
-            bindings.unbind(material);
+            bindings.unbind(material, action);
             plugin.getBindingListener().getUpdateBindings().accept(player.id());
-            send(getCurrentCommandIssuer(), text("Alle Bindings auf dem Item ", GREEN).append(text(material.getKey().getKey(), AQUA)).append(text(" wurden entfernt.", GREEN)));
+            if (action == null) {
+                send(getCurrentCommandIssuer(), text("Alle Bindings auf dem Item ", GREEN).append(text(material.getKey().getKey(), AQUA)).append(text(" wurden entfernt.", GREEN)));
+            } else {
+                send(getCurrentCommandIssuer(), text("Das ")
+                        .append(text(action.friendlyName(), DARK_AQUA))
+                        .append(text(" Binding auf dem Item ", GREEN))
+                        .append(text(material.getKey().getKey(), AQUA))
+                        .append(text(" wurde entfernt.", GREEN)));
+            }
         } else {
             send(getCurrentCommandIssuer(), text("Du hast keine Bindings auf dem Item ", RED).append(text(material.getKey().getKey(), AQUA)).append(text(".", RED)));
         }
