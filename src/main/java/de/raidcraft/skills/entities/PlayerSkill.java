@@ -6,7 +6,6 @@ import de.raidcraft.skills.SkillStatus;
 import de.raidcraft.skills.SkillsPlugin;
 import de.raidcraft.skills.events.*;
 import io.ebean.Finder;
-import io.ebean.annotation.DbDefault;
 import io.ebean.annotation.Index;
 import lombok.Getter;
 import lombok.Setter;
@@ -191,6 +190,7 @@ public class PlayerSkill extends BaseEntity {
             save();
 
             context().ifPresent(SkillContext::disable);
+            player().bindings().unbind(this);
             Bukkit.getPluginManager().callEvent(new PlayerDeactivatedSkillEvent(player(), this));
             return true;
         } catch (Exception e) {

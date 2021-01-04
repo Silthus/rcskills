@@ -59,10 +59,7 @@ public class ItemBindings {
      */
     public ItemBindings unbind(Material material) {
 
-        ItemBinding.find(playerId, material).forEach(itemBinding -> {
-            bindings.remove(itemBinding);
-            itemBinding.delete();
-        });
+        ItemBinding.find(playerId, material).forEach(this::unbind);
         return this;
     }
 
@@ -78,11 +75,30 @@ public class ItemBindings {
 
         if (action == null) return unbind(material);
 
-        ItemBinding.find(playerId, material, action).ifPresent(itemBinding -> {
-            bindings.remove(itemBinding);
-            itemBinding.delete();
-        });
+        ItemBinding.find(playerId, material, action).ifPresent(this::unbind);
         return this;
+    }
+
+    /**
+     * Removes all bindings for the given skill.
+     *
+     * @param skill the skill that should have its bindings removed
+     */
+    public void unbind(PlayerSkill skill) {
+
+        get(skill).forEach(this::unbind);
+    }
+
+    /**
+     * Unbinds the given item binding.
+     *
+     * @param binding the binding that should be removed. can be null.
+     */
+    public void unbind(ItemBinding binding) {
+
+        if (binding == null) return;
+        bindings.remove(binding);
+        binding.delete();
     }
 
     /**
