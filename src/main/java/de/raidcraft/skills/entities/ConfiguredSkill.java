@@ -1,9 +1,7 @@
 package de.raidcraft.skills.entities;
 
-import de.raidcraft.skills.ExecutionConfig;
-import de.raidcraft.skills.Requirement;
-import de.raidcraft.skills.SkillsPlugin;
-import de.raidcraft.skills.TestResult;
+import com.google.common.base.Strings;
+import de.raidcraft.skills.*;
 import de.raidcraft.skills.requirements.LevelRequirement;
 import de.raidcraft.skills.requirements.MoneyRequirement;
 import de.raidcraft.skills.requirements.PermissionRequirement;
@@ -15,6 +13,7 @@ import io.ebean.text.json.EJson;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import lombok.extern.java.Log;
 import net.silthus.ebean.BaseEntity;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
@@ -29,6 +28,7 @@ import java.util.stream.Stream;
 @Setter
 @Table(name = "rcs_skills")
 @Accessors(fluent = true)
+@Log(topic = "RCSkills")
 public class ConfiguredSkill extends BaseEntity implements Comparable<ConfiguredSkill> {
 
     static {
@@ -89,6 +89,11 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     private boolean restricted = false;
     private boolean autoUnlock = false;
 
+    @ManyToOne
+    private ConfiguredSkill parent;
+    @OneToMany(cascade = CascadeType.REMOVE)
+    private List<ConfiguredSkill> children = new ArrayList<>();
+
     @DbJson
     private Map<String, Object> config = new HashMap<>();
     @OneToMany(cascade = CascadeType.REMOVE)
@@ -117,6 +122,16 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     public boolean hidden() {
 
         return disabled() || hidden;
+    }
+
+    public boolean isChild() {
+
+        return parent() != null;
+    }
+
+    public boolean isParent() {
+
+        return !children().isEmpty();
     }
 
     public List<String> categories() {
@@ -158,7 +173,9 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     public ConfiguredSkill load(ConfigurationSection config) {
         this.config = new HashMap<>();
         config.getKeys(true)
-                .stream().filter(key -> !config.isConfigurationSection(key))
+                .stream()
+                .filter(key -> !config.isConfigurationSection(key))
+                .filter(key -> !key.startsWith(SkillManager.SUB_SKILL_SECTION))
                 .forEach(key -> this.config.put(key, config.get(key)));
 
         load(true);
@@ -195,30 +212,33 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
 
         ConfigurationSection config = getConfig();
 
-        this.alias = config.getString("alias", alias);
-        this.name = config.getString("name", name);
-        this.type = config.getString("type", type);
-        this.description = config.getString("description", description);
-        this.executable = config.getBoolean("executable", executable);
-        this.level = config.getInt("level", level);
-        this.money = config.getDouble("money", money);
-        this.skillpoints = config.getInt("skillpoints", skillpoints);
-        this.noSkillSlot = config.getBoolean("no-skill-slot", noSkillSlot);
-        this.hidden = config.getBoolean("hidden", hidden);
-        this.enabled = config.getBoolean("enabled", enabled);
-        this.restricted = config.getBoolean("restricted", restricted);
-        this.autoUnlock = config.getBoolean("auto-unlock", autoUnlock);
-        if (config.isSet("categories")) {
-            this.categories = config.getStringList("categories");
+        String parent = config.getString("parent");
+        if (!Strings.isNullOrEmpty(parent)) {
+            try {
+                parent(ConfiguredSkill.find.byId(UUID.fromString(parent)));
+            } catch (IllegalArgumentException e) {
+                log.severe("the parent of " + id() + " is not a valid UUID.");
+                e.printStackTrace();
+            }
         }
 
-        ConfigurationSection section = config.getConfigurationSection("execution");
-        this.executionConfig = new ExecutionConfig(Objects.requireNonNullElseGet(section,
-                () -> config.createSection("execution")));
+        setAlias(config);
+        setName(config);
+        setType(config);
+        setDescription(config);
+        setExecutable(config);
+        setLevel(config);
+        setSkillpoints(config);
+        setMoney(config);
+        setNoSkillSlot(config);
+        setHidden(config);
+        setEnabled(config);
+        setRestricted(config);
+        setAutoUnlock(config);
 
-        this.requirements = SkillsPlugin.instance().getSkillManager()
-                .loadRequirements(config.getConfigurationSection("requirements"));
-        this.costRequirements = new ArrayList<>();
+        setCategories(config);
+        setExecutionConfig(config);
+        setRequirements(config);
 
         if (restricted) {
             requirements.add(new PermissionRequirement().add(SkillsPlugin.SKILL_PERMISSION_PREFIX + alias).load(new MemoryConfiguration()));
@@ -292,6 +312,100 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
                 .map(requirement -> requirement.test(player))
                 .reduce(TestResult::merge)
                 .orElse(TestResult.ofSuccess());
+    }
+
+    private void setAlias(ConfigurationSection config) {
+
+        alias(config.getString("alias", isChild() ? parent().alias() : alias()));
+    }
+
+    private void setName(ConfigurationSection config) {
+
+        name(config.getString("name", isChild() ? parent().name() : name()));
+    }
+
+    private void setType(ConfigurationSection config) {
+
+        type(config.getString("type", isChild() ? parent().type() : type()));
+    }
+
+    private void setDescription(ConfigurationSection config) {
+
+        description(config.getString("description", isChild() ? parent().description() : description()));
+    }
+
+    private void setExecutable(ConfigurationSection config) {
+
+        executable(config.getBoolean("executable", executable));
+    }
+
+    private void setLevel(ConfigurationSection config) {
+
+        level(config.getInt("level", isChild() ? parent().level() : level()));
+    }
+
+    private void setSkillpoints(ConfigurationSection config) {
+
+        skillpoints(config.getInt("skillpoints", isChild() ? parent().skillpoints() : skillpoints()));
+    }
+
+    private void setMoney(ConfigurationSection config) {
+
+        money(config.getDouble("money", isChild() ? parent().money() : money()));
+    }
+
+    private void setNoSkillSlot(ConfigurationSection config) {
+
+        noSkillSlot(config.getBoolean("no-skill-slot", isChild() ? parent().noSkillSlot() : noSkillSlot()));
+    }
+
+    private void setHidden(ConfigurationSection config) {
+
+        hidden(config.getBoolean("hidden", hidden() || isChild()));
+    }
+
+    private void setEnabled(ConfigurationSection config) {
+
+        enabled(config.getBoolean("enabled", enabled));
+    }
+
+    private void setRestricted(ConfigurationSection config) {
+
+        restricted(config.getBoolean("restricted", isChild() ? parent().restricted() : restricted()));
+    }
+
+    private void setAutoUnlock(ConfigurationSection config) {
+
+        autoUnlock(config.getBoolean("auto-unlock", isChild() ? parent().autoUnlock() : autoUnlock()));
+    }
+
+    private void setCategories(ConfigurationSection config) {
+
+        if (config.isSet("categories")) {
+            categories(config.getStringList("categories"));
+        } else if (isChild()) {
+            categories(parent().categories());
+        }
+    }
+
+    private void setExecutionConfig(ConfigurationSection config) {
+
+        if (config.isSet("execution")) {
+            ConfigurationSection section = config.getConfigurationSection("execution");
+            executionConfig(new ExecutionConfig(Objects.requireNonNullElseGet(section,
+                    () -> config.createSection("execution"))));
+        } else if (isChild()) {
+            executionConfig(parent().executionConfig());
+        } else {
+            executionConfig(new ExecutionConfig(config.createSection("execution")));
+        }
+    }
+
+    private void setRequirements(ConfigurationSection config) {
+
+        this.requirements(SkillsPlugin.instance().getSkillManager()
+                .loadRequirements(config.getConfigurationSection("requirements")));
+        this.costRequirements = new ArrayList<>();
     }
 
     @Override
