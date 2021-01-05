@@ -40,13 +40,6 @@ public class AddSkillAction {
         PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
         playerSkill.unlock();
 
-        playerSkill.children().stream()
-                .filter(child -> child.configuredSkill().canAutoUnlock(player))
-                .forEach(child -> {
-                    child.refresh();
-                    child.unlock();
-                });
-
         return new Result(this, playerSkill, testResult);
     }
 
