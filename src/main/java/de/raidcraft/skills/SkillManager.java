@@ -521,7 +521,10 @@ public final class SkillManager {
                 .filter(r -> r instanceof PermissionRequirement)
                 .flatMap(r -> ((PermissionRequirement) r).getPermissions().stream())
                 .map(s -> new Permission(s, PermissionDefault.FALSE))
-                .forEach(pluginManager::addPermission);
+                .forEach(p -> {
+                    pluginManager.removePermission(p);
+                    pluginManager.addPermission(p);
+                });
 
         ConfigurationSection skills = config.getConfigurationSection(SUB_SKILL_SECTION);
         if (skills != null) {
