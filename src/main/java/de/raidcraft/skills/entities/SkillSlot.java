@@ -11,7 +11,6 @@ import net.silthus.ebean.BaseEntity;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,13 +33,19 @@ public class SkillSlot extends BaseEntity implements Comparable<SkillSlot> {
 
     @ManyToOne
     private SkilledPlayer player;
-    @OneToOne
     @Setter(AccessLevel.PACKAGE)
-    private PlayerSkill skill;
+    private UUID skillId;
     private Status status = Status.ELIGIBLE;
 
     SkillSlot(SkilledPlayer player) {
         this.player = player;
+    }
+
+    public Optional<PlayerSkill> skill() {
+
+        if (skillId() == null) return Optional.empty();
+
+        return Optional.ofNullable(PlayerSkill.find.byId(skillId()));
     }
 
     public boolean free() {
@@ -55,22 +60,28 @@ public class SkillSlot extends BaseEntity implements Comparable<SkillSlot> {
 
     SkillSlot assign(PlayerSkill skill) {
 
-        if (skill() == null && inUse()) {
+        if (skill == null && inUse()) {
             status(Status.FREE);
         } else if (skill != null) {
             status(Status.IN_USE);
+            this.skillId(skill.id());
         }
 
-        this.skill(skill);
+        if (skill == null) {
+            this.skillId(null);
+        }
+
         return this;
     }
 
     SkillSlot unassign() {
 
-        if (this.skill() != null) {
+        if (skillId() != null) {
             this.status(Status.FREE);
         }
-        this.skill(null);
+
+        this.skillId(null);
+
         return this;
     }
 

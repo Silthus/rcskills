@@ -72,13 +72,13 @@ public class PlayerSkill extends BaseEntity {
     private SkillStatus status = SkillStatus.NOT_PRESENT;
     private Instant lastUsed = Instant.EPOCH;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private DataStore data = new DataStore();
 
     @ManyToOne
     private PlayerSkill parent;
 
-    @OneToMany(cascade = CascadeType.REMOVE)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlayerSkill> children = new ArrayList<>();
 
     PlayerSkill(SkilledPlayer player, ConfiguredSkill configuredSkill) {

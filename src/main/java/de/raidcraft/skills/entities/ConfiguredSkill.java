@@ -89,12 +89,13 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
 
     @ManyToOne
     private ConfiguredSkill parent;
-    @OneToMany(cascade = CascadeType.REMOVE)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ConfiguredSkill> children = new ArrayList<>();
 
     @DbJson
     private Map<String, Object> config = new HashMap<>();
-    @OneToMany(cascade = CascadeType.REMOVE)
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlayerSkill> playerSkills = new ArrayList<>();
 
     @Transient
@@ -103,7 +104,7 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     private transient List<Requirement> requirements = new ArrayList<>();
     @Transient
     private transient List<Requirement> costRequirements = new ArrayList<>();
-
+    @Transient
     private transient boolean loaded = false;
     @Transient
     private transient ExecutionConfig executionConfig;

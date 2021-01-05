@@ -25,7 +25,7 @@ public class Level extends BaseEntity {
     private int level = 1;
     private long totalExp = 0;
 
-    @OneToMany(cascade = CascadeType.REMOVE)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LevelHistory> history = new ArrayList<>();
 
     Level() {
