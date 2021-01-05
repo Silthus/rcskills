@@ -214,7 +214,10 @@ public class SkilledPlayer extends BaseEntity {
 
     public PlayerSkill getSkill(ConfiguredSkill skill) {
 
-        return PlayerSkill.getOrCreate(this, skill);
+        return skills().stream()
+                .filter(s -> s.configuredSkill().equals(skill))
+                .findAny()
+                .orElseGet(() -> PlayerSkill.getOrCreate(this, skill));
     }
 
     public PlayerSkill removeSkill(ConfiguredSkill skill) {

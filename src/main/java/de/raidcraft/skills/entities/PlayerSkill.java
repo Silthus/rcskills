@@ -98,6 +98,11 @@ public class PlayerSkill extends BaseEntity {
         return configuredSkill().description();
     }
 
+    public boolean executable() {
+
+        return configuredSkill().executable();
+    }
+
     public boolean isChild() {
 
         return parent() != null;
@@ -165,13 +170,20 @@ public class PlayerSkill extends BaseEntity {
             return;
         }
 
-        context().ifPresentOrElse(context -> context.execute(callback),
-                () -> callback.accept(ExecutionResult.failure(null, "Der Skill konnte nicht geladen werden.")));
-        children().forEach(skill -> skill.execute(callback));
+        if (executable()) {
+            context().ifPresentOrElse(context -> context.execute(callback),
+                    () -> callback.accept(ExecutionResult.failure(null, "Der Skill konnte nicht geladen werden.")));
+        }
+
+        children().stream()
+                .filter(PlayerSkill::active)
+                .filter(PlayerSkill::executable)
+                .forEach(skill -> skill.execute(callback));
     }
 
     public boolean canActivate() {
 
+        if (!unlocked()) return false;
         if (configuredSkill().disabled()) return false;
         if (active()) return false;
         if (configuredSkill().noSkillSlot()) return true;
@@ -200,6 +212,7 @@ public class PlayerSkill extends BaseEntity {
                 player().freeSkillSlot().assign(this).save();
             }
 
+            refresh();
             status(SkillStatus.ACTIVE);
             save();
 
@@ -208,6 +221,7 @@ public class PlayerSkill extends BaseEntity {
             Bukkit.getPluginManager().callEvent(new PlayerActivatedSkillEvent(player(), this));
 
             children().forEach(PlayerSkill::activate);
+
             return true;
         } catch (Exception e) {
             log.severe("An error occured while activating the skill " + alias() + " of " + player().name() + ": " + e.getMessage());
@@ -250,13 +264,17 @@ public class PlayerSkill extends BaseEntity {
 
         if (event.isCancelled()) return false;
 
+        refresh();
         status(SkillStatus.UNLOCKED);
+        save();
+
+        children().stream()
+                .filter(skill -> skill.configuredSkill().canAutoUnlock(player()))
+                .forEach(PlayerSkill::unlock);
 
         if (configuredSkill().noSkillSlot()) {
             activate();
         }
-
-        save();
 
         Bukkit.getPluginManager().callEvent(new PlayerUnlockedSkillEvent(player(), this));
 

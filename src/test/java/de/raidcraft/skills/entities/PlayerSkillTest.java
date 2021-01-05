@@ -52,10 +52,10 @@ public class PlayerSkillTest {
         cfg.set("with.permissions", Collections.singletonList("foobar"));
         plugin.getSkillManager().loadSkill(TEST_SKILL, cfg);
 
-        PlayerMock playerMock = server.addPlayer();
+        PlayerMock playerMock = server.addPlayer(rnd.nextString());
         playerMock.setOp(true);
         this.player = SkilledPlayer.getOrCreate(playerMock);
-        player.addSkillSlots(5, SkillSlot.Status.FREE);
+        player.addSkillSlots(20, SkillSlot.Status.FREE);
         skill = ConfiguredSkill.findByAliasOrName(TEST_SKILL).get();
     }
 
@@ -134,6 +134,7 @@ public class PlayerSkillTest {
 
             MemoryConfiguration cfg = new MemoryConfiguration();
             cfg.set("type", "none");
+            cfg.set("no-skill-slot", true);
             cfg.set("skills.child1.name", child1);
             cfg.set("skills.child1.skills.child2.name", child2);
             cfg.set("skills.child1.skills.child2.type", "test");
@@ -149,21 +150,6 @@ public class PlayerSkillTest {
             Optional<ConfiguredSkill> skill = ConfiguredSkill.findByAliasOrName(name);
             assertThat(skill).isPresent();
             return skill.get();
-        }
-
-        private void assertActiveStatus(AddSkillAction.Result result, boolean parent, boolean child1, boolean child2) {
-
-            assertThat(result.playerSkill())
-                    .extracting(PlayerSkill::active, PlayerSkill::unlocked, PlayerSkill::isParent, PlayerSkill::isChild)
-                    .contains(parent, true, true, false);
-
-            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child1)))
-                    .extracting(PlayerSkill::active, PlayerSkill::unlocked, PlayerSkill::isParent, PlayerSkill::isChild)
-                    .contains(child1, true, true, true);
-
-            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child2)))
-                    .extracting(PlayerSkill::active, PlayerSkill::unlocked, PlayerSkill::isParent, PlayerSkill::isChild)
-                    .contains(child2, false, true, true);
         }
 
         @Test
@@ -198,7 +184,14 @@ public class PlayerSkillTest {
             AddSkillAction.Result result = player.addSkill(parent);
 
             assertThat(result.success()).isTrue();
-            assertActiveStatus(result, true, true, true);
+            assertThat(result.playerSkill().active())
+                    .isTrue();
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child1)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(true);
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child2)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(true);
         }
 
         @Test
@@ -212,7 +205,14 @@ public class PlayerSkillTest {
             AddSkillAction.Result result = player.addSkill(parent);
 
             assertThat(result.success()).isTrue();
-            assertActiveStatus(result, true, false, false);
+            assertThat(result.playerSkill().active())
+                    .isTrue();
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child1)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(false);
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child2)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(false);
         }
 
         @Test
@@ -226,7 +226,14 @@ public class PlayerSkillTest {
             AddSkillAction.Result result = player.addSkill(parent);
 
             assertThat(result.success()).isTrue();
-            assertActiveStatus(result, true, true, false);
+            assertThat(result.playerSkill().active())
+                    .isTrue();
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child1)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(true);
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child2)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(false);
         }
 
         @Test
@@ -240,11 +247,25 @@ public class PlayerSkillTest {
             AddSkillAction.Result result = player.addSkill(parent);
 
             assertThat(result.success()).isTrue();
-            assertActiveStatus(result, true, false, false);
+            assertThat(result.playerSkill().active())
+                    .isTrue();
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child1)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(false);
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child2)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(false);
 
             player.addLevel(5);
 
-            assertActiveStatus(result, true, true, true);
+            assertThat(result.playerSkill().active())
+                    .isTrue();
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child1)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(true);
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child2)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(true);
         }
 
         @Test
@@ -258,11 +279,25 @@ public class PlayerSkillTest {
             AddSkillAction.Result result = player.buySkill(parent);
 
             assertThat(result.success()).isTrue();
-            assertActiveStatus(result, true, false, false);
+            assertThat(result.playerSkill().active())
+                    .isTrue();
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child1)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(false);
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child2)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(false);
 
             player.buySkill(getOrAssertSkill(child1), true);
 
-            assertActiveStatus(result, true, true, true);
+            assertThat(result.playerSkill().active())
+                    .isTrue();
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child1)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(true);
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child2)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(true);
         }
 
         @Test
@@ -274,10 +309,17 @@ public class PlayerSkillTest {
             AddSkillAction.Result result = player.addSkill(skill);
 
             assertThat(result.success()).isTrue();
-            assertActiveStatus(result, true, true, true);
+            assertThat(result.playerSkill().active())
+                    .isTrue();
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child1)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(true);
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child2)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(true);
 
             Consumer<ExecutionResult> callback = callback();
-            PlayerSkill.getOrCreate(player, skill).execute(callback);
+            result.playerSkill().execute(callback);
 
             verify(callback, times(1)).accept(captor.capture());
 
