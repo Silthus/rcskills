@@ -123,6 +123,11 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         return disabled() || hidden;
     }
 
+    public boolean visible() {
+
+        return !hidden();
+    }
+
     public boolean isChild() {
 
         return parent() != null;
@@ -393,7 +398,7 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
 
     private void setRestricted(ConfigurationSection config) {
 
-        restricted(config.getBoolean("restricted", isChild() ? parent().restricted() : restricted()));
+        restricted(config.getBoolean("restricted", !isChild() && restricted()));
     }
 
     private void setAutoUnlock(ConfigurationSection config) {

@@ -191,5 +191,14 @@ class ConfiguredSkillTest {
                     .extracting("skill", "hidden")
                     .contains(Tuple.tuple(ConfiguredSkill.findByAliasOrName(parent).get(), true));
         }
+
+        @Test
+        @DisplayName("should not restrict child skills and require permission")
+        void shouldNotRequirePermissionForRestrictedChilds() {
+
+            assertThat(loadSkill(child1, cfg -> cfg.set("restricted", true)))
+                    .extracting(ConfiguredSkill::restricted)
+                    .isEqualTo(false);
+        }
     }
 }
