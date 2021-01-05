@@ -443,7 +443,7 @@ public final class Messages {
 
         Pagination<ConfiguredSkill> pagination = Pagination.builder()
                 .width(Pagination.WIDTH - 6)
-                .resultsPerPage(10)
+                .resultsPerPage(6)
                 .build(header, new Pagination.Renderer.RowRenderer<>() {
                     @Override
                     public @NonNull Collection<Component> renderRow(ConfiguredSkill value, int index) {
