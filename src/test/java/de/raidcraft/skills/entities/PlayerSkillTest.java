@@ -28,22 +28,18 @@ public class PlayerSkillTest {
     private static final RandomString rnd = new RandomString();
     private String TEST_SKILL = "test";
 
-    private static ServerMock server;
-    private static SkillsPlugin plugin;
+    private ServerMock server;
+    private SkillsPlugin plugin;
 
     private SkilledPlayer player;
 
     private ConfiguredSkill skill;
 
-    @BeforeAll
-    static void beforeAll() {
+    @BeforeEach
+    void setUp() {
 
         server = MockBukkit.mock();
         plugin = MockBukkit.load(SkillsPlugin.class);
-    }
-
-    @BeforeEach
-    void setUp() {
 
         TEST_SKILL = rnd.nextString();
         MemoryConfiguration cfg = new MemoryConfiguration();
@@ -59,8 +55,12 @@ public class PlayerSkillTest {
         skill = ConfiguredSkill.findByAliasOrName(TEST_SKILL).get();
     }
 
-    @AfterAll
-    static void afterAll() {
+    @AfterEach
+    void tearDown() {
+
+        PlayerSkill.find.all().stream().filter(skill1 -> !skill1.isChild()).forEach(PlayerSkill::delete);
+        ConfiguredSkill.find.all().stream().filter(skill1 -> !skill1.isChild()).forEach(ConfiguredSkill::delete);
+        SkilledPlayer.find.all().forEach(SkilledPlayer::delete);
 
         MockBukkit.unmock();
     }
@@ -105,6 +105,12 @@ public class PlayerSkillTest {
             plugin.getSkillManager().registerSkill(DefaultSkillContextTest.TestSkill.class, context -> {
                 return spy(new DefaultSkillContextTest.TestSkill(context));
             });
+        }
+
+        @AfterEach
+        void tearDown() {
+
+            loadSkill(parent).delete();
         }
 
         private Consumer<ExecutionResult> callback() {
@@ -256,7 +262,7 @@ public class PlayerSkillTest {
                     .extracting(PlayerSkill::active)
                     .isEqualTo(false);
 
-            player.addLevel(5);
+            result.playerSkill().player().addLevel(5);
 
             assertThat(result.playerSkill().active())
                     .isTrue();

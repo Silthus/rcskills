@@ -217,14 +217,24 @@ public final class LevelManager implements Listener {
 
         List<PlayerSkill> skills = ConfiguredSkill.find.query()
                 .where().eq("enabled", true)
-                .and().eq("level", event.getNewLevel())
+                .and().le("level", event.getNewLevel())
+                .and().isNull("parent")
                 .orderBy().desc("level")
                 .findList().stream()
                 .map(skill -> PlayerSkill.getOrCreate(skilledPlayer, skill))
                 .collect(Collectors.toList());
 
-        skills.stream().filter(skill -> skill.configuredSkill().autoUnlock())
+        skills.stream()
+                .filter(skill -> !skill.unlocked())
+                .filter(skill -> skill.configuredSkill().autoUnlock())
                 .forEach(skill -> skilledPlayer.addSkill(skill.configuredSkill()));
+
+        skilledPlayer.skills().stream()
+                .map(PlayerSkill::children)
+                .flatMap(Collection::stream)
+                .filter(skill -> !skill.unlocked())
+                .filter(skill -> skill.configuredSkill().canAutoUnlock(skilledPlayer))
+                .forEach(PlayerSkill::unlock);
 
         int finalSkillpoints = skillpoints;
         int finalSkillslots = skillslots;

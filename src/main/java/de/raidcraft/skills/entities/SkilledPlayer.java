@@ -442,6 +442,8 @@ public class SkilledPlayer extends BaseEntity {
         SkillsPlugin.instance().getSkillManager().clearPlayerCache(id());
 
         resetSkillSlots();
+        refresh();
+
         skills().clear();
         skillSlots().clear();
 
