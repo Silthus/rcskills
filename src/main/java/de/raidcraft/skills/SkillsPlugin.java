@@ -227,6 +227,7 @@ public class SkillsPlugin extends JavaPlugin {
         commandManager.getCommandCompletions().registerAsyncCompletion("skills", context -> ConfiguredSkill.find
                 .query().findSet().stream()
                 .filter(ConfiguredSkill::enabled)
+                .filter(skill -> !skill.isChild())
                 .map(ConfiguredSkill::alias)
                 .collect(Collectors.toSet()));
     }
@@ -237,6 +238,7 @@ public class SkillsPlugin extends JavaPlugin {
                 .query().where()
                 .eq("player_id", context.getPlayer().getUniqueId())
                 .and().eq("status", SkillStatus.UNLOCKED.getValue())
+                .and().isNull("parent")
                 .findSet().stream()
                 .filter(skill -> skill.configuredSkill().enabled())
                 .map(PlayerSkill::alias)
@@ -248,6 +250,7 @@ public class SkillsPlugin extends JavaPlugin {
 
         commandManager.getCommandCompletions().registerAsyncCompletion("active-skills", context -> PlayerSkill.find.query().where()
                 .eq("status", SkillStatus.ACTIVE.getValue())
+                .and().isNull("parent")
                 .findSet().stream()
                 .filter(skill -> skill.configuredSkill().executable())
                 .map(PlayerSkill::alias)
@@ -299,7 +302,8 @@ public class SkillsPlugin extends JavaPlugin {
                 UUID uuid = UUID.fromString(skillName);
                 return ConfiguredSkill.find.byId(uuid);
             } catch (Exception e) {
-                Optional<ConfiguredSkill> skill = ConfiguredSkill.findByAliasOrName(skillName);
+                Optional<ConfiguredSkill> skill = ConfiguredSkill.findByAliasOrName(skillName)
+                        .filter(skill1 -> !skill1.isChild());
                 if (skill.isEmpty()) {
                     throw new InvalidCommandArgument("Der Skill " + skillName + " wurde nicht gefunden.");
                 }
@@ -337,6 +341,9 @@ public class SkillsPlugin extends JavaPlugin {
             }
             if (player == null) {
                 throw new ConditionFailedException("Es konnte kein Spieler mit einer ID oder Namen gefunden werden: " + String.join(",", context.getArgs()));
+            }
+            if (skill.isChild()) {
+                throw new ConditionFailedException("Du kannst keine Sub-Skills auswählen. Bitte nehme den Haupt Skill.");
             }
 
             return PlayerSkill.getOrCreate(player, skill);

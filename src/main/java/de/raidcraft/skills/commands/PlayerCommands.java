@@ -104,10 +104,10 @@ public class PlayerCommands extends BaseCommand {
     @CommandCompletion("@players")
     @CommandPermission("rcskills.player.info")
     @Description("Zeigt Informationen über den Spieler an.")
-    public void info(@Conditions("others:perm=player.info") SkilledPlayer player) {
+    public void info(@Conditions("others:perm=player.info") SkilledPlayer player, @Default("1") int page) {
 
         Messages.send(getCurrentCommandIssuer(), Messages.playerInfo(player));
-        Messages.skills(player, 1).forEach(component -> Messages.send(getCurrentCommandIssuer(), component));
+        Messages.skills(player, page).forEach(component -> Messages.send(getCurrentCommandIssuer(), component));
     }
 
     @HelpCommand
@@ -265,7 +265,7 @@ public class PlayerCommands extends BaseCommand {
 
             send(getCurrentCommandIssuer(), text()
                     .append(text("Bist du dir sicher, dass du den Skill ", YELLOW))
-                    .append(skill(buySkillAction.skill(), player, false))
+                    .append(skill(buySkillAction.skill(), player, false, false))
                     .append(text(" kaufen möchtest? ", YELLOW))
                     .append(text("[JA - KAUFEN]", GREEN)
                             .hoverEvent(text("Klicken um den Kauf des Skills abzuschließen.", GREEN, ITALIC))

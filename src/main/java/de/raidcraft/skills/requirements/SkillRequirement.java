@@ -29,13 +29,13 @@ public class SkillRequirement extends AbstractRequirement {
     @Override
     public String name() {
 
-        return String.format(msg(msgIdentifier("name"), "%s Skill"), skill);
+        return String.format(msg(msgIdentifier("name"), "%s Skill"), skill.name());
     }
 
     @Override
     public String description() {
 
-        return String.format(msg(msgIdentifier("description"), "Requires the %s skill to unlock this skill."), skill);
+        return String.format(msg(msgIdentifier("description"), "Requires the %s skill to unlock this skill."), skill.name());
     }
 
     @Override

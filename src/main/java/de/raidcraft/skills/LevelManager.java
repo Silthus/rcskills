@@ -218,6 +218,7 @@ public final class LevelManager implements Listener {
         List<PlayerSkill> skills = ConfiguredSkill.find.query()
                 .where().eq("enabled", true)
                 .and().le("level", event.getNewLevel())
+                .and().gt("level", event.getOldLevel())
                 .and().isNull("parent")
                 .orderBy().desc("level")
                 .findList().stream()
