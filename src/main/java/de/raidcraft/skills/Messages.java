@@ -387,9 +387,7 @@ public final class Messages {
                     )).clickEvent(runCommand(PlayerCommands.buySkillSlot()));
         }
 
-        if (slot.skill() != null) {
-            return builder.build().hoverEvent(showText(skillInfo(slot.skill().configuredSkill(), player)));
-        }
+        slot.skill().ifPresent(skill -> builder.build().hoverEvent(showText(skillInfo(skill.configuredSkill(), player))));
 
         return builder.build();
     }

@@ -54,22 +54,22 @@ public class SkilledPlayer extends BaseEntity {
     @DbDefault("0")
     private int resetCount = 0;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
+    @OneToOne(optional = false, cascade = CascadeType.ALL, orphanRemoval = true)
     private Level level = new Level();
 
-    @OneToMany(cascade = CascadeType.REMOVE)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PlayerSkill> skills = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.REMOVE)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SkillSlot> skillSlots = new ArrayList<>();
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @Setter(AccessLevel.PRIVATE)
     private DataStore settings = new DataStore();
 
     @Getter(AccessLevel.PACKAGE)
     @Setter(AccessLevel.PACKAGE)
-    @OneToMany(cascade = CascadeType.REMOVE)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemBinding> itemBindings = new ArrayList<>();
 
     SkilledPlayer(OfflinePlayer player) {
@@ -332,13 +332,17 @@ public class SkilledPlayer extends BaseEntity {
     @Transactional
     public SkilledPlayer resetSkillSlots() {
 
-        List<SkillSlot> skills = skillSlots().stream()
+        List<SkillSlot> skillSlots = skillSlots().stream()
                 .filter(skillSlot -> skillSlot.status() == SkillSlot.Status.IN_USE)
                 .collect(Collectors.toList());
 
-        if (skills.isEmpty()) return this;
+        if (skillSlots.isEmpty()) return this;
 
-        skills.stream().map(SkillSlot::skill).forEach(PlayerSkill::deactivate);
+        skillSlots.stream()
+                .map(SkillSlot::skill)
+                .flatMap(Optional::stream)
+                .forEach(PlayerSkill::deactivate);
+
         resetCount(resetCount() + 1);
         save();
 
@@ -433,7 +437,13 @@ public class SkilledPlayer extends BaseEntity {
     public boolean delete() {
 
         SkillsPlugin.instance().getSkillManager().clearPlayerCache(id());
-//        skillSlots().forEach(SkillSlot::delete);
+
+        resetSkillSlots();
+        skills().clear();
+        skillSlots().clear();
+
+        save();
+        refresh();
 
         return super.delete();
     }
