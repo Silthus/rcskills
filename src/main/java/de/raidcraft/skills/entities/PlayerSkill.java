@@ -16,11 +16,10 @@ import org.bukkit.Bukkit;
 
 import javax.persistence.*;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Entity
 @Getter
@@ -175,10 +174,18 @@ public class PlayerSkill extends BaseEntity {
                     () -> callback.accept(ExecutionResult.failure(null, "Der Skill konnte nicht geladen werden.")));
         }
 
-        children().stream()
+        allChildren().stream()
                 .filter(PlayerSkill::active)
                 .filter(PlayerSkill::executable)
                 .forEach(skill -> skill.execute(callback));
+    }
+
+    Collection<PlayerSkill> allChildren() {
+
+        return Stream.concat(
+                children().stream(),
+                children().stream().flatMap(skill -> skill.allChildren().stream())
+        ).collect(Collectors.toList());
     }
 
     public boolean canActivate() {

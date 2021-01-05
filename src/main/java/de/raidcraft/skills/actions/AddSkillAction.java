@@ -34,7 +34,7 @@ public class AddSkillAction {
 
         TestResult testResult = skill.testRequirements(player);
         if (!testResult.success() && !event.isBypassChecks()) {
-            return new Result(this, testResult, "Die Vorraussetzungen für den Skill " + skill.alias() + " sind nicht erfüllt.");
+            return new Result(this, testResult, "Die Voraussetzungen für den Skill " + skill.alias() + " sind nicht erfüllt.");
         }
 
         PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
