@@ -280,7 +280,8 @@ public class PlayerSkill extends BaseEntity {
                 .forEach(PlayerSkill::unlock);
 
         if (configuredSkill().noSkillSlot()) {
-            activate();
+            if (!isChild() || parent().active())
+                activate();
         }
 
         Bukkit.getPluginManager().callEvent(new PlayerUnlockedSkillEvent(player(), this));

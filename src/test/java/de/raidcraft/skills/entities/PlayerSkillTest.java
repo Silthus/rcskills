@@ -222,6 +222,35 @@ public class PlayerSkillTest {
         }
 
         @Test
+        @DisplayName("should not activate child if parent is not active")
+        void shouldNotActivateChildSkillIfParentIsNotActivated() {
+
+            ConfiguredSkill parent = loadSkill(ParentChildSkills.parent, cfg -> {
+                cfg.set("no-skill-slot", false);
+                cfg.set("skills.child1.skillpoints", 1);
+            });
+            player.addSkillPoints(5);
+
+            AddSkillAction.Result result = player.addSkill(parent);
+
+            assertThat(result.success()).isTrue();
+            assertThat(result.playerSkill().active())
+                    .isFalse();
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child1)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(false);
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child2)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(false);
+
+            result = player.buySkill(getOrAssertSkill(child1));
+
+            assertThat(result.success()).isTrue();
+            assertThat(result.playerSkill().active())
+                    .isFalse();
+        }
+
+        @Test
         @DisplayName("should not activate nested child skills with level requirement")
         void shouldNotActivateNestedChildSkillsWithRequirement() {
 
