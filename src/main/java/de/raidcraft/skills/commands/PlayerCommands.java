@@ -353,6 +353,7 @@ public class PlayerCommands extends BaseCommand {
                     AddSkillAction.Result result = buySkillAction.execute(getCurrentCommandIssuer().hasPermission(SkillsPlugin.BYPASS_REQUIREMENT_CHECKS));
                     if (result.success()) {
                         Messages.send(getCurrentCommandIssuer(), Messages.buySkill(buySkillAction.player(), result.playerSkill()));
+                        list(result.playerSkill().player(), 1);
                     } else {
                         Messages.send(getCurrentCommandIssuer(), text("Du kannst den Skill ", RED)
                                 .append(skill(result.playerSkill(), false))
@@ -399,6 +400,7 @@ public class PlayerCommands extends BaseCommand {
                                 .hoverEvent(showText(text("Klicken um /rcs auszuführen.", GRAY))))
                         .append(text(" zuweisen kannst.", YELLOW))
                 );
+                list(player, 1);
             }
         }
 
@@ -449,6 +451,7 @@ public class PlayerCommands extends BaseCommand {
 
         if (skill.activate()) {
             getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + " Der Skill " + skill.name() + " wurde erfolgreich aktiviert.");
+            info(skill.player(), 1);
         } else {
             getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Der Skill konnte nicht aktiviert werden.");
         }
@@ -510,11 +513,8 @@ public class PlayerCommands extends BaseCommand {
         ));
         player.resetSkillSlots();
 
-        send(player, text("Deine Skill Slots wurden erfolgreich zurückgesetzt. Gebe ", GREEN)
-                .append(text("/rcs", GOLD)
-                        .hoverEvent(showText(text("Klicken um den Befehl auszuführen.", GRAY, ITALIC)))
-                        .clickEvent(runCommand("/rcs"))
-                ).append(text(" ein um deine Skills neu zu verteilen.", GREEN)));
+        send(player, text("Deine Skill Slots wurden erfolgreich zurückgesetzt."));
+        info(player, 1);
     }
 
     @Subcommand("abortreset")
