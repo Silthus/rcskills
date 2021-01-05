@@ -4,9 +4,11 @@ import com.google.common.base.Strings;
 import de.raidcraft.skills.*;
 import de.raidcraft.skills.requirements.*;
 import io.ebean.Finder;
+import io.ebean.annotation.DbDefault;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.Index;
 import io.ebean.text.json.EJson;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -18,6 +20,7 @@ import org.bukkit.configuration.MemoryConfiguration;
 import javax.persistence.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Entity
@@ -98,6 +101,12 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlayerSkill> playerSkills = new ArrayList<>();
 
+    @DbJson
+    @Getter(AccessLevel.PACKAGE)
+    @Setter(AccessLevel.PACKAGE)
+    @DbDefault("[]")
+    private List<String> disabledSkillIds = new ArrayList<>();
+
     @Transient
     private transient List<String> categories = new ArrayList<>();
     @Transient
@@ -174,6 +183,20 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         return executionConfig;
     }
 
+    /**
+     * Gets a list of skills that this skill disables when it is activated.
+     *
+     * @return list of skills that should be disabled
+     */
+    public List<ConfiguredSkill> disabledSkills() {
+
+        return disabledSkillIds().stream()
+                .map(UUID::fromString)
+                .map(ConfiguredSkill.find::byId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
     public ConfiguredSkill load(ConfigurationSection config) {
         this.config = new HashMap<>();
         config.getKeys(true)
@@ -220,6 +243,9 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         if (!Strings.isNullOrEmpty(parent)) {
             try {
                 parent(ConfiguredSkill.find.byId(UUID.fromString(parent)));
+                if (config.getBoolean("disable-parent", false)) {
+                    disabledSkillIds().add(parent);
+                }
             } catch (IllegalArgumentException e) {
                 log.severe("the parent of " + id() + " is not a valid UUID.");
                 e.printStackTrace();
@@ -243,6 +269,7 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         setCategories(config);
         setExecutionConfig(config);
         setRequirements(config);
+        setDisabledSkills(config);
 
         if (restricted) {
             requirements.add(new PermissionRequirement().add(SkillsPlugin.SKILL_PERMISSION_PREFIX + alias).load(new MemoryConfiguration()));
@@ -433,6 +460,11 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         this.requirements(SkillsPlugin.instance().getSkillManager()
                 .loadRequirements(config.getConfigurationSection("requirements")));
         this.costRequirements = new ArrayList<>();
+    }
+
+    private void setDisabledSkills(ConfigurationSection config) {
+
+        this.disabledSkillIds().addAll(config.getStringList("disables"));
     }
 
     @Override

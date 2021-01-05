@@ -6,6 +6,7 @@ import de.raidcraft.skills.SkillStatus;
 import de.raidcraft.skills.SkillsPlugin;
 import de.raidcraft.skills.events.*;
 import io.ebean.Finder;
+import io.ebean.annotation.DbDefault;
 import io.ebean.annotation.Index;
 import lombok.Getter;
 import lombok.Setter;
@@ -70,6 +71,8 @@ public class PlayerSkill extends BaseEntity {
     private ConfiguredSkill configuredSkill;
     private SkillStatus status = SkillStatus.NOT_PRESENT;
     private Instant lastUsed = Instant.EPOCH;
+    @DbDefault("false")
+    private boolean disabled = false;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private DataStore data = new DataStore();
@@ -112,6 +115,11 @@ public class PlayerSkill extends BaseEntity {
         return !children().isEmpty();
     }
 
+    public boolean enabled() {
+
+        return !disabled();
+    }
+
     /**
      * Gets the time the skill was last used.
      * <p>Will never return null and an instant with the start of the epoch instead.
@@ -150,7 +158,9 @@ public class PlayerSkill extends BaseEntity {
         if (!active()) return;
         if (checkDisable()) return;
 
-        context().ifPresent(SkillContext::enable);
+        if (enabled()) {
+            context().ifPresent(SkillContext::enable);
+        }
         children().forEach(PlayerSkill::enable);
     }
 
@@ -159,7 +169,9 @@ public class PlayerSkill extends BaseEntity {
         if (!active()) return;
 
         children().forEach(PlayerSkill::disable);
-        context().ifPresent(SkillContext::disable);
+        if (enabled()) {
+            context().ifPresent(SkillContext::disable);
+        }
     }
 
     public void execute(Consumer<ExecutionResult> callback) {
@@ -169,7 +181,7 @@ public class PlayerSkill extends BaseEntity {
             return;
         }
 
-        if (executable()) {
+        if (enabled() && executable()) {
             context().ifPresentOrElse(context -> context.execute(callback),
                     () -> callback.accept(ExecutionResult.failure(null, "Der Skill konnte nicht geladen werden.")));
         }
@@ -223,6 +235,14 @@ public class PlayerSkill extends BaseEntity {
             status(SkillStatus.ACTIVE);
             save();
 
+            configuredSkill().disabledSkills().stream()
+                    .map(skill -> player().getSkill(skill))
+                    .forEach(skill -> {
+                        skill.disable();
+                        skill.disabled(true);
+                        skill.save();
+                    });
+
             context().ifPresent(SkillContext::enable);
 
             Bukkit.getPluginManager().callEvent(new PlayerActivatedSkillEvent(player(), this));
@@ -252,6 +272,14 @@ public class PlayerSkill extends BaseEntity {
             context().ifPresent(SkillContext::disable);
             player().bindings().unbind(this);
             Bukkit.getPluginManager().callEvent(new PlayerDeactivatedSkillEvent(player(), this));
+
+            configuredSkill().disabledSkills().stream()
+                    .map(skill -> player().getSkill(skill))
+                    .forEach(skill -> {
+                        skill.disabled(false);
+                        skill.enable();
+                        skill.save();
+                    });
 
             children().forEach(PlayerSkill::deactivate);
             return true;

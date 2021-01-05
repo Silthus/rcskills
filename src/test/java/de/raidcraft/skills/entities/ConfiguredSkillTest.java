@@ -200,5 +200,15 @@ class ConfiguredSkillTest {
                     .extracting(ConfiguredSkill::restricted)
                     .isEqualTo(false);
         }
+
+        @Test
+        @DisplayName("should disabled parent skill if disable-parent is set")
+        void shouldDisableParentSkillIfSet() {
+
+            assertThat(loadSkill(child1, cfg -> cfg.set("skills.child1.disable-parent", true)))
+                    .extracting(ConfiguredSkill::disabledSkills)
+                    .asList()
+                    .contains(getOrAssertSkill(parent));
+        }
     }
 }

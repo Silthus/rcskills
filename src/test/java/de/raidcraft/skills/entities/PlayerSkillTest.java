@@ -362,5 +362,70 @@ public class PlayerSkillTest {
                     .extracting(ExecutionResult::success)
                     .isEqualTo(true);
         }
+
+        @Test
+        @DisplayName("should not execute disabled skills")
+        void shouldNotExecuteDisabledSkills() {
+
+            ConfiguredSkill skill = loadSkill(parent, cfg -> {
+                cfg.set("skills.child1.disable-parent", true);
+                cfg.set("type", "test");
+                cfg.set("skills.child1.skills.child2.type", "none");
+            });
+
+            AddSkillAction.Result result = player.addSkill(skill);
+
+            assertThat(result.success()).isTrue();
+            PlayerSkill playerSkill = result.playerSkill();
+            assertThat(playerSkill.active())
+                    .isTrue();
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child1)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(true);
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child2)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(true);
+
+            playerSkill.refresh();
+            assertThat(playerSkill.disabled()).isTrue();
+
+            Consumer<ExecutionResult> callback = callback();
+            playerSkill.execute(callback);
+
+            verify(callback, never()).accept(captor.capture());
+        }
+
+        @Test
+        @DisplayName("should disable parent if child sets disables list")
+        void disablesParentSkillIfChildSetsDisableParent() {
+
+            ConfiguredSkill skill = loadSkill(parent, cfg -> {
+                cfg.set("skills.child1.disable-parent", true);
+                cfg.set("skills.child1.skillpoints", 1);
+            });
+
+            AddSkillAction.Result result = player.addSkill(skill);
+
+            assertThat(result.success()).isTrue();
+            PlayerSkill playerSkill = result.playerSkill();
+            assertThat(playerSkill.active())
+                    .isTrue();
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child1)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(false);
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child2)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(false);
+            assertThat(playerSkill.disabled()).isFalse();
+
+            player.addSkill(getOrAssertSkill(child1), true);
+
+            playerSkill.refresh();
+            assertThat(playerSkill.disabled())
+                    .isTrue();
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child1)).disabled())
+                    .isFalse();
+
+        }
     }
 }
