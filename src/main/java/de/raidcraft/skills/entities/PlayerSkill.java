@@ -175,6 +175,17 @@ public class PlayerSkill extends BaseEntity {
         }
     }
 
+    public void reload() {
+
+        if (!activate()) return;
+        if (checkDisable()) return;
+
+        if (enabled()) {
+            context().ifPresent(SkillContext::reload);
+        }
+        children().forEach(PlayerSkill::reload);
+    }
+
     public void execute(Consumer<ExecutionResult> callback) {
 
         if (!active()) {
