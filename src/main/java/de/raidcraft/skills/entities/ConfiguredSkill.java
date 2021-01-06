@@ -261,7 +261,14 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
                 if (config.getBoolean("disable-parent", false)) {
                     disabledSkillIds().add(parent);
                 }
-                config.set("with", parent().getSkillConfig());
+
+                ConfigurationSection parentSkillConfig = parent().getSkillConfig();
+                for (String key : parentSkillConfig.getKeys(true)) {
+                    if (!config.isSet("with." + key)) {
+                        config.set("with." + key, parentSkillConfig.get(key));
+                    }
+                }
+
                 updateConfig(config);
             } catch (IllegalArgumentException e) {
                 log.severe("the parent of " + id() + " is not a valid UUID.");
