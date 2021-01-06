@@ -609,11 +609,11 @@ public final class Messages {
             builder.append(text("Status: ", YELLOW)).append(text(playerSkill.configuredSkill().disabled() ? "deaktiviert" : playerSkill.status().localized(), AQUA)).append(newline())
                     .append(costs(playerSkill)).append(newline())
                     .append(requirements(playerSkill));
-            if (playerSkill.executable()) {
+            if (playerSkill.executable() && !playerSkill.isChild()) {
                 builder.append(newline())
                         .append(text("Tipp: ", GREEN).append(text("Du kannst den Skill mit "))
                                 .append(text("/bind " + skill.alias(), GOLD, ITALIC))
-                                .append(text(" auf Gegenstände binden um sie mit einem Rechts oder Linksklick auszuführen.", GRAY, ITALIC)));
+                                .append(text(" auf Gegenstände binden um sie mit einem Rechts- oder Linksklick auszuführen.", GRAY, ITALIC)));
             }
         }
         return builder.build();

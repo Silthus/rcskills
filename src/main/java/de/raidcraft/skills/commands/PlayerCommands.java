@@ -354,6 +354,7 @@ public class PlayerCommands extends BaseCommand {
                     if (result.success()) {
                         Messages.send(getCurrentCommandIssuer(), Messages.buySkill(buySkillAction.player(), result.playerSkill()));
                         list(result.playerSkill().player(), 1);
+                        plugin.getBindingListener().getUpdateBindings().accept(result.playerSkill().player().id());
                     } else {
                         Messages.send(getCurrentCommandIssuer(), text("Du kannst den Skill ", RED)
                                 .append(skill(result.playerSkill(), false))
@@ -392,6 +393,7 @@ public class PlayerCommands extends BaseCommand {
                         .filter(SkillSlot::buyable)
                         .findFirst()
                         .ifPresent(skillSlot -> skillSlot.status(SkillSlot.Status.FREE).save());
+                plugin.getBindingListener().getUpdateBindings().accept(player.id());
 
                 Messages.send(player, text("Du hast erfolgreich einen weiteren Skill Slot gekauft!", GREEN).append(newline())
                         .append(text("Du hast jetzt ", YELLOW)).append(text(player.freeSkillSlots() + " freie(n) Skill Slot(s) ", GREEN))
@@ -452,6 +454,7 @@ public class PlayerCommands extends BaseCommand {
         if (skill.activate()) {
             getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + " Der Skill " + skill.name() + " wurde erfolgreich aktiviert.");
             info(skill.player(), 1);
+            plugin.getBindingListener().getUpdateBindings().accept(skill.player().id());
         } else {
             getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Der Skill konnte nicht aktiviert werden.");
         }
@@ -512,6 +515,7 @@ public class PlayerCommands extends BaseCommand {
                 "reset_count", player.resetCount()
         ));
         player.resetSkillSlots();
+        plugin.getBindingListener().getUpdateBindings().accept(player.id());
 
         send(player, text("Deine Skill Slots wurden erfolgreich zurückgesetzt."));
         info(player, 1);
