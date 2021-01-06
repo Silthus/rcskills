@@ -523,7 +523,7 @@ public final class Messages {
                         .hoverEvent(costs(playerSkill).append(text("Klicken um den Skill zu kaufen.", GRAY, ITALIC)))
                         .clickEvent(clickEvent(Action.RUN_COMMAND, PlayerCommands.buySkill(player, skill)))
                 );
-            } else if (playerSkill.active() && !playerSkill.isChild()) {
+            } else if (playerSkill.active() && playerSkill.enabled()) {
                 builder.append(text(" | ", YELLOW)).append(text("aktiv", AQUA).hoverEvent(HoverEvent.showText(
                         text("Der Skill ist aktiv.", GRAY).append(newline())
                                 .append(text("Gebe ", GRAY))
