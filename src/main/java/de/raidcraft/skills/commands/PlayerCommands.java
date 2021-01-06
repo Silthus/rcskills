@@ -353,7 +353,7 @@ public class PlayerCommands extends BaseCommand {
                     AddSkillAction.Result result = buySkillAction.execute(getCurrentCommandIssuer().hasPermission(SkillsPlugin.BYPASS_REQUIREMENT_CHECKS));
                     if (result.success()) {
                         Messages.send(getCurrentCommandIssuer(), Messages.buySkill(buySkillAction.player(), result.playerSkill()));
-                        list(result.playerSkill().player(), 1);
+                        info(result.playerSkill().player(), 1);
                         plugin.getBindingListener().getUpdateBindings().accept(result.playerSkill().player().id());
                     } else {
                         Messages.send(getCurrentCommandIssuer(), text("Du kannst den Skill ", RED)
@@ -402,7 +402,7 @@ public class PlayerCommands extends BaseCommand {
                                 .hoverEvent(showText(text("Klicken um /rcs auszuführen.", GRAY))))
                         .append(text(" zuweisen kannst.", YELLOW))
                 );
-                list(player, 1);
+                info(player, 1);
             }
         }
 
