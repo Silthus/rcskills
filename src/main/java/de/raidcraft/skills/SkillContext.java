@@ -29,6 +29,14 @@ public interface SkillContext {
     Skill get();
 
     /**
+     * @return true if the skill is executable and implements {@link Executable}
+     */
+    default boolean executable() {
+
+        return get() instanceof Executable;
+    }
+
+    /**
      * Reloads the skill context disabling it, reloading the config and enabling it again.
      * <p>If anything goes wrong while reloading the skill will stay disabled.
      */

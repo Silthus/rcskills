@@ -141,9 +141,7 @@ class DefaultSkillContext implements SkillContext {
 
         ExecutionContext context = ExecutionContext.of(this, callback);
 
-        Skill skill = get();
-        if (!(skill instanceof Executable)) {
-            callback.accept(context.failure("Skill is not executable."));
+        if (!executable()) {
             return;
         }
 

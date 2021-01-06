@@ -559,7 +559,7 @@ public final class Messages {
                     builder.append(text(" | ", YELLOW)).append(text("aktivieren", GRAY).hoverEvent(showText(hover)));
                 }
             }
-            if (skill.executable() && playerSkill.active() && !playerSkill.isChild()) {
+            if (playerSkill.executable() && playerSkill.active() && !playerSkill.isChild()) {
                 builder.append(text(" | ", YELLOW));
                 List<ItemBinding> bindings = player.bindings().get(playerSkill);
                 TextComponent.Builder hover = text().append(text("Klicke um den Skill auf das Item in deiner Hand zu binden.", GRAY));
@@ -609,7 +609,7 @@ public final class Messages {
             builder.append(text("Status: ", YELLOW)).append(text(playerSkill.configuredSkill().disabled() ? "deaktiviert" : playerSkill.status().localized(), AQUA)).append(newline())
                     .append(costs(playerSkill)).append(newline())
                     .append(requirements(playerSkill));
-            if (skill.executable()) {
+            if (playerSkill.executable()) {
                 builder.append(newline())
                         .append(text("Tipp: ", GREEN).append(text("Du kannst den Skill mit "))
                                 .append(text("/bind " + skill.alias(), GOLD, ITALIC))
@@ -625,7 +625,7 @@ public final class Messages {
                 .append(text(" (" + skill.alias() + ")", GRAY, ITALIC)).append(newline())
                 .append(text("Level: ", YELLOW).append(text(skill.level(), AQUA))).append(newline())
                 .append(text("Typ: ", YELLOW));
-        if (skill.executable()) {
+        if (SkillsPlugin.instance().getSkillManager().isExecutable(skill)) {
             builder.append(text("AKTIV", GREEN, BOLD)).append(newline());
         } else {
             builder.append(text("PASSIV", DARK_AQUA)).append(newline());

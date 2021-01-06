@@ -504,7 +504,6 @@ public final class SkillManager {
 
         final UUID id = UUID.fromString(Objects.requireNonNull(config.getString("id", UUID.randomUUID().toString())));
         config.set("alias", config.getString("alias", identifier));
-        config.set("executable", config.getBoolean("executable", skillTypes.get(skillType).executableSkill()));
         String alias = config.getString("alias");
 
         ConfiguredSkill skill = Optional.ofNullable(ConfiguredSkill.find.byId(id))
@@ -516,15 +515,17 @@ public final class SkillManager {
         config.set("id", skill.id().toString());
         config.set("enabled", skill.enabled());
 
-        PluginManager pluginManager = Bukkit.getPluginManager();
-        configuredSkill.requirements().stream()
-                .filter(r -> r instanceof PermissionRequirement)
-                .flatMap(r -> ((PermissionRequirement) r).getPermissions().stream())
-                .map(s -> new Permission(s, PermissionDefault.FALSE))
-                .forEach(p -> {
-                    pluginManager.removePermission(p);
-                    pluginManager.addPermission(p);
-                });
+        if (!SkillsPlugin.isTesting()) {
+            PluginManager pluginManager = Bukkit.getPluginManager();
+            configuredSkill.requirements().stream()
+                    .filter(r -> r instanceof PermissionRequirement)
+                    .flatMap(r -> ((PermissionRequirement) r).getPermissions().stream())
+                    .map(s -> new Permission(s, PermissionDefault.FALSE))
+                    .forEach(p -> {
+                        pluginManager.removePermission(p);
+                        pluginManager.addPermission(p);
+                    });
+        }
 
         ConfigurationSection skills = config.getConfigurationSection(SUB_SKILL_SECTION);
         if (skills != null) {
@@ -629,5 +630,10 @@ public final class SkillManager {
         }
 
         return context;
+    }
+
+    public boolean isExecutable(ConfiguredSkill skill) {
+
+        return getSkillType(skill.type()).map(Skill.Registration::executableSkill).orElse(false);
     }
 }

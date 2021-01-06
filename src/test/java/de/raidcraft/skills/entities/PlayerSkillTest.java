@@ -370,6 +370,7 @@ public class PlayerSkillTest {
             ConfiguredSkill skill = loadSkill(parent, cfg -> {
                 cfg.set("skills.child1.disable-parent", true);
                 cfg.set("type", "test");
+                cfg.set("skills.child1.type", "none");
                 cfg.set("skills.child1.skills.child2.type", "none");
             });
 
