@@ -396,6 +396,7 @@ public final class SkillManager {
 
         skilledPlayer.unlockedSkills()
                 .stream()
+                .filter(skill -> !skill.isChild())
                 .filter(skill -> skill.configuredSkill().autoUnlock())
                 .forEach(PlayerSkill::activate);
     }
