@@ -80,7 +80,6 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     private String name = alias();
     private String type = "permission";
     private String description = "N/A";
-    private boolean executable = false;
     private int level = 1;
     private double money = 0d;
     private int skillpoints = 0;
@@ -256,7 +255,6 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         setName(config);
         setType(config);
         setDescription(config);
-        setExecutable(config);
         setLevel(config);
         setSkillpoints(config);
         setMoney(config);
@@ -385,11 +383,6 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     private void setDescription(ConfigurationSection config) {
 
         description(config.getString("description", isChild() ? parent().description() : description()));
-    }
-
-    private void setExecutable(ConfigurationSection config) {
-
-        executable(config.getBoolean("executable", executable));
     }
 
     private void setLevel(ConfigurationSection config) {

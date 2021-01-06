@@ -17,10 +17,11 @@ import org.bukkit.Bukkit;
 
 import javax.persistence.*;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Entity
 @Getter
@@ -100,11 +101,6 @@ public class PlayerSkill extends BaseEntity {
         return configuredSkill().description();
     }
 
-    public boolean executable() {
-
-        return configuredSkill().executable();
-    }
-
     public boolean isChild() {
 
         return parent() != null;
@@ -135,6 +131,11 @@ public class PlayerSkill extends BaseEntity {
     Optional<SkillContext> context() {
 
         return Optional.ofNullable(SkillsPlugin.instance().getSkillManager().loadSkill(this));
+    }
+
+    public boolean executable() {
+
+        return context().map(SkillContext::executable).orElse(false);
     }
 
     /**
@@ -181,23 +182,14 @@ public class PlayerSkill extends BaseEntity {
             return;
         }
 
-        if (enabled() && executable()) {
+        if (enabled()) {
             context().ifPresentOrElse(context -> context.execute(callback),
                     () -> callback.accept(ExecutionResult.failure(null, "Der Skill konnte nicht geladen werden.")));
         }
 
-        allChildren().stream()
+        children().stream()
                 .filter(PlayerSkill::active)
-                .filter(PlayerSkill::executable)
                 .forEach(skill -> skill.execute(callback));
-    }
-
-    Collection<PlayerSkill> allChildren() {
-
-        return Stream.concat(
-                children().stream(),
-                children().stream().flatMap(skill -> skill.allChildren().stream())
-        ).collect(Collectors.toList());
     }
 
     public boolean canActivate() {

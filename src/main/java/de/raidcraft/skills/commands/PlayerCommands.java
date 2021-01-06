@@ -129,7 +129,7 @@ public class PlayerCommands extends BaseCommand {
     }
 
     @Subcommand("use|cast|execute")
-    @CommandCompletion("@active-skills")
+    @CommandCompletion("@executable-skills")
     @CommandPermission("rcskills.skill.execute")
     @Description("Führt den Skill aus.")
     public void use(PlayerSkill skill) {
@@ -139,7 +139,7 @@ public class PlayerCommands extends BaseCommand {
 
     @Subcommand("bind")
     @CommandAlias("bind")
-    @CommandCompletion("@active-skills @bind-actions")
+    @CommandCompletion("@executable-skills @bind-actions")
     @CommandPermission("rcskills.skill.bind")
     @Description("Bindet den skill auf das Item in deiner Hand.")
     public void bind(@Conditions("active|executable") PlayerSkill skill, ItemBinding.Action action) {

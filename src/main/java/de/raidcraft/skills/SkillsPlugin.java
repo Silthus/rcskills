@@ -248,11 +248,11 @@ public class SkillsPlugin extends JavaPlugin {
 
     private void registerActiveSkillsCompletion(PaperCommandManager commandManager) {
 
-        commandManager.getCommandCompletions().registerAsyncCompletion("active-skills", context -> PlayerSkill.find.query().where()
+        commandManager.getCommandCompletions().registerAsyncCompletion("executable-skills", context -> PlayerSkill.find.query().where()
                 .eq("status", SkillStatus.ACTIVE.getValue())
                 .and().isNull("parent")
                 .findSet().stream()
-                .filter(skill -> skill.configuredSkill().executable())
+                .filter(skill -> getSkillManager().isExecutable(skill.configuredSkill()))
                 .map(PlayerSkill::alias)
                 .collect(Collectors.toSet()));
     }
@@ -403,7 +403,7 @@ public class SkillsPlugin extends JavaPlugin {
     private void registerExecutableCondition(PaperCommandManager commandManager) {
 
         commandManager.getCommandConditions().addCondition(PlayerSkill.class, "executable", (context, execContext, value) -> {
-            if (!value.configuredSkill().executable()) {
+            if (!value.executable()) {
                 throw new ConditionFailedException("Der Skill " + value.name() + " kann nicht aktiv ausgeführt werden.");
             }
         });
