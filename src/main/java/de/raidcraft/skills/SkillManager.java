@@ -414,9 +414,10 @@ public final class SkillManager {
 
     private void reloadPlayerSkills() {
 
-        cachedPlayerSkills.values().stream()
-                .flatMap(uuidSkillContextMap -> uuidSkillContextMap.values().stream())
-                .forEach(SkillContext::reload);
+        Bukkit.getOnlinePlayers()
+                .stream().map(SkilledPlayer::getOrCreate)
+                .flatMap(player -> player.activeSkills().stream())
+                .forEach(PlayerSkill::reload);
     }
 
     private void clearCache() {
