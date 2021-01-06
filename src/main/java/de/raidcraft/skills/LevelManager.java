@@ -219,7 +219,6 @@ public final class LevelManager implements Listener {
                 .where().eq("enabled", true)
                 .and().le("level", event.getNewLevel())
                 .and().gt("level", event.getOldLevel())
-                .and().isNull("parent")
                 .orderBy().desc("level")
                 .findList().stream()
                 .map(skill -> PlayerSkill.getOrCreate(skilledPlayer, skill))
@@ -227,6 +226,7 @@ public final class LevelManager implements Listener {
 
         skills.stream()
                 .filter(skill -> !skill.unlocked())
+                .filter(skill -> !skill.isChild())
                 .filter(skill -> skill.configuredSkill().autoUnlock())
                 .forEach(skill -> skilledPlayer.addSkill(skill.configuredSkill()));
 
