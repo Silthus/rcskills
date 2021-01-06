@@ -195,6 +195,7 @@ public class PlayerSkill extends BaseEntity {
     public boolean canActivate() {
 
         if (!unlocked()) return false;
+        if (isChild() && !parent().active()) return false;
         if (configuredSkill().disabled()) return false;
         if (active()) return false;
         if (configuredSkill().noSkillSlot()) return true;
