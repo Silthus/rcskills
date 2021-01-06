@@ -2,7 +2,9 @@ package de.raidcraft.skills.entities;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
+import de.raidcraft.skills.ExecutionConfig;
 import de.raidcraft.skills.SkillsPlugin;
+import de.raidcraft.skills.TaskConfig;
 import de.raidcraft.skills.requirements.LevelRequirement;
 import de.raidcraft.skills.requirements.PermissionRequirement;
 import de.raidcraft.skills.requirements.SkillRequirement;
@@ -209,6 +211,33 @@ class ConfiguredSkillTest {
                     .extracting(ConfiguredSkill::disabledSkills)
                     .asList()
                     .contains(getOrAssertSkill(parent));
+        }
+
+        @Test
+        @DisplayName("should copy parent \"with\" section into child skills")
+        void shouldCopyParentSkillConfigIntoChilds() {
+
+            ConfigurationSection config = loadSkill(child1, cfg -> cfg.set("with.exp", 25)).getSkillConfig();
+
+            assertThat(config.getInt("exp")).isEqualTo(25);
+        }
+
+        @Test
+        @DisplayName("should copy execution config section into child skills")
+        void shouldCopyExecutionConfigIntoChildSkills() {
+
+            ExecutionConfig executionConfig = loadSkill(child2, cfg -> cfg.set("execution.cooldown", "10s")).executionConfig();
+
+            assertThat(executionConfig.cooldown()).isEqualTo(10000L);
+        }
+
+        @Test
+        @DisplayName("should copy task config into child skill")
+        void shouldCopyTaskConfigIntoChildSkills() {
+
+            TaskConfig taskConfig = loadSkill(child2, cfg -> cfg.set("task.interval", 100)).taskConfig();
+
+            assertThat(taskConfig.interval()).isEqualTo(100L);
         }
     }
 }

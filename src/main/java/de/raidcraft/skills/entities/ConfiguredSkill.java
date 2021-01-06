@@ -116,6 +116,8 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     private transient boolean loaded = false;
     @Transient
     private transient ExecutionConfig executionConfig;
+    @Transient
+    private transient TaskConfig taskConfig;
 
     ConfiguredSkill(UUID id) {
         this.id(id);
@@ -182,6 +184,15 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         return executionConfig;
     }
 
+    public TaskConfig taskConfig() {
+
+        if (taskConfig == null) {
+            this.taskConfig = new TaskConfig(new MemoryConfiguration());
+            load(false);
+        }
+        return taskConfig;
+    }
+
     /**
      * Gets a list of skills that this skill disables when it is activated.
      *
@@ -197,17 +208,22 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     }
 
     public ConfiguredSkill load(ConfigurationSection config) {
+
+        updateConfig(config);
+        load(true);
+        save();
+
+        return this;
+    }
+
+    private void updateConfig(ConfigurationSection config) {
+
         this.config = new HashMap<>();
         config.getKeys(true)
                 .stream()
                 .filter(key -> !config.isConfigurationSection(key))
                 .filter(key -> !key.startsWith(SkillManager.SUB_SKILL_SECTION))
                 .forEach(key -> this.config.put(key, config.get(key)));
-
-        load(true);
-        save();
-
-        return this;
     }
 
     public ConfigurationSection getConfig() {
@@ -245,6 +261,8 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
                 if (config.getBoolean("disable-parent", false)) {
                     disabledSkillIds().add(parent);
                 }
+                config.set("with", parent().getSkillConfig());
+                updateConfig(config);
             } catch (IllegalArgumentException e) {
                 log.severe("the parent of " + id() + " is not a valid UUID.");
                 e.printStackTrace();
@@ -266,6 +284,7 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
 
         setCategories(config);
         setExecutionConfig(config);
+        setTaskConfig(config);
         setRequirements(config);
         setDisabledSkills(config);
 
@@ -445,6 +464,19 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
             executionConfig(parent().executionConfig());
         } else {
             executionConfig(new ExecutionConfig(config.createSection("execution")));
+        }
+    }
+
+    private void setTaskConfig(ConfigurationSection config) {
+
+        if (config.isSet("task")) {
+            ConfigurationSection section = config.getConfigurationSection("task");
+            taskConfig(new TaskConfig(Objects.requireNonNullElseGet(section,
+                    () -> config.createSection("task"))));
+        } else if (isChild()) {
+            taskConfig(parent().taskConfig());
+        } else {
+            taskConfig(new TaskConfig(config.createSection("task")));
         }
     }
 

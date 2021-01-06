@@ -60,7 +60,7 @@ class DefaultSkillContext implements SkillContext {
             throw new ConfigurationException("the player skill has been deleted.");
         }
 
-        this.interval = playerSkill.configuredSkill().getConfig().getLong("task.interval", interval);
+        this.interval = playerSkill.configuredSkill().taskConfig().interval(interval);
         ConfigurationSection skillConfig = playerSkill.configuredSkill().getSkillConfig();
         skill = BukkitConfigMap.of(skill)
                 .with(skillConfig)
