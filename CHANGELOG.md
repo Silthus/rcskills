@@ -1,3 +1,36 @@
+# [1.16.0](https://github.com/raidcraft/rcskills/compare/v1.15.1...v1.16.0) (2021-01-06)
+
+
+### Bug Fixes
+
+* activation of child skills where parent is not active ([183cd78](https://github.com/raidcraft/rcskills/commit/183cd78bc95d5418ac5df20513a2a2ad3bfb2539))
+* calculate executable property dynamically and not from config ([1c8f5a7](https://github.com/raidcraft/rcskills/commit/1c8f5a71e57bc047188b9d9a74b03309a1271613)), closes [#60](https://github.com/raidcraft/rcskills/issues/60)
+* check player id instead of offlineplayer for applicable check ([07e635b](https://github.com/raidcraft/rcskills/commit/07e635b6f68d57ff529c27bcd218023b5f78bd18))
+* copy skill and execution configs into child skill ([40a2274](https://github.com/raidcraft/rcskills/commit/40a227440e2ed110d98250f7eaaa57c6088d5b1e))
+* do not show activation notice for disabled skills ([777d788](https://github.com/raidcraft/rcskills/commit/777d788b8f253d0ecbe1120df6e70c855e66b207))
+* execute nested child skills if parent is not executable ([7ddd619](https://github.com/raidcraft/rcskills/commit/7ddd619bc500197c04fbcd379ef1a43bd328d1da))
+* only activate child skill if parent is activated ([86894fe](https://github.com/raidcraft/rcskills/commit/86894fee003754ed49b97cafbda264ee01ad9833))
+* only auto unlock non-child skills ([4369a06](https://github.com/raidcraft/rcskills/commit/4369a067f7698f612afbe19a740a5b91107b80d1))
+* only reload active skills ([646d50d](https://github.com/raidcraft/rcskills/commit/646d50da2551d5d52ccf256f93fc1d32b196f0d1))
+* parent skill config overrides all values of child config ([932cb81](https://github.com/raidcraft/rcskills/commit/932cb811f73ef4a2b6060d0ef8c3634def53a4e2))
+* remove permission before readding on reload ([780206c](https://github.com/raidcraft/rcskills/commit/780206c0fa7a360bcf685bcaec3d5253de7f9ff0))
+* show complete info when buying slot or skill ([98a4380](https://github.com/raidcraft/rcskills/commit/98a438062da2fee03e51bfd3b3a53a617c098168))
+* show current active skill in overview ([4e998e2](https://github.com/raidcraft/rcskills/commit/4e998e21b22b02fb4efc485a6428711598cc478a))
+* show only 4 skills per page to make place for child skills ([5857388](https://github.com/raidcraft/rcskills/commit/58573885a1147458b3addea54f0d9e58b36ca65e))
+* show unlocked child skills when leveling ([ef2ed8c](https://github.com/raidcraft/rcskills/commit/ef2ed8c445783b6332a9165ae368a2507332bc21))
+* unlock deeply nested child skills when unlocking parent ([493e970](https://github.com/raidcraft/rcskills/commit/493e970386cd8e6a1899d2d7abf9b66b9b0336b1))
+* update bindings cache after resetting skills ([ac5a4e3](https://github.com/raidcraft/rcskills/commit/ac5a4e38899d01e17d1e286dbcc5ee353d599088))
+* **db:** cleanup slot -> skill foreign keys on player deletion ([b176625](https://github.com/raidcraft/rcskills/commit/b176625f03151bd7c6544c55d30e918012451001))
+
+
+### Features
+
+* activate child skills automatically when parent is activated ([66a8636](https://github.com/raidcraft/rcskills/commit/66a86364f1c32bba33c13b905e1d5b50352b80bd))
+* add child skills to message display ([e862d2e](https://github.com/raidcraft/rcskills/commit/e862d2ed7ddd131c71b9f2f7e2e2708404c5cc5b))
+* add parent -> child skills ([d2b209d](https://github.com/raidcraft/rcskills/commit/d2b209d18040250e9d8085438caf00a62302d89d))
+* disable parent skill execution if child replaces it ([0f810fa](https://github.com/raidcraft/rcskills/commit/0f810fa3d38840f3cf65319eb4d851022d8cc5aa))
+* show skills or player info after buy commands ([cca56dd](https://github.com/raidcraft/rcskills/commit/cca56dd18b078176db6f075b18783e8a226ac7d0))
+
 ## [1.15.1](https://github.com/raidcraft/rcskills/compare/v1.15.0...v1.15.1) (2021-01-04)
 
 
