@@ -239,5 +239,20 @@ class ConfiguredSkillTest {
 
             assertThat(taskConfig.interval()).isEqualTo(100L);
         }
+
+        @Test
+        @DisplayName("should allow overrding parent skill section config values")
+        void shouldAllowOverridingOfParentProperties() {
+
+            ConfiguredSkill skill = loadSkill(child1, cfg -> {
+                cfg.set("with.exp", 25);
+                cfg.set("with.interval", 100);
+                cfg.set("skills.child1.with.exp", 50);
+            });
+
+            ConfigurationSection skillConfig = skill.getSkillConfig();
+            assertThat(skillConfig.getInt("exp")).isEqualTo(50);
+            assertThat(skillConfig.getInt("interval")).isEqualTo(100);
+        }
     }
 }
