@@ -56,6 +56,7 @@ public class AdminCommands extends BaseCommand {
 
             player.addLevel(level).save();
             Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.addLevel(player, level));
+            Messages.send(player, Messages.addLevelSelf(player, level));
         }
 
         @Subcommand("exp|xp")
@@ -67,6 +68,7 @@ public class AdminCommands extends BaseCommand {
 
             player.addExp(exp, "admin:command").save();
             Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.addExp(player, exp));
+            Messages.send(player, Messages.addExpSelf(player, exp));
         }
 
         @Subcommand("skillpoints|sp")
@@ -78,6 +80,7 @@ public class AdminCommands extends BaseCommand {
 
             player.addSkillPoints(skillpoints).save();
             Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.addSkillpoints(player, skillpoints));
+            Messages.send(player, Messages.addSkillPointsSelf(player, skillpoints));
         }
 
         @Subcommand("slots|skillslots")
@@ -89,6 +92,18 @@ public class AdminCommands extends BaseCommand {
 
             player.addSkillSlots(slots, status).save();
             Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.addSkillSlots(player, slots));
+            Messages.send(player, Messages.addSkillSlotsSelf(player, slots));
+        }
+
+        @Subcommand("reset")
+        @CommandCompletion("@players *")
+        @Description("Fügt dem Spieler einen kostenlosen Reset hinzu.")
+        @CommandPermission("rcskills.admin.add.reset")
+        public void addResets(SkilledPlayer player, @Default("1") int resets) {
+
+            player.freeResets(player.freeResets() + resets).save();
+            Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.addFreeResets(player, resets));
+            Messages.send(player, Messages.addFreeResetsSelf(player, resets));
         }
     }
 
@@ -164,7 +179,7 @@ public class AdminCommands extends BaseCommand {
         if (Strings.isNullOrEmpty(confirm) || !confirm.equalsIgnoreCase("confirm")) {
             getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Bist du dir ganz sicher, dass du ALLE Skills, Level, Slots und EXP von " + player.name() + " zurücksetzen willst?");
             getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Dieser Befehl kann nicht rückgängig gemacht werden und der Spieler verliert alles was er sich erspielt hat!");
-            getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Wenn du dir ganz sicher bist gebe \"/rcs:admin reset " + player.name() + " confirm\" ein.");
+            getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Wenn du dir ganz sicher bist gebe \"/rcs:admin purge " + player.name() + " confirm\" ein.");
             return;
         }
 

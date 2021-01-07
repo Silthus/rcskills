@@ -237,6 +237,28 @@ public final class Messages {
         return Title.title(headline, subline);
     }
 
+    public static Component addExpSelf(SkilledPlayer player, int exp) {
+
+        if (exp == 0) return empty();
+
+        return text().append(text("Du", GOLD, BOLD).hoverEvent(showText(playerInfo(player))))
+                .append(text(" hast ", GREEN))
+                .append(text(exp + " EXP", AQUA))
+                .append(text(" erhalten!", GREEN))
+                .build();
+    }
+
+    public static Component addLevelSelf(SkilledPlayer player, int level) {
+
+        if (level == 0) return empty();
+
+        return text().append(text("Du", GOLD, BOLD).hoverEvent(showText(playerInfo(player))))
+                .append(text(" hast ", GREEN))
+                .append(text(level + " Level", AQUA))
+                .append(text(" erhalten!", GREEN))
+                .build();
+    }
+
     public static Component addSkillPointsSelf(SkilledPlayer player, int skillpoints) {
 
         if (skillpoints == 0) return empty();
@@ -256,6 +278,28 @@ public final class Messages {
                 .append(text(" hast ", GREEN))
                 .append(text(slots + " Skill Slot(s)", AQUA))
                 .append(text(" erhalten!", GREEN))
+                .build();
+    }
+
+    public static Component addFreeResets(SkilledPlayer player, int freeResets) {
+
+        if (freeResets < 1) return empty();
+
+        return text().append(text(player.name(), GOLD, BOLD).hoverEvent(showText(playerInfo(player))))
+                .append(text(" hat ", GREEN))
+                .append(text(freeResets + " kostenlose(n) Reset(s)", AQUA))
+                .append(text(" für seine Skill Slots erhalten!", GREEN))
+                .build();
+    }
+
+    public static Component addFreeResetsSelf(SkilledPlayer player, int freeResets) {
+
+        if (freeResets < 1) return empty();
+
+        return text().append(text("Du", GOLD, BOLD).hoverEvent(showText(playerInfo(player))))
+                .append(text(" hast ", GREEN))
+                .append(text(freeResets + " kostenlose(n) Reset(s)", AQUA))
+                .append(text(" für deine Skill Slots erhalten!", GREEN))
                 .build();
     }
 
@@ -346,14 +390,14 @@ public final class Messages {
                         .append(text(" - ", YELLOW)).append(text((slotCount + 2) + ". Slot: ", DARK_AQUA))
                         .append(text(Economy.get().format(secondSlot), Economy.get().has(player.offlinePlayer(), secondSlot) ? GREEN : RED))
                         .append(newline()).append(newline())
-                        .append(text("Du kannst deine Skill Slots mit ", GRAY)).append(text("/rcs reset", GOLD))
-                        .append(text(" für ", GRAY)).append(text(Economy.get().format(resetCost), Economy.get().has(player.offlinePlayer(), resetCost) ? GREEN : RED))
-                        .append(text(" zurücksetzen.", GRAY)).append(newline())
+                        .append(text("Du kannst deine Skill Slots mit ", GRAY)).append(text("/rcs reset", GOLD)).append(text(" zurücksetzen.", GRAY)).append(newline())
+                        .append(text("Du hast noch ", GRAY)).append(text(player.freeResets(), player.freeResets() > 0 ? GREEN : RED))
+                        .append(text(" kostenlose(n) Reset(s).", player.freeResets() > 0 ? GREEN : GRAY))
+                        .append(newline())
+                        .append(text("Der nächste nicht kostenlose Reset kostet dich: ", GRAY))
+                        .append(text(Economy.get().format(resetCost), Economy.get().has(player.offlinePlayer(), resetCost) ? GREEN : RED)).append(newline())
                         .append(text("Die Kosten für das Zurücksetzen steigen jedes Mal weiter an.", GRAY))
                         .append(newline()).append(newline())
-                        .append(text("Tipp: ", GREEN)).append(text("Solange du maximal ", GRAY, ITALIC))
-                        .append(text(slotManager.getFreeResets() + " Slot(s)", GREEN)).append(text(" belegt hast, ist das Zurücksetzen kostenlos.", GRAY, ITALIC))
-                        .append(newline())
                         .append(text("Tipp: ", GREEN)).append(text("Du erhältst neue Skill Slots beim Level Aufstieg, " +
                                 "durch Events und Achievements.", GRAY, ITALIC))
                 )))

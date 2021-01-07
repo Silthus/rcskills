@@ -1,6 +1,8 @@
 package de.raidcraft.skills.actions;
 
 import com.google.common.base.Strings;
+import de.raidcraft.skills.Messages;
+import de.raidcraft.skills.SkillsPlugin;
 import de.raidcraft.skills.TestResult;
 import de.raidcraft.skills.entities.ConfiguredSkill;
 import de.raidcraft.skills.entities.PlayerSkill;
@@ -39,6 +41,12 @@ public class AddSkillAction {
 
         PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
         playerSkill.unlock();
+
+        int freeResetsPerSkill = SkillsPlugin.instance().getPluginConfig().getSlotConfig().getFreeResetsPerSkill();
+        if (!skill.noSkillSlot() && freeResetsPerSkill > 0) {
+            player.freeResets(player.freeResets() + freeResetsPerSkill).save();
+            Messages.send(player, Messages.addFreeResetsSelf(player, freeResetsPerSkill));
+        }
 
         return new Result(this, playerSkill, testResult);
     }

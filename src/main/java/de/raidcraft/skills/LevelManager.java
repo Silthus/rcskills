@@ -215,6 +215,13 @@ public final class LevelManager implements Listener {
         skilledPlayer.addSkillPoints(skillpoints);
         skilledPlayer.addSkillSlots(skillslots, SkillSlot.Status.ELIGIBLE);
 
+        int freeResetsPerSlot = plugin.getPluginConfig().getSlotConfig().getFreeResetsPerSlot();
+        int freeResets = 0;
+        if (freeResetsPerSlot > 0 && skillslots > 0) {
+            freeResets = freeResetsPerSlot * skillslots;
+            skilledPlayer.freeResets(freeResets + skilledPlayer.freeResets()).save();
+        }
+
         List<PlayerSkill> skills = ConfiguredSkill.find.query()
                 .where().eq("enabled", true)
                 .and().le("level", event.getNewLevel())
@@ -239,6 +246,7 @@ public final class LevelManager implements Listener {
 
         int finalSkillpoints = skillpoints;
         int finalSkillslots = skillslots;
+        int finalFreeResets = freeResets;
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             skilledPlayer.bukkitPlayer().ifPresent(player -> {
@@ -246,6 +254,7 @@ public final class LevelManager implements Listener {
                     Messages.send(player, Messages.levelUpSelf(skilledPlayer, event.getNewLevel()));
                     Messages.send(skilledPlayer.id(), Messages.addSkillPointsSelf(skilledPlayer, finalSkillpoints));
                     Messages.send(skilledPlayer.id(), Messages.addSkillSlotsSelf(skilledPlayer, finalSkillslots));
+                    Messages.send(skilledPlayer.id(), Messages.addFreeResetsSelf(skilledPlayer, finalFreeResets));
 
                     Effects.levelUp(player);
 

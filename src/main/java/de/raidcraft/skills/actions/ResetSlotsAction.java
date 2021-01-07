@@ -25,6 +25,10 @@ public class ResetSlotsAction {
 
     public double cost() {
 
+        if (player.freeResets() > 0) {
+            return 0;
+        }
+
         return plugin.getSlotManager().calculateSlotResetCost(player);
     }
 
@@ -34,29 +38,37 @@ public class ResetSlotsAction {
             return new Result(this, "Du hast keine Skill Slots die in Benutzung sind.");
         }
 
+        boolean freeReset = false;
         if (!bypassChecks) {
-            double cost = cost();
-            if (!Economy.get().has(player.offlinePlayer(), cost)) {
-                return new Result(this, "Du hast nicht genügend Geld um deine Skill Slots zurückzusetzen. Du benötigst " + Economy.get().format(cost) + ".");
+            if (player.freeResets() > 0) {
+                player.freeResets(player.freeResets() - 1);
+                freeReset = true;
+            } else if (player.activeSlotCount() <= plugin.getSlotManager().getFreeResets()) {
+                freeReset = true;
+            } else {
+                double cost = cost();
+                if (!Economy.get().has(player.offlinePlayer(), cost)) {
+                    return new Result(this, "Du hast nicht genügend Geld um deine Skill Slots zurückzusetzen. Du benötigst " + Economy.get().format(cost) + ".");
+                }
+
+                Economy.get().withdrawPlayer(player.offlinePlayer(), cost, "Skill Slot Reset", Map.of(
+                        "player_id", player.id(),
+                        "slot_count", player.slotCount(),
+                        "skill_count", player.skillCount(),
+                        "skill_points", player.skillPoints(),
+                        "free_slots", player.freeSkillSlots(),
+                        "reset_count", player.resetCount()
+                ));
             }
-
-            Economy.get().withdrawPlayer(player.offlinePlayer(), cost, "Skill Slot Reset", Map.of(
-                    "player_id", player.id(),
-                    "slot_count", player.slotCount(),
-                    "skill_count", player.skillCount(),
-                    "skill_points", player.skillPoints(),
-                    "free_slots", player.freeSkillSlots(),
-                    "reset_count", player.resetCount()
-            ));
         }
-
-        int slotCount = player.activeSlotCount();
 
         player.resetSkillSlots();
 
-        if (!bypassChecks && slotCount > plugin.getSlotManager().getFreeResets()) {
+        if (!bypassChecks && !freeReset) {
             player.resetCount(player.resetCount() + 1);
         }
+
+        player.save();
 
         plugin.getBindingListener().getUpdateBindings().accept(player.id());
 

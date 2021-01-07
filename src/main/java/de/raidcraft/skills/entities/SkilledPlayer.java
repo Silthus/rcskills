@@ -52,6 +52,8 @@ public class SkilledPlayer extends BaseEntity {
     private int skillPoints = 0;
     @DbDefault("0")
     private int resetCount = 0;
+    @DbDefault("0")
+    private int freeResets = 0;
 
     @OneToOne(optional = false, cascade = CascadeType.ALL, orphanRemoval = true)
     private Level level = new Level();
