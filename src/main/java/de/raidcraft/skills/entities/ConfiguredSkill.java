@@ -88,6 +88,7 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     private boolean enabled = true;
     private boolean restricted = false;
     private boolean autoUnlock = false;
+    private boolean autoActivate = true;
 
     @ManyToOne
     private ConfiguredSkill parent;
@@ -287,6 +288,7 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         setEnabled(config);
         setRestricted(config);
         setAutoUnlock(config);
+        setAutoActivate(config);
         setHidden(config);
 
         setCategories(config);
@@ -450,6 +452,11 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     private void setAutoUnlock(ConfigurationSection config) {
 
         autoUnlock(config.getBoolean("auto-unlock", isChild() || autoUnlock()));
+    }
+
+    private void setAutoActivate(ConfigurationSection config) {
+
+        autoActivate(config.getBoolean("auto-activate", isChild() ? parent().autoActivate() : autoActivate()));
     }
 
     private void setCategories(ConfigurationSection config) {

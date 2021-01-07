@@ -7,11 +7,7 @@ import de.raidcraft.skills.entities.SkilledPlayer;
 import de.raidcraft.skills.util.RandomString;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -106,7 +102,7 @@ public class IntegrationTest {
 
                     server.dispatchCommand(player, "rcs buy skill " + TEST_SKILL);
                     server.dispatchCommand(player, "rcs buy confirm");
-                    assertSkillIsUnlocked(player, TEST_SKILL);
+                    assertSkillIsActive(player, TEST_SKILL);
                 }
             }
         }

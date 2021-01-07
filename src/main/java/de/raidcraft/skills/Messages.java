@@ -39,6 +39,11 @@ import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 
 public final class Messages {
 
+    private static final TextColor ACTIVE_SKILL = GREEN;
+    private static final TextColor UNLOCKED_SKILL = GREEN;
+    private static final TextColor BUYABLE_SKILL = GREEN;
+    private static final TextColor LOCKED_SKILL = DARK_RED;
+
     public static void send(UUID playerId, Component message) {
         if (SkillsPlugin.isTesting()) return;
         BukkitAudiences.create(SkillsPlugin.instance())

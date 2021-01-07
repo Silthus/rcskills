@@ -311,7 +311,7 @@ public class PlayerSkill extends BaseEntity {
                 .filter(skill -> skill.configuredSkill().canAutoUnlock(player()))
                 .forEach(PlayerSkill::unlock);
 
-        if (configuredSkill().noSkillSlot()) {
+        if (configuredSkill().autoActivate() || configuredSkill().noSkillSlot()) {
             if (!isChild() || parent().active())
                 activate();
         }

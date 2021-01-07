@@ -227,6 +227,7 @@ public class PlayerSkillTest {
 
             ConfiguredSkill parent = loadSkill(ParentChildSkills.parent, cfg -> {
                 cfg.set("no-skill-slot", false);
+                cfg.set("auto-activate", false);
                 cfg.set("skills.child1.skillpoints", 1);
             });
             player.addSkillPoints(5);
@@ -248,6 +249,35 @@ public class PlayerSkillTest {
             assertThat(result.success()).isTrue();
             assertThat(result.playerSkill().active())
                     .isFalse();
+        }
+
+        @Test
+        @DisplayName("should auto activate skill when bought")
+        void shouldAutoActivateSkillWhenBought() {
+
+            ConfiguredSkill parent = loadSkill(ParentChildSkills.parent, cfg -> {
+                cfg.set("no-skill-slot", false);
+                cfg.set("skills.child1.skillpoints", 1);
+            });
+            player.addSkillPoints(5);
+
+            AddSkillAction.Result result = player.addSkill(parent);
+
+            assertThat(result.success()).isTrue();
+            assertThat(result.playerSkill().active())
+                    .isTrue();
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child1)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(false);
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child2)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(false);
+
+            result = player.buySkill(getOrAssertSkill(child1));
+
+            assertThat(result.success()).isTrue();
+            assertThat(result.playerSkill().active())
+                    .isTrue();
         }
 
         @Test
