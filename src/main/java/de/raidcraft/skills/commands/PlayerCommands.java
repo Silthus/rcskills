@@ -528,7 +528,8 @@ public class PlayerCommands extends BaseCommand {
     @Description("Bestätigt das Zurücksetzen aller Skill Slot Zuweisungen.")
     public void resetConfirm() {
 
-        ResetSlotsAction action = resetList.remove(getCurrentCommandIssuer().getUniqueId());
+        UUID id = getCurrentCommandIssuer().getUniqueId();
+        ResetSlotsAction action = resetList.remove(id);
         if (action == null) {
             throw new InvalidCommandArgument("Das Zurücksetzen der Skill Slots ist bereits abgelaufen. Bitte führe den Befehl erneut aus.");
         }
@@ -537,7 +538,7 @@ public class PlayerCommands extends BaseCommand {
 
         if (result.success()) {
             send(result.action().player(), text("Deine Skill Slots wurden erfolgreich zurückgesetzt.", GREEN));
-            Bukkit.getScheduler().runTaskLater(plugin, () -> info(page(getCurrentCommandIssuer().getUniqueId()), result.action().player()), 1L);
+            Bukkit.getScheduler().runTaskLater(plugin, () -> info(page(id), result.action().player()), 1L);
         } else {
             send(result.action().player(), text(result.error(), RED));
         }
