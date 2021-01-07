@@ -1,3 +1,11 @@
+## [1.18.2](https://github.com/raidcraft/rcskills/compare/v1.18.1...v1.18.2) (2021-01-07)
+
+
+### Bug Fixes
+
+* auto activated skill is no skill slot assigned ([da15cd1](https://github.com/raidcraft/rcskills/commit/da15cd10983fd893c2df218e75d448af3e11d51a))
+* free resets not assigned on levelup ([dc9161d](https://github.com/raidcraft/rcskills/commit/dc9161d284533dc38d683d2609107b59d42eb92e))
+
 ## [1.18.1](https://github.com/raidcraft/rcskills/compare/v1.18.0...v1.18.1) (2021-01-07)
 
 
