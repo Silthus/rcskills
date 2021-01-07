@@ -454,7 +454,7 @@ public final class Messages {
                         if (value == null) return Collections.singletonList(empty());
                         return Collections.singletonList(skill(value, player));
                     }
-                }, p -> "/rcskills info " + player.name() + " " + p);
+                }, p -> "/rcskills info " + p + " " + player.name());
         return pagination.render(skills, page);
     }
 

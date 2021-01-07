@@ -118,12 +118,20 @@ public class PlayerCommands extends BaseCommand {
     @CommandCompletion("@players")
     @CommandPermission("rcskills.player.info")
     @Description("Zeigt Informationen über den Spieler an.")
-    public void info(@Conditions("others:perm=player.info") SkilledPlayer player, @Default("1") int page) {
+    public void info(@Default("1") int page, @Conditions("others:perm=player.info") SkilledPlayer player) {
 
 
         Messages.send(getCurrentCommandIssuer(), Messages.playerInfo(player));
         Messages.skills(player, page(getCurrentCommandIssuer().getUniqueId(), page))
                 .forEach(component -> Messages.send(getCurrentCommandIssuer(), component));
+    }
+
+    @Subcommand("skill")
+    @CommandCompletion("@skills @players")
+    @CommandPermission("rcskills.skill.info")
+    @Description("Zeigt detaillierte Informationen über einen Skill an.")
+    public void skillInfo(ConfiguredSkill skill, @Conditions("others:perm=skill.info") SkilledPlayer player) {
+
     }
 
     @HelpCommand
@@ -139,7 +147,7 @@ public class PlayerCommands extends BaseCommand {
     @CommandCompletion("@players")
     @CommandPermission("rcskills.player.skills")
     @Description("Zeigt alle aktiven und verfügbaren Skills an.")
-    public void list(@Conditions("others:perm=player.skills") SkilledPlayer player, @Default("1") int page) {
+    public void list(@Default("1") int page, @Conditions("others:perm=player.skills") SkilledPlayer player) {
 
         Messages.skills(player, page(getCurrentCommandIssuer().getUniqueId(), page))
                 .forEach(component -> Messages.send(getCurrentCommandIssuer(), component));
@@ -372,7 +380,7 @@ public class PlayerCommands extends BaseCommand {
                     AddSkillAction.Result result = buySkillAction.execute(getCurrentCommandIssuer().hasPermission(SkillsPlugin.BYPASS_REQUIREMENT_CHECKS));
                     if (result.success()) {
                         Messages.send(getCurrentCommandIssuer(), Messages.buySkill(buySkillAction.player(), result.playerSkill()));
-                        info(result.playerSkill().player(), page(getCurrentCommandIssuer().getUniqueId()));
+                        info(page(getCurrentCommandIssuer().getUniqueId()), result.playerSkill().player());
                         plugin.getBindingListener().getUpdateBindings().accept(result.playerSkill().player().id());
                     } else {
                         Messages.send(getCurrentCommandIssuer(), text("Du kannst den Skill ", RED)
@@ -421,7 +429,7 @@ public class PlayerCommands extends BaseCommand {
                                 .hoverEvent(showText(text("Klicken um /rcs auszuführen.", GRAY))))
                         .append(text(" zuweisen kannst.", YELLOW))
                 );
-                info(player, page(getCurrentCommandIssuer().getUniqueId()));
+                info(page(getCurrentCommandIssuer().getUniqueId()), player);
             }
         }
 
@@ -472,7 +480,7 @@ public class PlayerCommands extends BaseCommand {
 
         if (skill.activate()) {
             getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + " Der Skill " + skill.name() + " wurde erfolgreich aktiviert.");
-            info(skill.player(), page(getCurrentCommandIssuer().getUniqueId()));
+            info(page(getCurrentCommandIssuer().getUniqueId()), skill.player());
             plugin.getBindingListener().getUpdateBindings().accept(skill.player().id());
         } else {
             getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Der Skill konnte nicht aktiviert werden.");
@@ -529,7 +537,7 @@ public class PlayerCommands extends BaseCommand {
 
         if (result.success()) {
             send(result.action().player(), text("Deine Skill Slots wurden erfolgreich zurückgesetzt.", GREEN));
-            Bukkit.getScheduler().runTaskLater(plugin, () -> info(result.action().player(), page(getCurrentCommandIssuer().getUniqueId())), 1L);
+            Bukkit.getScheduler().runTaskLater(plugin, () -> info(page(getCurrentCommandIssuer().getUniqueId()), result.action().player()), 1L);
         } else {
             send(result.action().player(), text(result.error(), RED));
         }
