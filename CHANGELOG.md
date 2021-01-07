@@ -1,3 +1,10 @@
+## [1.18.1](https://github.com/raidcraft/rcskills/compare/v1.18.0...v1.18.1) (2021-01-07)
+
+
+### Bug Fixes
+
+* new skill slots message not displayed on levelup ([67ce6d3](https://github.com/raidcraft/rcskills/commit/67ce6d3747254ddf97f1268f705cda76c11b111d))
+
 # [1.18.0](https://github.com/raidcraft/rcskills/compare/v1.17.0...v1.18.0) (2021-01-07)
 
 
