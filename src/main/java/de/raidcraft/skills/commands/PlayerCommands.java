@@ -94,9 +94,22 @@ public class PlayerCommands extends BaseCommand {
     }
 
     private final SkillsPlugin plugin;
+    private final Map<UUID, Integer> lastPage = new HashMap<>();
 
     public PlayerCommands(SkillsPlugin plugin) {
         this.plugin = plugin;
+    }
+
+    private int page(UUID player, int page) {
+
+        if (page < 1) page = 1;
+        lastPage.put(player, page);
+        return page;
+    }
+
+    private int page(UUID player) {
+
+        return lastPage.getOrDefault(player, 1);
     }
 
     @Default
@@ -106,8 +119,10 @@ public class PlayerCommands extends BaseCommand {
     @Description("Zeigt Informationen über den Spieler an.")
     public void info(@Conditions("others:perm=player.info") SkilledPlayer player, @Default("1") int page) {
 
+
         Messages.send(getCurrentCommandIssuer(), Messages.playerInfo(player));
-        Messages.skills(player, page).forEach(component -> Messages.send(getCurrentCommandIssuer(), component));
+        Messages.skills(player, page(getCurrentCommandIssuer().getUniqueId(), page))
+                .forEach(component -> Messages.send(getCurrentCommandIssuer(), component));
     }
 
     @HelpCommand
@@ -125,7 +140,8 @@ public class PlayerCommands extends BaseCommand {
     @Description("Zeigt alle aktiven und verfügbaren Skills an.")
     public void list(@Conditions("others:perm=player.skills") SkilledPlayer player, @Default("1") int page) {
 
-        Messages.skills(player, page).forEach(component -> Messages.send(getCurrentCommandIssuer(), component));
+        Messages.skills(player, page(getCurrentCommandIssuer().getUniqueId(), page))
+                .forEach(component -> Messages.send(getCurrentCommandIssuer(), component));
     }
 
     @Subcommand("use|cast|execute")
@@ -230,7 +246,9 @@ public class PlayerCommands extends BaseCommand {
     @Description("Zeigt alle aktiven Skills an.")
     public void listActiveSkills(@Conditions("others:perm=player.skills") SkilledPlayer player, @Default("1") int page) {
 
-        Messages.skills(player, page, player::hasActiveSkill).forEach(component -> Messages.send(getCurrentCommandIssuer(), component));
+        Messages.skills(player, page(getCurrentCommandIssuer().getUniqueId(), page),
+                player::hasActiveSkill)
+                .forEach(component -> Messages.send(getCurrentCommandIssuer(), component));
     }
 
     @Subcommand("buy")
@@ -353,7 +371,7 @@ public class PlayerCommands extends BaseCommand {
                     AddSkillAction.Result result = buySkillAction.execute(getCurrentCommandIssuer().hasPermission(SkillsPlugin.BYPASS_REQUIREMENT_CHECKS));
                     if (result.success()) {
                         Messages.send(getCurrentCommandIssuer(), Messages.buySkill(buySkillAction.player(), result.playerSkill()));
-                        info(result.playerSkill().player(), 1);
+                        info(result.playerSkill().player(), page(getCurrentCommandIssuer().getUniqueId()));
                         plugin.getBindingListener().getUpdateBindings().accept(result.playerSkill().player().id());
                     } else {
                         Messages.send(getCurrentCommandIssuer(), text("Du kannst den Skill ", RED)
@@ -402,7 +420,7 @@ public class PlayerCommands extends BaseCommand {
                                 .hoverEvent(showText(text("Klicken um /rcs auszuführen.", GRAY))))
                         .append(text(" zuweisen kannst.", YELLOW))
                 );
-                info(player, 1);
+                info(player, page(getCurrentCommandIssuer().getUniqueId()));
             }
         }
 
@@ -453,7 +471,7 @@ public class PlayerCommands extends BaseCommand {
 
         if (skill.activate()) {
             getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + " Der Skill " + skill.name() + " wurde erfolgreich aktiviert.");
-            info(skill.player(), 1);
+            info(skill.player(), page(getCurrentCommandIssuer().getUniqueId()));
             plugin.getBindingListener().getUpdateBindings().accept(skill.player().id());
         } else {
             getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Der Skill konnte nicht aktiviert werden.");
@@ -518,7 +536,7 @@ public class PlayerCommands extends BaseCommand {
         plugin.getBindingListener().getUpdateBindings().accept(player.id());
 
         send(player, text("Deine Skill Slots wurden erfolgreich zurückgesetzt."));
-        info(player, 1);
+        info(player, page(getCurrentCommandIssuer().getUniqueId()));
     }
 
     @Subcommand("abortreset")
