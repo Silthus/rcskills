@@ -346,6 +346,9 @@ public final class Messages {
                         .append(text(" zurücksetzen.", GRAY)).append(newline())
                         .append(text("Die Kosten für das Zurücksetzen steigen jedes Mal weiter an.", GRAY))
                         .append(newline()).append(newline())
+                        .append(text("Tipp: ", GREEN)).append(text("Solange du maximal ", GRAY, ITALIC))
+                        .append(text(slotManager.getFreeResets() + " Slot(s)", GREEN)).append(text(" belegt hast, ist das Zurücksetzen kostenlos.", GRAY, ITALIC))
+                        .append(newline())
                         .append(text("Tipp: ", GREEN)).append(text("Du erhältst neue Skill Slots beim Level Aufstieg, " +
                                 "durch Events und Achievements.", GRAY, ITALIC))
                 )))

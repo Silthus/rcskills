@@ -2,6 +2,7 @@ package de.raidcraft.skills;
 
 import de.raidcraft.skills.entities.SkilledPlayer;
 import lombok.Data;
+import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.extern.java.Log;
 import org.codehaus.commons.compiler.CompileException;
@@ -21,6 +22,8 @@ public class SlotManager {
     private double c;
     private IExpressionEvaluator slotPrice;
     private IExpressionEvaluator resetPrice;
+    @Getter
+    private int freeResets;
 
     public void load(SkillPluginConfig.SkillSlotConfig config) throws CompileException {
 
@@ -33,6 +36,7 @@ public class SlotManager {
 
         slotPrice = parseExpression(config.getSlotPrice());
         resetPrice = parseExpression(config.getResetPrice());
+        freeResets = config.getFreeResets();
     }
 
     public double calculateSlotCost(SkilledPlayer player) {
@@ -42,12 +46,20 @@ public class SlotManager {
 
     public double calculateSlotCost(SkilledPlayer player, int slot) {
 
+        if (player.activeSlotCount() <= freeResets) {
+            return 0;
+        }
+
         return calculate(slotPrice, new CalculationConfig(player)
                 .slots(slot - 1)
         );
     }
 
     public double calculateSlotResetCost(SkilledPlayer player) {
+
+        if (player.activeSlotCount() <= freeResets) {
+            return 0;
+        }
 
         return calculate(resetPrice, new CalculationConfig(player));
     }

@@ -50,7 +50,14 @@ public class ResetSlotsAction {
             ));
         }
 
+        int slotCount = player.activeSlotCount();
+
         player.resetSkillSlots();
+
+        if (!bypassChecks && slotCount > plugin.getSlotManager().getFreeResets()) {
+            player.resetCount(player.resetCount() + 1);
+        }
+
         plugin.getBindingListener().getUpdateBindings().accept(player.id());
 
         return new Result(this);

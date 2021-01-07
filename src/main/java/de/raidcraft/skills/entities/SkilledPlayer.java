@@ -50,7 +50,6 @@ public class SkilledPlayer extends BaseEntity {
 
     private String name;
     private int skillPoints = 0;
-    @Setter(AccessLevel.PACKAGE)
     @DbDefault("0")
     private int resetCount = 0;
 
@@ -347,7 +346,6 @@ public class SkilledPlayer extends BaseEntity {
                 .flatMap(Optional::stream)
                 .forEach(PlayerSkill::deactivate);
 
-        resetCount(resetCount() + 1);
         save();
 
         return this;

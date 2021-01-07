@@ -110,6 +110,8 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
         })
         private String slotPrice = "(Math.pow(2, slots) * x) + (level + skills) * y";
         private String resetPrice = "Math.pow(2, resets) * a";
+        @Comment("How many slots can be occupied and the reset remains free?")
+        private int freeResets = 0;
         private double x = 1000;
         private double y = 100;
         private double z = 0;
