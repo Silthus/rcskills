@@ -1,3 +1,15 @@
+# [1.17.0](https://github.com/raidcraft/rcskills/compare/v1.16.1...v1.17.0) (2021-01-07)
+
+
+### Bug Fixes
+
+* free slot count of 0 calculates 0 cost ([8024506](https://github.com/raidcraft/rcskills/commit/80245068dd83b5818ffe3a406ccfda2d89594078))
+
+
+### Features
+
+* allow free reset of skill slots under configured treshhold ([68f021b](https://github.com/raidcraft/rcskills/commit/68f021bf19625e20f3822cbb2b243a9b590be4a7)), closes [#52](https://github.com/raidcraft/rcskills/issues/52)
+
 ## [1.16.1](https://github.com/raidcraft/rcskills/compare/v1.16.0...v1.16.1) (2021-01-07)
 
 
