@@ -132,6 +132,7 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
         private int skillPointsPerLevel = 1;
         @Comment("The number of new skill slots a player should get each level")
         private int slotsPerLevel = 0;
+        private String slotStatus = SkillSlot.Status.FREE.getValue();
         @ElementType(LevelUp.class)
         private Map<Integer, LevelUp> levels = new HashMap<>();
 

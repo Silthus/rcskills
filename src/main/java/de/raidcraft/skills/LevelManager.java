@@ -197,7 +197,7 @@ public final class LevelManager implements Listener {
 
         int skillpoints = levelDiff * config.getSkillPointsPerLevel();
         Map<SkillSlot.Status, Integer> skillSlots = new HashMap<>();
-        int skillslots = levelDiff * config.getSlotsPerLevel();
+        skillSlots.put(SkillSlot.Status.valueOf(config.getSlotStatus()), levelDiff * config.getSlotsPerLevel());
 
         SkilledPlayer skilledPlayer = event.getPlayer();
         for (int i = 0; i < levelDiff; i++) {
@@ -223,8 +223,11 @@ public final class LevelManager implements Listener {
 
         int freeResetsPerSlot = plugin.getPluginConfig().getSlotConfig().getFreeResetsPerSlot();
         int freeResets = 0;
-        if (freeResetsPerSlot > 0 && skillslots > 0) {
-            freeResets = freeResetsPerSlot * skillslots;
+
+        int newSkillSlots = skillSlots.values().stream().mapToInt(value -> value).sum();
+
+        if (freeResetsPerSlot > 0 && newSkillSlots > 0) {
+            freeResets = freeResetsPerSlot * newSkillSlots;
             skilledPlayer.freeResets(freeResets + skilledPlayer.freeResets()).save();
         }
 
@@ -258,7 +261,7 @@ public final class LevelManager implements Listener {
                 if (event.getNewLevel() > event.getOldLevel()) {
                     Messages.send(player, Messages.levelUpSelf(skilledPlayer, event.getNewLevel()));
                     Messages.send(skilledPlayer.id(), Messages.addSkillPointsSelf(skilledPlayer, finalSkillpoints));
-                    Messages.send(skilledPlayer.id(), Messages.addSkillSlotsSelf(skilledPlayer, skillSlots.values().stream().mapToInt(value -> value).sum()));
+                    Messages.send(skilledPlayer.id(), Messages.addSkillSlotsSelf(skilledPlayer, newSkillSlots));
                     Messages.send(skilledPlayer.id(), Messages.addFreeResetsSelf(skilledPlayer, finalFreeResets));
 
                     Effects.levelUp(player);
