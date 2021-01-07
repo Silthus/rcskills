@@ -1,3 +1,10 @@
+## [1.16.1](https://github.com/raidcraft/rcskills/compare/v1.16.0...v1.16.1) (2021-01-07)
+
+
+### Bug Fixes
+
+* **cmd:** skill list resets to page 1 after buying a skill ([626bf76](https://github.com/raidcraft/rcskills/commit/626bf763f1f3da56712dce9d8d295819caa26b23))
+
 # [1.16.0](https://github.com/raidcraft/rcskills/compare/v1.15.1...v1.16.0) (2021-01-06)
 
 
