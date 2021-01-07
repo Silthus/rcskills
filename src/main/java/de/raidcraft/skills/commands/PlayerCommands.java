@@ -120,7 +120,6 @@ public class PlayerCommands extends BaseCommand {
     @Description("Zeigt Informationen über den Spieler an.")
     public void info(@Default("1") int page, @Conditions("others:perm=player.info") SkilledPlayer player) {
 
-
         Messages.send(getCurrentCommandIssuer(), Messages.playerInfo(player));
         Messages.skills(player, page(getCurrentCommandIssuer().getUniqueId(), page))
                 .forEach(component -> Messages.send(getCurrentCommandIssuer(), component));
@@ -132,6 +131,7 @@ public class PlayerCommands extends BaseCommand {
     @Description("Zeigt detaillierte Informationen über einen Skill an.")
     public void skillInfo(ConfiguredSkill skill, @Conditions("others:perm=skill.info") SkilledPlayer player) {
 
+        Messages.send(getCurrentCommandIssuer(), Messages.skill(skill, player, true, true));
     }
 
     @HelpCommand

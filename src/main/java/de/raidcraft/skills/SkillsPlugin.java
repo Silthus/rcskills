@@ -361,10 +361,18 @@ public class SkillsPlugin extends JavaPlugin {
             if (Strings.isNullOrEmpty(playerName)) {
                 return SkilledPlayer.getOrCreate(context.getPlayer());
             }
-            Player player = Bukkit.getPlayerExact(playerName);
+            Player player;
+            try {
+                UUID uuid = UUID.fromString(playerName);
+                player = Bukkit.getPlayer(uuid);
+            } catch (Exception e) {
+                player = Bukkit.getPlayerExact(playerName);
+            }
+
             if (player == null) {
                 throw new InvalidCommandArgument("Der Spieler " + playerName + " wurde nicht gefunden.");
             }
+
             return SkilledPlayer.getOrCreate(player);
         });
     }

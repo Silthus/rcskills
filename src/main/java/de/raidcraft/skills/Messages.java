@@ -511,7 +511,8 @@ public final class Messages {
                     .append(text("] ", YELLOW));
         }
 
-        builder.append(text(skill.name(), color, BOLD));
+        builder.append(text(skill.name(), color, BOLD)
+                .clickEvent(runCommand("/rcskills skill " + skill.id().toString() + " " + (player != null ? player.id().toString() : ""))));
 
         if (skill.disabled()) {
             return builder.hoverEvent(showText(text("Der Skill ist deaktiviert.", RED))).build();
