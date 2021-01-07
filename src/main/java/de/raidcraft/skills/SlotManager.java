@@ -46,7 +46,7 @@ public class SlotManager {
 
     public double calculateSlotCost(SkilledPlayer player, int slot) {
 
-        if (player.activeSlotCount() <= freeResets) {
+        if (freeResets > 0 && player.activeSlotCount() <= freeResets) {
             return 0;
         }
 
@@ -57,7 +57,7 @@ public class SlotManager {
 
     public double calculateSlotResetCost(SkilledPlayer player) {
 
-        if (player.activeSlotCount() <= freeResets) {
+        if (freeResets > 0 && player.activeSlotCount() <= freeResets) {
             return 0;
         }
 
