@@ -196,6 +196,7 @@ public final class LevelManager implements Listener {
         if (levelDiff == 0) return;
 
         int skillpoints = levelDiff * config.getSkillPointsPerLevel();
+        Map<SkillSlot.Status, Integer> skillSlots = new HashMap<>();
         int skillslots = levelDiff * config.getSlotsPerLevel();
 
         SkilledPlayer skilledPlayer = event.getPlayer();
@@ -204,7 +205,12 @@ public final class LevelManager implements Listener {
             SkillPluginConfig.LevelUp levelUp = config.getLevels().get(level);
             if (levelUp != null) {
                 skillpoints += levelUp.getSkillpoints();
-                skillslots += levelUp.getSlots();
+                if (levelUp.getSlots() > 0) {
+                    SkillSlot.Status status = SkillSlot.Status.valueOf(levelUp.getSlotStats());
+                    int slots = skillSlots.getOrDefault(status, 0);
+                    slots += levelUp.getSlots();
+                    skillSlots.put(status, slots);
+                }
                 levelUp.getCommands().stream()
                         .map(s -> s.replace("{player}", skilledPlayer.name()))
                         .map(s -> s.replace("{player_id}", skilledPlayer.id().toString()))
@@ -213,7 +219,7 @@ public final class LevelManager implements Listener {
         }
 
         skilledPlayer.addSkillPoints(skillpoints);
-        skilledPlayer.addSkillSlots(skillslots, SkillSlot.Status.ELIGIBLE);
+        skillSlots.forEach((status, integer) -> skilledPlayer.addSkillSlots(integer, status));
 
         int freeResetsPerSlot = plugin.getPluginConfig().getSlotConfig().getFreeResetsPerSlot();
         int freeResets = 0;

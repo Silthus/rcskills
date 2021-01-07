@@ -5,6 +5,7 @@ import de.exlll.configlib.annotation.ConfigurationElement;
 import de.exlll.configlib.annotation.ElementType;
 import de.exlll.configlib.configs.yaml.BukkitYamlConfiguration;
 import de.exlll.configlib.format.FieldNameFormatters;
+import de.raidcraft.skills.entities.SkillSlot;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Sound;
@@ -173,6 +174,7 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
 
         private int skillpoints = 0;
         private int slots = 0;
+        private String slotStats = SkillSlot.Status.FREE.getValue();
         private List<String> commands = new ArrayList<>();
     }
 }
