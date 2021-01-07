@@ -251,7 +251,6 @@ public final class LevelManager implements Listener {
                 .forEach(PlayerSkill::unlock);
 
         int finalSkillpoints = skillpoints;
-        int finalSkillslots = skillslots;
         int finalFreeResets = freeResets;
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -259,7 +258,7 @@ public final class LevelManager implements Listener {
                 if (event.getNewLevel() > event.getOldLevel()) {
                     Messages.send(player, Messages.levelUpSelf(skilledPlayer, event.getNewLevel()));
                     Messages.send(skilledPlayer.id(), Messages.addSkillPointsSelf(skilledPlayer, finalSkillpoints));
-                    Messages.send(skilledPlayer.id(), Messages.addSkillSlotsSelf(skilledPlayer, finalSkillslots));
+                    Messages.send(skilledPlayer.id(), Messages.addSkillSlotsSelf(skilledPlayer, skillSlots.values().stream().mapToInt(value -> value).sum()));
                     Messages.send(skilledPlayer.id(), Messages.addFreeResetsSelf(skilledPlayer, finalFreeResets));
 
                     Effects.levelUp(player);
