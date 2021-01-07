@@ -1,3 +1,19 @@
+# [1.18.0](https://github.com/raidcraft/rcskills/compare/v1.17.0...v1.18.0) (2021-01-07)
+
+
+### Bug Fixes
+
+* change order of /rcs info and /rcs list - take page first ([72e63fe](https://github.com/raidcraft/rcskills/commit/72e63fed1d38f6ffc9e028aa2fb85567c20707cb))
+* skill slots do not show as resetted after /rcs reset ([d8f509e](https://github.com/raidcraft/rcskills/commit/d8f509e902eaab387a1842dc0c49e85f24298aa1))
+
+
+### Features
+
+* add /rcs skill info command ([30a49ef](https://github.com/raidcraft/rcskills/commit/30a49ef1816919f8e39e2256a98496fad9d4559f))
+* add `auto-activate` option that auto assigns a skill to a free slot ([36bb95e](https://github.com/raidcraft/rcskills/commit/36bb95e5c1c6b4eb13eefed8d954df43dc92679e)), closes [#63](https://github.com/raidcraft/rcskills/issues/63)
+* add free resets for player skills on level up ([f8f1fd3](https://github.com/raidcraft/rcskills/commit/f8f1fd3ea834406d15039f77162738516b173f53)), closes [#62](https://github.com/raidcraft/rcskills/issues/62)
+* add levelup option to add free skill slots ([f191666](https://github.com/raidcraft/rcskills/commit/f1916669bef07a445db9a11ae251967114648aab))
+
 # [1.17.0](https://github.com/raidcraft/rcskills/compare/v1.16.1...v1.17.0) (2021-01-07)
 
 
