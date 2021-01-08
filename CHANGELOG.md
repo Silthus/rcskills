@@ -1,3 +1,11 @@
+## [1.20.3](https://github.com/raidcraft/rcskills/compare/v1.20.2...v1.20.3) (2021-01-08)
+
+
+### Bug Fixes
+
+* **binding:** skills can be bound to air ([9e41aaa](https://github.com/raidcraft/rcskills/commit/9e41aaa549da86c4c1ca3f55207d37634b95defa))
+* **cmd:** npe in /rcs info command ([c272fdc](https://github.com/raidcraft/rcskills/commit/c272fdc38d78c33120b8bb66572d0f71e140d585))
+
 ## [1.20.2](https://github.com/raidcraft/rcskills/compare/v1.20.1...v1.20.2) (2021-01-08)
 
 
