@@ -1,3 +1,10 @@
+## [1.20.1](https://github.com/raidcraft/rcskills/compare/v1.20.0...v1.20.1) (2021-01-08)
+
+
+### Bug Fixes
+
+* cooldown of 0 or less throws error ([6387ef0](https://github.com/raidcraft/rcskills/commit/6387ef03aa4dd99e07bc79a18bb42c7eec5c0329))
+
 # [1.20.0](https://github.com/raidcraft/rcskills/compare/v1.19.0...v1.20.0) (2021-01-08)
 
 
