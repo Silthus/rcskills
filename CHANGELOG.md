@@ -1,3 +1,15 @@
+# [1.20.0](https://github.com/raidcraft/rcskills/compare/v1.19.0...v1.20.0) (2021-01-08)
+
+
+### Bug Fixes
+
+* **api:** add isOnCooldown method to Skill ([7571753](https://github.com/raidcraft/rcskills/commit/7571753014cc3a3989f3600eb12c5dfa2356b2a6))
+
+
+### Features
+
+* **api:** add alias, name and id delegates to Skill ([699a6e4](https://github.com/raidcraft/rcskills/commit/699a6e47ebe4589f206811d76a7e0f79eabe4329))
+
 # [1.19.0](https://github.com/raidcraft/rcskills/compare/v1.18.2...v1.19.0) (2021-01-08)
 
 
