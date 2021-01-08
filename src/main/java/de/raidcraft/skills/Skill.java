@@ -8,6 +8,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.time.Instant;
+import java.util.UUID;
 import java.util.function.Function;
 
 public interface Skill {
@@ -20,6 +21,30 @@ public interface Skill {
      * @return the executing context of this skill
      */
     SkillContext context();
+
+    /**
+     * @return the unique id of the player skill
+     */
+    default UUID id() {
+
+        return context().playerSkill().id();
+    }
+
+    /**
+     * @return the friendly name of the skill
+     */
+    default String name() {
+
+        return context().configuredSkill().name();
+    }
+
+    /**
+     * @return the alias of the skill
+     */
+    default String alias() {
+
+        return context().configuredSkill().alias();
+    }
 
     /**
      * @return the datastore of the skill for storing persistent data
