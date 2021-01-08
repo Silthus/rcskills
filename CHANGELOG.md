@@ -1,3 +1,10 @@
+## [1.20.2](https://github.com/raidcraft/rcskills/compare/v1.20.1...v1.20.2) (2021-01-08)
+
+
+### Bug Fixes
+
+* cooldown not peristed in database ([073c3bd](https://github.com/raidcraft/rcskills/commit/073c3bd6ace4a373dab3941518fe24edd0d6a8e3))
+
 ## [1.20.1](https://github.com/raidcraft/rcskills/compare/v1.20.0...v1.20.1) (2021-01-08)
 
 
