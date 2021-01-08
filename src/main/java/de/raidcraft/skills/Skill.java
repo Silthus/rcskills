@@ -97,7 +97,7 @@ public interface Skill {
      */
     default Skill lastUsed(Instant instant) {
 
-        context().playerSkill().lastUsed(instant);
+        context().playerSkill().lastUsed(instant).save();
         return this;
     }
 
