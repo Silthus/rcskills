@@ -19,7 +19,7 @@ public class Migrations {
         migration.addPlatform(Platform.H2, "h2");
         migration.addPlatform(Platform.SQLITE, "sqlite");
 
-//        migration.setGeneratePendingDrop("1.17");
+        migration.setGeneratePendingDrop("1.21");
 
         migration.generateMigration();
     }

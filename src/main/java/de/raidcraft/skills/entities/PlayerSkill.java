@@ -73,7 +73,7 @@ public class PlayerSkill extends BaseEntity {
     private SkillStatus status = SkillStatus.NOT_PRESENT;
     private Instant lastUsed = Instant.EPOCH;
     @DbDefault("false")
-    private boolean disabled = false;
+    private boolean replaced = false;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private DataStore data = new DataStore();
@@ -113,7 +113,7 @@ public class PlayerSkill extends BaseEntity {
 
     public boolean enabled() {
 
-        return !disabled();
+        return !replaced();
     }
 
     /**
@@ -157,6 +157,7 @@ public class PlayerSkill extends BaseEntity {
     public void enable() {
 
         if (!active()) return;
+        if (checkDeactivate()) return;
         if (checkDisable()) return;
 
         if (enabled()) {
@@ -178,6 +179,7 @@ public class PlayerSkill extends BaseEntity {
     public void reload() {
 
         if (!activate()) return;
+        if (checkDeactivate()) return;
         if (checkDisable()) return;
 
         if (enabled()) {
@@ -219,7 +221,7 @@ public class PlayerSkill extends BaseEntity {
 
     public boolean activate() {
 
-        if (checkDisable()) return false;
+        if (checkDeactivate()) return false;
 
         if (!canActivate()) {
             return false;
@@ -240,11 +242,11 @@ public class PlayerSkill extends BaseEntity {
             status(SkillStatus.ACTIVE);
             save();
 
-            configuredSkill().disabledSkills().stream()
+            configuredSkill().replacedSkills().stream()
                     .map(skill -> player().getSkill(skill))
                     .forEach(skill -> {
                         skill.disable();
-                        skill.disabled(true);
+                        skill.replaced(true);
                         skill.save();
                     });
 
@@ -278,10 +280,10 @@ public class PlayerSkill extends BaseEntity {
             player().bindings().unbind(this);
             Bukkit.getPluginManager().callEvent(new PlayerDeactivatedSkillEvent(player(), this));
 
-            configuredSkill().disabledSkills().stream()
+            configuredSkill().replacedSkills().stream()
                     .map(skill -> player().getSkill(skill))
                     .forEach(skill -> {
-                        skill.disabled(false);
+                        skill.replaced(false);
                         skill.enable();
                         skill.save();
                     });
@@ -331,15 +333,24 @@ public class PlayerSkill extends BaseEntity {
     }
 
     /**
-     * Checks if the skill needs to be disabled and disables it.
+     * Checks if the skill needs to be deactivated and deactivates it.
      * <p>A skill should be considered disabled if the underlying configured skill is disabled.
      *
      * @return true if the skill should be disabled and was disabled
      */
-    private boolean checkDisable() {
+    private boolean checkDeactivate() {
 
         if (configuredSkill.disabled() && active()) {
             deactivate();
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkDisable() {
+
+        if (replaced()) {
+            disable();
             return true;
         }
         return false;

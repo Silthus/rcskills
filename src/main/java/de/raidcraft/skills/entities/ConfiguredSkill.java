@@ -105,7 +105,12 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     @Getter(AccessLevel.PACKAGE)
     @Setter(AccessLevel.PACKAGE)
     @DbDefault("[]")
-    private List<String> disabledSkillIds = new ArrayList<>();
+    private List<String> replacedSkillIds = new ArrayList<>();
+
+    @DbJson
+    @Setter(AccessLevel.PACKAGE)
+    @DbDefault("[]")
+    private List<String> worlds = new ArrayList<>();
 
     @Transient
     private transient List<String> categories = new ArrayList<>();
@@ -199,9 +204,9 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
      *
      * @return list of skills that should be disabled
      */
-    public List<ConfiguredSkill> disabledSkills() {
+    public List<ConfiguredSkill> replacedSkills() {
 
-        return disabledSkillIds().stream()
+        return replacedSkillIds().stream()
                 .map(UUID::fromString)
                 .map(ConfiguredSkill.find::byId)
                 .filter(Objects::nonNull)
@@ -259,8 +264,9 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         if (!Strings.isNullOrEmpty(parent)) {
             try {
                 parent(ConfiguredSkill.find.byId(UUID.fromString(parent)));
-                if (config.getBoolean("disable-parent", false)) {
-                    disabledSkillIds().add(parent);
+                if (config.getBoolean("disable-parent", false)
+                        || config.getBoolean("replace-parent", false)) {
+                    replacedSkillIds().add(parent);
                 }
 
                 ConfigurationSection parentSkillConfig = parent().getSkillConfig();
@@ -296,6 +302,7 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         setTaskConfig(config);
         setRequirements(config);
         setDisabledSkills(config);
+        setWorlds(config);
 
         if (restricted) {
             requirements.add(new PermissionRequirement().add(SkillsPlugin.SKILL_PERMISSION_PREFIX + alias).load(new MemoryConfiguration()));
@@ -503,7 +510,12 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
 
     private void setDisabledSkills(ConfigurationSection config) {
 
-        this.disabledSkillIds().addAll(config.getStringList("disables"));
+        this.replacedSkillIds().addAll(config.getStringList("replaces"));
+    }
+
+    private void setWorlds(ConfigurationSection config) {
+
+        this.worlds().addAll(config.getStringList("worlds"));
     }
 
     @Override

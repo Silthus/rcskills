@@ -208,7 +208,7 @@ class ConfiguredSkillTest {
         void shouldDisableParentSkillIfSet() {
 
             assertThat(loadSkill(child1, cfg -> cfg.set("skills.child1.disable-parent", true)))
-                    .extracting(ConfiguredSkill::disabledSkills)
+                    .extracting(ConfiguredSkill::replacedSkills)
                     .asList()
                     .contains(getOrAssertSkill(parent));
         }

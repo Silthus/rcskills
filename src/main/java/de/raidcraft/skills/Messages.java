@@ -594,7 +594,7 @@ public final class Messages {
                                     .append(skillSlots(player))))
                             .clickEvent(runCommand(PlayerCommands.activateSkill(playerSkill)))
                     );
-                } else if (!playerSkill.disabled()) {
+                } else if (!playerSkill.replaced()) {
                     Optional<Map.Entry<Integer, SkillPluginConfig.LevelUp>> nextLevelUp = SkillsPlugin.instance().getPluginConfig()
                             .getLevelUpConfig()
                             .getNextLevelUp(player.level().getLevel());

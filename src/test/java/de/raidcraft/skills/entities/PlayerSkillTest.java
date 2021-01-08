@@ -418,7 +418,7 @@ public class PlayerSkillTest {
                     .isEqualTo(true);
 
             playerSkill.refresh();
-            assertThat(playerSkill.disabled()).isTrue();
+            assertThat(playerSkill.replaced()).isTrue();
 
             Consumer<ExecutionResult> callback = callback();
             playerSkill.execute(callback);
@@ -447,14 +447,14 @@ public class PlayerSkillTest {
             assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child2)))
                     .extracting(PlayerSkill::active)
                     .isEqualTo(false);
-            assertThat(playerSkill.disabled()).isFalse();
+            assertThat(playerSkill.replaced()).isFalse();
 
             player.addSkill(getOrAssertSkill(child1), true);
 
             playerSkill.refresh();
-            assertThat(playerSkill.disabled())
+            assertThat(playerSkill.replaced())
                     .isTrue();
-            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child1)).disabled())
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child1)).replaced())
                     .isFalse();
 
         }

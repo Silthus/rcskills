@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<migration xmlns="http://ebean-orm.github.io/xml/ns/dbmigration">
+    <changeSet type="apply">
+        <addColumn tableName="rcs_skills">
+            <column name="replaced_skill_ids" type="json" defaultValue="'[]'"/>
+            <column name="worlds" type="json" defaultValue="'[]'"/>
+        </addColumn>
+        <addColumn tableName="rcs_player_skills">
+            <column name="replaced" type="boolean" defaultValue="false" notnull="true"/>
+        </addColumn>
+    </changeSet>
+    <changeSet type="pendingDrops">
+        <dropColumn columnName="disabled_skill_ids" tableName="rcs_skills"/>
+        <dropColumn columnName="disabled" tableName="rcs_player_skills"/>
+    </changeSet>
+</migration>

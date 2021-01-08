@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<migration xmlns="http://ebean-orm.github.io/xml/ns/dbmigration">
+    <changeSet type="apply" dropsFor="1.21">
+        <dropColumn columnName="disabled_skill_ids" tableName="rcs_skills"/>
+        <dropColumn columnName="disabled" tableName="rcs_player_skills"/>
+    </changeSet>
+</migration>
