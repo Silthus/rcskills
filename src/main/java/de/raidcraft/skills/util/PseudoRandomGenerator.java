@@ -1,6 +1,7 @@
 package de.raidcraft.skills.util;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * The PseudoRandomGenerator is used to test an increasing chance based of the initial chance.
@@ -76,7 +77,7 @@ public final class PseudoRandomGenerator {
 
     private PseudoRandomGenerator(float chance, float multiplier) {
 
-        this.random = new Random();
+        this.random = ThreadLocalRandom.current();
         this.chance = calculateBaseChance(chance);
         this.multiplier = multiplier;
     }
