@@ -1,3 +1,16 @@
+# [1.21.0](https://github.com/raidcraft/rcskills/compare/v1.20.3...v1.21.0) (2021-01-08)
+
+
+### Bug Fixes
+
+* add missing migrations for disabled property ([15eca5b](https://github.com/raidcraft/rcskills/commit/15eca5b88b1febd74053ab61a444ca5286ba1fe6))
+* use ThreadLocalRandom seed to avoid multi threading issues ([17ff9be](https://github.com/raidcraft/rcskills/commit/17ff9be3df1c48940369ff225e1a22d467518de3))
+
+
+### Features
+
+* add option to enable skills only in specific worlds ([fbc1c7f](https://github.com/raidcraft/rcskills/commit/fbc1c7fe558fd754e900e04cd2a7eb385515db90)), closes [#65](https://github.com/raidcraft/rcskills/issues/65)
+
 ## [1.20.3](https://github.com/raidcraft/rcskills/compare/v1.20.2...v1.20.3) (2021-01-08)
 
 
