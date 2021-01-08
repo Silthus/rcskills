@@ -182,12 +182,6 @@ public final class LevelManager implements Listener {
     }
 
     @EventHandler
-    public void activatedSkill(PlayerActivatedSkillEvent event) {
-
-        event.getPlayer().bukkitPlayer().ifPresent(Effects::activateSkill);
-    }
-
-    @EventHandler
     public void onLeveledUp(PlayerLeveledEvent event) {
 
         SkillPluginConfig.LevelUpConfig config = getPlugin().getPluginConfig().getLevelUpConfig();

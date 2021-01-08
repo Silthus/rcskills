@@ -42,9 +42,9 @@ class DefaultSkillContext implements SkillContext {
     public void reload() {
 
         try {
-            detach();
+            disable();
             init();
-            attach();
+            enable();
         } catch (ConfigurationException e) {
             log.severe("failed to reload skill " + configuredSkill().alias() + " for " + skilledPlayer().name() + ": " + e.getMessage());
             e.printStackTrace();
@@ -87,7 +87,7 @@ class DefaultSkillContext implements SkillContext {
     }
 
     @Override
-    public void attach() {
+    public void enable() {
 
         if (attached()) return;
 
@@ -118,7 +118,7 @@ class DefaultSkillContext implements SkillContext {
     }
 
     @Override
-    public void detach() {
+    public void disable() {
 
         if (!attached()) return;
 

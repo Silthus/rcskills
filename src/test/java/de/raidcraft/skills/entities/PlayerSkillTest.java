@@ -15,6 +15,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -48,6 +49,7 @@ public class PlayerSkillTest {
         cfg.set("name", "Test Skill");
         cfg.set("auto-activate", false);
         cfg.set("with.permissions", Collections.singletonList("foobar"));
+        cfg.set("disabled-worlds", Collections.singletonList("world"));
         plugin.getSkillManager().loadSkill(TEST_SKILL, cfg);
 
         playerMock = server.addPlayer(rnd.nextString());
@@ -87,17 +89,6 @@ public class PlayerSkillTest {
         playerSkill.activate();
 
         assertThat(playerSkill.active()).isFalse();
-        assertThat(playerMock.hasPermission("foobar")).isFalse();
-    }
-
-    @Test
-    @DisplayName("should not apply disabled skills to players")
-    void shouldNoApplyDisabledSkills() {
-
-        PlayerSkill skill = player.addSkill(this.skill).playerSkill();
-        skill.disable();
-        skill.activate();
-
         assertThat(playerMock.hasPermission("foobar")).isFalse();
     }
 
@@ -145,6 +136,13 @@ public class PlayerSkillTest {
         skill.deactivate();
         skill.enable();
         assertThat(playerMock.hasPermission("foobar")).isFalse();
+    }
+
+    @Test
+    @DisplayName("should not enable skill if world is disabled")
+    void shouldNotEnableSkillIfWorldIsDisabled() {
+
+
     }
 
     @Nested
@@ -517,6 +515,28 @@ public class PlayerSkillTest {
             assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child1)).replaced())
                     .isFalse();
 
+        }
+
+        @Test
+        @DisplayName("should enable child skill if parent is disabled")
+        void shouldEnableChildSkillEventIfParentIsDisabled() {
+
+            ConfiguredSkill skill = loadSkill(child1, cfg -> {
+                cfg.set("skills.child1.type", "permission");
+                cfg.set("skills.child1.permissions", Arrays.asList("foobar"));
+                cfg.set("skills.child1.disable-parent", true);
+            });
+
+            AddSkillAction.Result result = player.addSkill(skill);
+            assertThat(result.success()).isTrue();
+            PlayerSkill playerSkill = result.playerSkill();
+            assertThat(playerSkill.active())
+                    .isTrue();
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child1)))
+                    .extracting(PlayerSkill::active)
+                    .isEqualTo(true);
+
+            assertThat(playerMock.hasPermission("foobar")).isTrue();
         }
     }
 }

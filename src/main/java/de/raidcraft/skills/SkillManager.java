@@ -389,7 +389,7 @@ public final class SkillManager {
     public void load(@NonNull Player player) {
 
         SkilledPlayer skilledPlayer = SkilledPlayer.getOrCreate(player);
-        skilledPlayer.activeSkills().forEach(PlayerSkill::attach);
+        skilledPlayer.activeSkills().forEach(PlayerSkill::enable);
 
         ConfiguredSkill.autoUnlockableSkills(skilledPlayer.level().getLevel())
                 .forEach(skilledPlayer::addSkill);
@@ -431,7 +431,7 @@ public final class SkillManager {
 
         Map<UUID, SkillContext> cache = cachedPlayerSkills.remove(uuid);
         if (cache != null) {
-            cache.values().forEach(SkillContext::detach);
+            cache.values().forEach(SkillContext::disable);
             cache.clear();
         }
     }

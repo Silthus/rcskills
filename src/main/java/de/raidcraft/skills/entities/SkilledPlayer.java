@@ -122,7 +122,6 @@ public class SkilledPlayer extends BaseEntity {
     public List<PlayerSkill> activeSkills() {
 
         return skills.stream()
-                .filter(skill -> !skill.isChild())
                 .filter(PlayerSkill::active)
                 .collect(Collectors.toUnmodifiableList());
     }

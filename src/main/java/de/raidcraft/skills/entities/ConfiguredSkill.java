@@ -111,6 +111,10 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     @Setter(AccessLevel.PACKAGE)
     @DbDefault("[]")
     private List<String> worlds = new ArrayList<>();
+    @DbJson
+    @Setter(AccessLevel.PACKAGE)
+    @DbDefault("[]")
+    private List<String> disabledWorlds = new ArrayList<>();
 
     @Transient
     private transient List<String> categories = new ArrayList<>();
@@ -303,6 +307,7 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         setRequirements(config);
         setDisabledSkills(config);
         setWorlds(config);
+        setDisabledWorlds(config);
 
         if (restricted) {
             requirements.add(new PermissionRequirement().add(SkillsPlugin.SKILL_PERMISSION_PREFIX + alias).load(new MemoryConfiguration()));
@@ -345,9 +350,9 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         if (enabled == this.enabled()) return this;
         this.enabled = enabled;
         if (enabled()) {
-            playerSkills().forEach(PlayerSkill::attach);
+            playerSkills().forEach(PlayerSkill::enable);
         } else {
-            playerSkills().forEach(PlayerSkill::detach);
+            playerSkills().forEach(PlayerSkill::disable);
         }
         return this;
     }
@@ -516,6 +521,13 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     private void setWorlds(ConfigurationSection config) {
 
         this.worlds().addAll(config.getStringList("worlds").stream()
+                .map(String::toLowerCase)
+                .collect(Collectors.toSet()));
+    }
+
+    private void setDisabledWorlds(ConfigurationSection config) {
+
+        this.worlds().addAll(config.getStringList("disabled-worlds").stream()
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet()));
     }

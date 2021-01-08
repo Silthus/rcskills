@@ -48,14 +48,14 @@ public interface SkillContext {
      * <p>The context will also start any timed tasks the skill requires.
      * <p>Nothing will happen if the skill is already enabled.
      */
-    void attach();
+    void enable();
 
     /**
      * Disables the skill context removing any effects of the skill
      * from the player.
      * <p>Nothing will happen if the skill context is not enabled.
      */
-    void detach();
+    void disable();
 
     /**
      * Executes this skill if it is an executable skill and if the player is online.
