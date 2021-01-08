@@ -1,3 +1,10 @@
+# [1.19.0](https://github.com/raidcraft/rcskills/compare/v1.18.2...v1.19.0) (2021-01-08)
+
+
+### Features
+
+* **api:** add PseudoRandomGenerator ([a0716bc](https://github.com/raidcraft/rcskills/commit/a0716bc15b880d2b1b9c499bc46bba3d063b7de6))
+
 ## [1.18.2](https://github.com/raidcraft/rcskills/compare/v1.18.1...v1.18.2) (2021-01-07)
 
 
