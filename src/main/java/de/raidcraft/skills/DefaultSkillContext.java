@@ -23,14 +23,14 @@ import java.util.function.Consumer;
 @Data
 @Accessors(fluent = true)
 @Log(topic = "RCSkills")
-@ToString(of = { "playerSkillId", "registration", "enabled" })
+@ToString(of = { "playerSkillId", "registration", "attached" })
 class DefaultSkillContext implements SkillContext {
 
     private final UUID playerSkillId;
     private final Skill.Registration<?> registration;
     private Skill skill;
     private long interval;
-    private boolean enabled;
+    private boolean attached;
     private BukkitTask task;
 
     DefaultSkillContext(PlayerSkill playerSkill, Skill.Registration<?> registration) {
@@ -42,9 +42,9 @@ class DefaultSkillContext implements SkillContext {
     public void reload() {
 
         try {
-            disable();
+            detach();
             init();
-            enable();
+            attach();
         } catch (ConfigurationException e) {
             log.severe("failed to reload skill " + configuredSkill().alias() + " for " + skilledPlayer().name() + ": " + e.getMessage());
             e.printStackTrace();
@@ -87,9 +87,9 @@ class DefaultSkillContext implements SkillContext {
     }
 
     @Override
-    public void enable() {
+    public void attach() {
 
-        if (enabled()) return;
+        if (attached()) return;
 
         Skill skill = get();
         skill.apply();
@@ -114,13 +114,13 @@ class DefaultSkillContext implements SkillContext {
             Bukkit.getPluginManager().registerEvents((Listener) skill, SkillsPlugin.instance());
         }
 
-        enabled(true);
+        attached(true);
     }
 
     @Override
-    public void disable() {
+    public void detach() {
 
-        if (!enabled()) return;
+        if (!attached()) return;
 
         if (task != null) {
             task.cancel();
@@ -133,7 +133,7 @@ class DefaultSkillContext implements SkillContext {
         }
         skill.remove();
 
-        enabled(false);
+        attached(false);
     }
 
     @Override

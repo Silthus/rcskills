@@ -8,6 +8,7 @@ import de.raidcraft.skills.events.*;
 import io.ebean.Finder;
 import io.ebean.annotation.DbDefault;
 import io.ebean.annotation.Index;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -74,6 +75,9 @@ public class PlayerSkill extends BaseEntity {
     private Instant lastUsed = Instant.EPOCH;
     @DbDefault("false")
     private boolean replaced = false;
+    @DbDefault("false")
+    @Setter(AccessLevel.PACKAGE)
+    private boolean disabled = false;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private DataStore data = new DataStore();
@@ -113,7 +117,60 @@ public class PlayerSkill extends BaseEntity {
 
     public boolean enabled() {
 
-        return !replaced();
+        return !disabled() && !replaced();
+    }
+
+    /**
+     * Enables this player skill allowing it to be applied to the player.
+     * <p>If it is active it is immediately to the player.
+     *
+     * @return this player skill
+     */
+    public PlayerSkill enable() {
+
+        disabled(false);
+        save();
+        attach();
+
+        return this;
+    }
+
+    /**
+     * Will disable this player skill.
+     * <p>Immediately removes the skill from the player if it is active.
+     *
+     * @return this player skill
+     */
+    public PlayerSkill disable() {
+
+        disabled(true);
+        save();
+        detach();
+
+        return this;
+    }
+
+    /**
+     * Marks the skill as replaced by another skill and applies or removes it from the player.
+     * <p>A replaced skill is effectively disabled and cannot be applied to players.
+     *
+     * @param replaced true to replace this skill disabling and removing it from the player
+     * @return this skill
+     */
+    PlayerSkill replaced(boolean replaced) {
+
+        if (replaced() == replaced) return this;
+
+        this.replaced = replaced;
+        save();
+
+        if (replaced) {
+            detach();
+        } else {
+            attach();
+        }
+
+        return this;
     }
 
     /**
@@ -154,26 +211,33 @@ public class PlayerSkill extends BaseEntity {
         return status() != null && status().isActive();
     }
 
-    public void enable() {
+    /**
+     * Attaches this skill to the player if the skill is active and enabled.
+     * <p>Will also check if the skill needs to be disabled or deactivated and do so.
+     * <p>All child skills will be applied as well.
+     */
+    public void attach() {
 
         if (!active()) return;
         if (checkDeactivate()) return;
         if (checkDisable()) return;
 
         if (enabled()) {
-            context().ifPresent(SkillContext::enable);
+            context().ifPresent(SkillContext::attach);
         }
-        children().forEach(PlayerSkill::enable);
+        children().forEach(PlayerSkill::attach);
     }
 
-    public void disable() {
+    /**
+     * Detaches the skill from the player if it is active.
+     * <p>Will also remove all child skills that are active and applied.
+     */
+    public void detach() {
 
         if (!active()) return;
 
-        children().forEach(PlayerSkill::disable);
-        if (enabled()) {
-            context().ifPresent(SkillContext::disable);
-        }
+        children().forEach(PlayerSkill::detach);
+        context().ifPresent(SkillContext::detach);
     }
 
     public void reload() {
@@ -244,13 +308,9 @@ public class PlayerSkill extends BaseEntity {
 
             configuredSkill().replacedSkills().stream()
                     .map(skill -> player().getSkill(skill))
-                    .forEach(skill -> {
-                        skill.disable();
-                        skill.replaced(true);
-                        skill.save();
-                    });
+                    .forEach(skill -> skill.replaced(true));
 
-            context().ifPresent(SkillContext::enable);
+            attach();
 
             Bukkit.getPluginManager().callEvent(new PlayerActivatedSkillEvent(player(), this));
 
@@ -272,21 +332,18 @@ public class PlayerSkill extends BaseEntity {
         if (!active()) return false;
 
         try {
+            detach();
+
             SkillSlot.of(this).ifPresent(skillSlot -> skillSlot.unassign().save());
             status(SkillStatus.UNLOCKED);
             save();
 
-            context().ifPresent(SkillContext::disable);
             player().bindings().unbind(this);
             Bukkit.getPluginManager().callEvent(new PlayerDeactivatedSkillEvent(player(), this));
 
             configuredSkill().replacedSkills().stream()
                     .map(skill -> player().getSkill(skill))
-                    .forEach(skill -> {
-                        skill.replaced(false);
-                        skill.enable();
-                        skill.save();
-                    });
+                    .forEach(skill -> skill.replaced(false));
 
             children().forEach(PlayerSkill::deactivate);
             return true;
@@ -327,7 +384,7 @@ public class PlayerSkill extends BaseEntity {
     @Override
     public boolean delete() {
 
-        context().ifPresent(SkillContext::disable);
+        context().ifPresent(SkillContext::detach);
 
         return super.delete();
     }
@@ -349,8 +406,8 @@ public class PlayerSkill extends BaseEntity {
 
     private boolean checkDisable() {
 
-        if (replaced()) {
-            disable();
+        if (disabled()) {
+            detach();
             return true;
         }
         return false;

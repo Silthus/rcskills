@@ -345,9 +345,9 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         if (enabled == this.enabled()) return this;
         this.enabled = enabled;
         if (enabled()) {
-            playerSkills().forEach(PlayerSkill::enable);
+            playerSkills().forEach(PlayerSkill::attach);
         } else {
-            playerSkills().forEach(PlayerSkill::disable);
+            playerSkills().forEach(PlayerSkill::detach);
         }
         return this;
     }
@@ -515,7 +515,9 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
 
     private void setWorlds(ConfigurationSection config) {
 
-        this.worlds().addAll(config.getStringList("worlds"));
+        this.worlds().addAll(config.getStringList("worlds").stream()
+                .map(String::toLowerCase)
+                .collect(Collectors.toSet()));
     }
 
     @Override

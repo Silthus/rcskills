@@ -32,6 +32,7 @@ public class PlayerSkillTest {
     private SkillsPlugin plugin;
 
     private SkilledPlayer player;
+    private PlayerMock playerMock;
 
     private ConfiguredSkill skill;
 
@@ -45,11 +46,11 @@ public class PlayerSkillTest {
         MemoryConfiguration cfg = new MemoryConfiguration();
         cfg.set("type", "permission");
         cfg.set("name", "Test Skill");
+        cfg.set("auto-activate", false);
         cfg.set("with.permissions", Collections.singletonList("foobar"));
         plugin.getSkillManager().loadSkill(TEST_SKILL, cfg);
 
-        PlayerMock playerMock = server.addPlayer(rnd.nextString());
-        playerMock.setOp(true);
+        playerMock = server.addPlayer(rnd.nextString());
         this.player = SkilledPlayer.getOrCreate(playerMock);
         player.addSkillSlots(20, SkillSlot.Status.FREE);
         skill = ConfiguredSkill.findByAliasOrName(TEST_SKILL).get();
@@ -74,6 +75,7 @@ public class PlayerSkillTest {
         assertThat(PlayerSkill.getOrCreate(player, skill))
                 .extracting(PlayerSkill::active)
                 .isEqualTo(true);
+        assertThat(playerMock.hasPermission("foobar")).isTrue();
     }
 
     @Test
@@ -85,6 +87,64 @@ public class PlayerSkillTest {
         playerSkill.activate();
 
         assertThat(playerSkill.active()).isFalse();
+        assertThat(playerMock.hasPermission("foobar")).isFalse();
+    }
+
+    @Test
+    @DisplayName("should not apply disabled skills to players")
+    void shouldNoApplyDisabledSkills() {
+
+        PlayerSkill skill = player.addSkill(this.skill).playerSkill();
+        skill.disable();
+        skill.activate();
+
+        assertThat(playerMock.hasPermission("foobar")).isFalse();
+    }
+
+    @Test
+    @DisplayName("should disable skill if it was active")
+    void shouldDisableSkillIfItIsActive() {
+
+        PlayerSkill skill = player.addSkill(this.skill).playerSkill();
+
+        skill.activate();
+        assertThat(playerMock.hasPermission("foobar")).isTrue();
+
+        skill.disable();
+        assertThat(playerMock.hasPermission("foobar")).isFalse();
+    }
+
+    @Test
+    @DisplayName("should re-enable active skills after being disabled")
+    void shouldRenableDisabledSkillIfActive() {
+
+        PlayerSkill skill = player.addSkill(this.skill).playerSkill();
+
+        skill.activate();
+        assertThat(playerMock.hasPermission("foobar")).isTrue();
+
+        skill.disable();
+        assertThat(playerMock.hasPermission("foobar")).isFalse();
+
+        skill.enable();
+        assertThat(playerMock.hasPermission("foobar")).isTrue();
+    }
+
+    @Test
+    @DisplayName("should not enable skills that became inactive")
+    void shouldNotEnableSkillsThatWereActiveButBecameInactive() {
+
+        PlayerSkill skill = player.addSkill(this.skill).playerSkill();
+
+        skill.activate();
+        assertThat(playerMock.hasPermission("foobar")).isTrue();
+
+        skill.disable();
+        assertThat(playerMock.hasPermission("foobar")).isFalse();
+
+        skill.deactivate();
+        skill.enable();
+        assertThat(playerMock.hasPermission("foobar")).isFalse();
     }
 
     @Nested
