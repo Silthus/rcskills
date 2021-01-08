@@ -9,6 +9,7 @@ import de.raidcraft.skills.commands.PlayerCommands;
 import de.raidcraft.skills.entities.*;
 import de.raidcraft.skills.listener.BindingListener;
 import de.raidcraft.skills.listener.PlayerListener;
+import de.raidcraft.skills.util.CommandUtils;
 import de.slikey.effectlib.EffectManager;
 import io.ebean.Database;
 import kr.entree.spigradle.annotations.PluginMain;
@@ -22,6 +23,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
@@ -353,6 +355,7 @@ public class SkillsPlugin extends JavaPlugin {
     private void registerSkilledPlayerContext(PaperCommandManager commandManager) {
 
         commandManager.getCommandContexts().registerIssuerAwareContext(SkilledPlayer.class, context -> {
+
             if (context.hasFlag("self")) {
                 return SkilledPlayer.getOrCreate(context.getPlayer());
             }
@@ -367,6 +370,13 @@ public class SkillsPlugin extends JavaPlugin {
                 player = Bukkit.getPlayer(uuid);
             } catch (Exception e) {
                 player = Bukkit.getPlayerExact(playerName);
+            }
+
+            if (player == null) {
+                Entity target = CommandUtils.getTarget(context.getSender(), playerName);
+                if (target instanceof Player) {
+                    player = (Player) target;
+                }
             }
 
             if (player == null) {
