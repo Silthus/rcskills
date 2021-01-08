@@ -99,7 +99,7 @@ public final class TimeUtil {
     public static String getAccurrateFormatedTime(long millis) {
 
         if (millis < 0) {
-            throw new IllegalArgumentException("Duration must be greater than zero!");
+            return "N/A";
         }
 
         long days = TimeUnit.MILLISECONDS.toDays(millis);
@@ -134,7 +134,7 @@ public final class TimeUtil {
     public static String formatTime(long millis) {
 
         if (millis < 0) {
-            throw new IllegalArgumentException("Duration must be greater than zero!");
+            return "N/A";
         }
 
         long days = TimeUnit.MILLISECONDS.toDays(millis);
