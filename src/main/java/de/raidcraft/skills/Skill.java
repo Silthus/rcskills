@@ -31,6 +31,17 @@ public interface Skill {
     }
 
     /**
+     * Checks if the skill is on cooldown.
+     * <p>Will return false if the skill has no configured cooldown.
+     *
+     * @return true if the skill is on cooldown and cannot be excuted
+     */
+    default boolean isOnCooldown() {
+
+        return context().isOnCooldown();
+    }
+
+    /**
      * @return the remaining cooldown of the skill in milliseconds
      *         zero or less if no cooldown is configured or the cooldown is over
      * @see SkillContext#getRemainingCooldown()
