@@ -121,7 +121,7 @@ public class PlayerCommands extends BaseCommand {
     public void info(@Default("1") int page, @Conditions("others:perm=player.info") SkilledPlayer player) {
 
         Messages.send(getCurrentCommandIssuer(), Messages.playerInfo(player));
-        Messages.skills(player, page(getCurrentCommandIssuer().getUniqueId(), page))
+        Messages.skills(player, page(getCurrentCommandIssuer() != null ? getCurrentCommandIssuer().getUniqueId() : player.id(), page))
                 .forEach(component -> Messages.send(getCurrentCommandIssuer(), component));
     }
 
