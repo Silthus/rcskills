@@ -176,6 +176,10 @@ public class PlayerCommands extends BaseCommand {
         SkilledPlayer skilledPlayer = skill.player();
         Material material = ((Player) getCurrentCommandIssuer().getIssuer()).getInventory().getItemInMainHand().getType();
 
+        if (material == Material.AIR) {
+            throw new ConditionFailedException("Du musst ein Item in der Hand halten auf das du den Skill bindest.");
+        }
+
         ItemBindings bindings = skilledPlayer.bindings();
 
         Optional<ItemBinding> itemBinding = bindings.get(material, action);
