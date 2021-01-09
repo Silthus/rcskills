@@ -47,7 +47,7 @@ public class PlayerListener implements Listener {
             event.setCancelled(true);
             Messages.send(event.getPlayer(), text().append(text("Du kannst den Skill ", RED))
                     .append(Messages.skill(event.getSkill(), false))
-                    .append(text(" in dieser Welt nicht ausführen.", RED))
+                    .append(text(" in dieser Welt nicht nutzen.", RED))
                     .build()
             );
         }
@@ -63,7 +63,7 @@ public class PlayerListener implements Listener {
                         skill.disable();
                         Messages.send(event.getPlayer(), text().append(text("Du kannst den Skill ", RED))
                                 .append(Messages.skill(skill, false))
-                                .append(text(" in dieser Welt nicht ausführen.", RED))
+                                .append(text(" in dieser Welt nicht nutzen.", RED))
                                 .build()
                         );
                     } else {
@@ -87,14 +87,14 @@ public class PlayerListener implements Listener {
         return skill.player().bukkitPlayer().map(player -> {
             String world = player.getWorld().getName().toLowerCase();
 
-            Collection<String> worlds = skill.configuredSkill().worlds();
-            if (worlds.size() > 0) {
-                return !worlds.contains(world);
-            }
-
             Collection<String> disabledWorlds = skill.configuredSkill().disabledWorlds();
             if (disabledWorlds.size() > 0) {
                 return disabledWorlds.contains(world);
+            }
+
+            Collection<String> worlds = skill.configuredSkill().worlds();
+            if (worlds.size() > 0) {
+                return !worlds.contains(world);
             }
 
             return false;
