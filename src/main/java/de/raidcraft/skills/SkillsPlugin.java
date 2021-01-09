@@ -362,7 +362,7 @@ public class SkillsPlugin extends JavaPlugin {
 
             String arg = context.popFirstArg();
             Player player;
-            if (arg.startsWith("@")) {
+            if (!Strings.isNullOrEmpty(arg) && arg.startsWith("@")) {
                 player = selectPlayer(context.getSender(), arg);
             } else {
                 if (Strings.isNullOrEmpty(arg)) {
