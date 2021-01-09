@@ -39,6 +39,8 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
     @Comment("Define the expression that calculates the cost for buying new skill slots.")
     private SkillSlotConfig slotConfig = new SkillSlotConfig();
     private SoundConfig sounds = new SoundConfig();
+    @Comment("Define a list of disabled worlds")
+    private List<DisableConfig> disabled = new ArrayList<>();
 
     public SkillPluginConfig(Path path) {
 
@@ -177,5 +179,14 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
         private int slots = 0;
         private String slotStats = SkillSlot.Status.FREE.getValue();
         private List<String> commands = new ArrayList<>();
+    }
+
+    @ConfigurationElement
+    @Getter
+    @Setter
+    public static class DisableConfig {
+
+        private String world;
+        private List<String> exclude = new ArrayList<>();
     }
 }

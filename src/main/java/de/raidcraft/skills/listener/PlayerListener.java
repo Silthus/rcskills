@@ -1,8 +1,6 @@
 package de.raidcraft.skills.listener;
 
-import de.raidcraft.skills.Messages;
-import de.raidcraft.skills.SkillManager;
-import de.raidcraft.skills.SkillStatus;
+import de.raidcraft.skills.*;
 import de.raidcraft.skills.entities.PlayerSkill;
 import de.raidcraft.skills.entities.SkilledPlayer;
 import de.raidcraft.skills.events.EnableSkillEvent;
@@ -22,9 +20,11 @@ import static net.kyori.adventure.text.format.NamedTextColor.RED;
 
 public class PlayerListener implements Listener {
 
+    private final SkillsPlugin plugin;
     private final SkillManager skillManager;
 
-    public PlayerListener(SkillManager skillManager) {
+    public PlayerListener(SkillsPlugin plugin, SkillManager skillManager) {
+        this.plugin = plugin;
         this.skillManager = skillManager;
     }
 
@@ -95,6 +95,12 @@ public class PlayerListener implements Listener {
             Collection<String> worlds = skill.configuredSkill().worlds();
             if (worlds.size() > 0) {
                 return !worlds.contains(world);
+            }
+
+            for (SkillPluginConfig.DisableConfig config : plugin.getPluginConfig().getDisabled()) {
+                if (world.equalsIgnoreCase(config.getWorld())) {
+                    return !config.getExclude().contains(skill.alias());
+                }
             }
 
             return false;

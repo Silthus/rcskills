@@ -185,7 +185,7 @@ public class SkillsPlugin extends JavaPlugin {
 
     private void setupListener() {
 
-        this.playerListener = new PlayerListener(skillManager);
+        this.playerListener = new PlayerListener(this, skillManager);
         Bukkit.getPluginManager().registerEvents(playerListener, this);
 
         this.bindingListener = new BindingListener();
