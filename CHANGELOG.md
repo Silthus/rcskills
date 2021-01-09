@@ -1,3 +1,16 @@
+# [1.22.0](https://github.com/raidcraft/rcskills/compare/v1.21.0...v1.22.0) (2021-01-09)
+
+
+### Bug Fixes
+
+* child skills not enabled when parent is replaced ([31d1bdb](https://github.com/raidcraft/rcskills/commit/31d1bdb4e57f347f77136d70eb395ab92dafb217))
+
+
+### Features
+
+* add support for disabling worlds for skills ([132cef4](https://github.com/raidcraft/rcskills/commit/132cef4e39fb6727409b3c51a0a396c9af906ce4)), closes [#65](https://github.com/raidcraft/rcskills/issues/65)
+* **cmd:** add support for resolving players with minecraft target selectors ([188e36a](https://github.com/raidcraft/rcskills/commit/188e36a61805bea011787c586fd9aab744f66cec))
+
 # [1.21.0](https://github.com/raidcraft/rcskills/compare/v1.20.3...v1.21.0) (2021-01-08)
 
 
