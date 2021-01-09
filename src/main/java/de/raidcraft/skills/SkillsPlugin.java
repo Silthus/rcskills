@@ -9,7 +9,6 @@ import de.raidcraft.skills.commands.PlayerCommands;
 import de.raidcraft.skills.entities.*;
 import de.raidcraft.skills.listener.BindingListener;
 import de.raidcraft.skills.listener.PlayerListener;
-import de.raidcraft.skills.util.CommandUtils;
 import de.slikey.effectlib.EffectManager;
 import io.ebean.Database;
 import kr.entree.spigradle.annotations.PluginMain;
@@ -22,8 +21,8 @@ import net.silthus.ebean.EbeanWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
@@ -34,6 +33,7 @@ import org.codehaus.commons.compiler.CompileException;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -360,31 +360,55 @@ public class SkillsPlugin extends JavaPlugin {
                 return SkilledPlayer.getOrCreate(context.getPlayer());
             }
 
-            String playerName = context.popFirstArg();
-            if (Strings.isNullOrEmpty(playerName)) {
-                return SkilledPlayer.getOrCreate(context.getPlayer());
-            }
+            String arg = context.popFirstArg();
             Player player;
-            try {
-                UUID uuid = UUID.fromString(playerName);
-                player = Bukkit.getPlayer(uuid);
-            } catch (Exception e) {
-                player = Bukkit.getPlayerExact(playerName);
-            }
-
-            if (player == null) {
-                Entity target = CommandUtils.getTarget(context.getSender(), playerName);
-                if (target instanceof Player) {
-                    player = (Player) target;
+            if (arg.startsWith("@")) {
+                player = selectPlayer(context.getSender(), arg);
+            } else {
+                if (Strings.isNullOrEmpty(arg)) {
+                    return SkilledPlayer.getOrCreate(context.getPlayer());
+                }
+                try {
+                    UUID uuid = UUID.fromString(arg);
+                    player = Bukkit.getPlayer(uuid);
+                } catch (Exception e) {
+                    player = Bukkit.getPlayerExact(arg);
                 }
             }
 
             if (player == null) {
-                throw new InvalidCommandArgument("Der Spieler " + playerName + " wurde nicht gefunden.");
+                throw new InvalidCommandArgument("Der Spieler " + arg + " wurde nicht gefunden.");
             }
 
             return SkilledPlayer.getOrCreate(player);
         });
+    }
+
+    private Player selectPlayer(CommandSender sender, String playerIdentifier) {
+
+        List<Player> matchedPlayers;
+        try {
+            matchedPlayers = getServer().selectEntities(sender, playerIdentifier).parallelStream()
+                    .unordered()
+                    .filter(e -> e instanceof Player)
+                    .map(e -> ((Player) e))
+                    .collect(Collectors.toList());
+        }
+        catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            throw new InvalidCommandArgument(String.format("Error parsing selector '%s' for %s! See console for more details",
+                    playerIdentifier, sender.getName()));
+        }
+        if (matchedPlayers.isEmpty()) {
+            throw new InvalidCommandArgument(String.format("No player found with selector '%s' for %s",
+                    playerIdentifier, sender.getName()));
+        }
+        if (matchedPlayers.size() > 1) {
+            throw new InvalidCommandArgument(String.format("Error parsing selector '%s' for %s. ambiguous result (more than one player matched) - %s",
+                    playerIdentifier, sender.getName(), matchedPlayers.toString()));
+        }
+
+        return matchedPlayers.get(0);
     }
 
     private void registerOthersCondition(PaperCommandManager commandManager) {
