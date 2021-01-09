@@ -1,3 +1,11 @@
+## [1.22.2](https://github.com/raidcraft/rcskills/compare/v1.22.1...v1.22.2) (2021-01-09)
+
+
+### Bug Fixes
+
+* npe when resolving skilled player without an input ([33298c4](https://github.com/raidcraft/rcskills/commit/33298c4e505da8d5dec013393934b1e8adc73cea))
+* replace CommandUtils with inbuilt target selector matching ([3294a8d](https://github.com/raidcraft/rcskills/commit/3294a8da03d68942412a6adc275b12f7adab2a69))
+
 ## [1.22.1](https://github.com/raidcraft/rcskills/compare/v1.22.0...v1.22.1) (2021-01-09)
 
 
