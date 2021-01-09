@@ -1,3 +1,16 @@
+# [1.23.0](https://github.com/raidcraft/rcskills/compare/v1.22.2...v1.23.0) (2021-01-09)
+
+
+### Bug Fixes
+
+* disabled worlds do not take precedence over enabled worlds ([148139b](https://github.com/raidcraft/rcskills/commit/148139bf83333471c1d5efed272f1c5f1c0d1f7e)), closes [#25](https://github.com/raidcraft/rcskills/issues/25)
+
+
+### Features
+
+* add option to globally disable worlds excluding certain skills ([13249bb](https://github.com/raidcraft/rcskills/commit/13249bbd646dd9abac419a82ee01cc8bfbbe8750)), closes [#25](https://github.com/raidcraft/rcskills/issues/25)
+* add worldguard flag to deny skills ([c0e3d02](https://github.com/raidcraft/rcskills/commit/c0e3d02c258795572d2974137e4b2ad13d00648c)), closes [#25](https://github.com/raidcraft/rcskills/issues/25)
+
 ## [1.22.2](https://github.com/raidcraft/rcskills/compare/v1.22.1...v1.22.2) (2021-01-09)
 
 
