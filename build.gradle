@@ -35,7 +35,7 @@ spigot {
     authors = [project.property("author")]
     apiVersion = project.property("apiVersion")
     load = STARTUP
-    //    depends = ['']
+    depends = ['WorldGuard']
 }
 
 archivesBaseName = project.property("pluginName")
@@ -57,6 +57,7 @@ repositories {
     spigot()
     maven { url = "https://repo.aikar.co/content/groups/aikar/" }
     maven { url = 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    maven { url "https://maven.enginehub.org/repo/" }
 }
 
 dependencies {
@@ -73,6 +74,7 @@ dependencies {
     api group: 'net.kyori', name: 'adventure-text-feature-pagination', version: '4.0.0-SNAPSHOT'
     api group: 'net.kyori', name: 'adventure-text-serializer-plain', version: '4.3.0'
 
+    implementation 'com.sk89q.worldguard:worldguard-bukkit:7.0.4'
     implementation 'net.silthus.configlib:configlib-bukkit:2.6.0'
     implementation 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.0'

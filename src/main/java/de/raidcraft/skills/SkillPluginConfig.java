@@ -40,6 +40,7 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
     private SkillSlotConfig slotConfig = new SkillSlotConfig();
     private SoundConfig sounds = new SoundConfig();
     @Comment("Define a list of disabled worlds")
+    @ElementType(DisableConfig.class)
     private List<DisableConfig> disabled = new ArrayList<>();
 
     public SkillPluginConfig(Path path) {
@@ -186,7 +187,7 @@ public class SkillPluginConfig extends BukkitYamlConfiguration {
     @Setter
     public static class DisableConfig {
 
-        private String world;
+        private String world = "";
         private List<String> exclude = new ArrayList<>();
     }
 }

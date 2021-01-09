@@ -4,11 +4,17 @@ import co.aikar.commands.ConditionFailedException;
 import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.PaperCommandManager;
 import com.google.common.base.Strings;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.flags.registry.FlagConflictException;
+import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
+import com.sk89q.worldguard.session.SessionManager;
 import de.raidcraft.skills.commands.AdminCommands;
 import de.raidcraft.skills.commands.PlayerCommands;
 import de.raidcraft.skills.entities.*;
 import de.raidcraft.skills.listener.BindingListener;
 import de.raidcraft.skills.listener.PlayerListener;
+import de.raidcraft.skills.worldguard.SkillSessionHandler;
 import de.slikey.effectlib.EffectManager;
 import io.ebean.Database;
 import kr.entree.spigradle.annotations.PluginMain;
@@ -45,6 +51,10 @@ public class SkillsPlugin extends JavaPlugin {
     public static final String SKILL_PERMISSION_PREFIX = PERMISSION_PREFIX + "skill.";
     public static final String BYPASS_ACTIVE_SKILL_LIMIT = PERMISSION_PREFIX + "slots.bypass";
     public static final String BYPASS_REQUIREMENT_CHECKS = PERMISSION_PREFIX + "requirements.bypass";
+    private static final String WORLD_GUARD_FLAG_ALLOW = "allow-rcskills";
+    private static final String WORLD_GUARD_FLAG_DISABLED_SKILLS = "disabled-rcskills";
+
+    public static StateFlag ALLOW_SKILLS_FLAG;
 
     @Getter
     @Accessors(fluent = true)
@@ -85,6 +95,14 @@ public class SkillsPlugin extends JavaPlugin {
     }
 
     @Override
+    public void onLoad() {
+
+        if (!isTesting()) {
+            registerWorldGuardFlags();
+        }
+    }
+
+    @Override
     public void onEnable() {
 
         loadConfig();
@@ -98,6 +116,7 @@ public class SkillsPlugin extends JavaPlugin {
         if (!isTesting()) {
             setupCommands();
             registerPermissions();
+            Bukkit.getScheduler().runTaskLater(this, this::registerWorldGuardSessionHandler, 1L);
         }
     }
 
@@ -137,6 +156,26 @@ public class SkillsPlugin extends JavaPlugin {
         } catch (InvalidConfigurationException e) {
             e.printStackTrace();
         }
+    }
+
+    private void registerWorldGuardFlags() {
+
+        FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
+        try {
+            StateFlag flag = new StateFlag(WORLD_GUARD_FLAG_ALLOW, true);
+            registry.register(flag);
+            ALLOW_SKILLS_FLAG = flag;
+            getLogger().info("registered custom WorldGuard flag: " + WORLD_GUARD_FLAG_ALLOW);
+        } catch (FlagConflictException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void registerWorldGuardSessionHandler() {
+
+        SessionManager sessionManager = WorldGuard.getInstance().getPlatform().getSessionManager();
+        sessionManager.registerHandler(SkillSessionHandler.FACTORY, null);
+        getLogger().info("registered custom WorldGuard session handler: " + SkillSessionHandler.class.getCanonicalName());
     }
 
     private void setupSkillManager() {
