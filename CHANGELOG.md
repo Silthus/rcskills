@@ -1,3 +1,10 @@
+## [1.22.1](https://github.com/raidcraft/rcskills/compare/v1.22.0...v1.22.1) (2021-01-09)
+
+
+### Bug Fixes
+
+* skills not disabled in disabled worlds ([0caeff4](https://github.com/raidcraft/rcskills/commit/0caeff401b600781fd33e7a5ca761743f98dfb5e))
+
 # [1.22.0](https://github.com/raidcraft/rcskills/compare/v1.21.0...v1.22.0) (2021-01-09)
 
 
