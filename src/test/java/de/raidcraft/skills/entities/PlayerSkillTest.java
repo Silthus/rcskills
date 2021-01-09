@@ -49,7 +49,6 @@ public class PlayerSkillTest {
         cfg.set("name", "Test Skill");
         cfg.set("auto-activate", false);
         cfg.set("with.permissions", Collections.singletonList("foobar"));
-        cfg.set("disabled-worlds", Collections.singletonList("world"));
         plugin.getSkillManager().loadSkill(TEST_SKILL, cfg);
 
         playerMock = server.addPlayer(rnd.nextString());
@@ -61,9 +60,10 @@ public class PlayerSkillTest {
     @AfterEach
     void tearDown() {
 
-        PlayerSkill.find.all().stream().filter(skill1 -> !skill1.isChild()).forEach(PlayerSkill::delete);
-        ConfiguredSkill.find.all().stream().filter(skill1 -> !skill1.isChild()).forEach(ConfiguredSkill::delete);
         SkilledPlayer.find.all().forEach(SkilledPlayer::delete);
+        ConfiguredSkill.find.all().stream()
+                .filter(skill1 -> !skill1.isChild())
+                .forEach(ConfiguredSkill::delete);
 
         MockBukkit.unmock();
     }
@@ -136,13 +136,6 @@ public class PlayerSkillTest {
         skill.deactivate();
         skill.enable();
         assertThat(playerMock.hasPermission("foobar")).isFalse();
-    }
-
-    @Test
-    @DisplayName("should not enable skill if world is disabled")
-    void shouldNotEnableSkillIfWorldIsDisabled() {
-
-
     }
 
     @Nested
@@ -521,22 +514,33 @@ public class PlayerSkillTest {
         @DisplayName("should enable child skill if parent is disabled")
         void shouldEnableChildSkillEventIfParentIsDisabled() {
 
-            ConfiguredSkill skill = loadSkill(child1, cfg -> {
+            ConfiguredSkill skill = loadSkill(parent, cfg -> {
                 cfg.set("skills.child1.type", "permission");
-                cfg.set("skills.child1.permissions", Arrays.asList("foobar"));
+                cfg.set("skills.child1.with.permissions", Arrays.asList("foobar"));
                 cfg.set("skills.child1.disable-parent", true);
             });
 
-            AddSkillAction.Result result = player.addSkill(skill);
+            AddSkillAction.Result result = player.addSkill(skill, true);
             assertThat(result.success()).isTrue();
-            PlayerSkill playerSkill = result.playerSkill();
-            assertThat(playerSkill.active())
-                    .isTrue();
+
+            assertThat(result.playerSkill())
+                    .extracting(PlayerSkill::active, PlayerSkill::disabled)
+                    .contains(true, true);
             assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child1)))
-                    .extracting(PlayerSkill::active)
-                    .isEqualTo(true);
+                    .extracting(PlayerSkill::active, PlayerSkill::enabled)
+                    .contains(true, true);
 
             assertThat(playerMock.hasPermission("foobar")).isTrue();
+        }
+
+
+        @Test
+        @DisplayName("should not enable skill if world is disabled")
+        void shouldNotEnableSkillIfWorldIsDisabled() {
+
+            loadSkill(parent, cfg -> {
+
+            });
         }
     }
 }

@@ -1,6 +1,8 @@
 package de.raidcraft.skills;
 
+import de.raidcraft.skills.entities.ConfiguredSkill;
 import de.raidcraft.skills.entities.PlayerSkill;
+import de.raidcraft.skills.entities.SkilledPlayer;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
@@ -27,6 +29,8 @@ import java.util.function.Consumer;
 class DefaultSkillContext implements SkillContext {
 
     private final UUID playerSkillId;
+    private final UUID playerId;
+    private final UUID configuredSkillId;
     private final Skill.Registration<?> registration;
     private Skill skill;
     private long interval;
@@ -35,6 +39,8 @@ class DefaultSkillContext implements SkillContext {
 
     DefaultSkillContext(PlayerSkill playerSkill, Skill.Registration<?> registration) {
         this.playerSkillId = playerSkill.id();
+        this.playerId = playerSkill.player().id();
+        this.configuredSkillId = playerSkill.configuredSkill().id();
         this.registration = registration;
         this.interval = registration().info().taskInterval();
     }
@@ -67,6 +73,18 @@ class DefaultSkillContext implements SkillContext {
                 .applyTo(skill);
         skill.load(skillConfig);
         return this;
+    }
+
+    @Override
+    public SkilledPlayer skilledPlayer() {
+
+        return SkilledPlayer.find.byId(playerId);
+    }
+
+    @Override
+    public ConfiguredSkill configuredSkill() {
+
+        return ConfiguredSkill.find.byId(configuredSkillId);
     }
 
     public PlayerSkill playerSkill() {

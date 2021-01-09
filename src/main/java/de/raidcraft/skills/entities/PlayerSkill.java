@@ -188,7 +188,6 @@ public class PlayerSkill extends BaseEntity {
 
         if (!active()) return;
         if (checkDeactivate()) return;
-        if (checkDisable()) return;
 
         EnableSkillEvent event = new EnableSkillEvent(this);
         Bukkit.getPluginManager().callEvent(event);
@@ -228,7 +227,6 @@ public class PlayerSkill extends BaseEntity {
 
         if (!activate()) return;
         if (checkDeactivate()) return;
-        if (checkDisable()) return;
 
         if (enabled()) {
             context().ifPresent(SkillContext::reload);
@@ -402,15 +400,6 @@ public class PlayerSkill extends BaseEntity {
 
         if (configuredSkill.disabled() && active()) {
             deactivate();
-            return true;
-        }
-        return false;
-    }
-
-    private boolean checkDisable() {
-
-        if (disabled()) {
-            disable();
             return true;
         }
         return false;
