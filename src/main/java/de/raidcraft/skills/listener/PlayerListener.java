@@ -15,7 +15,7 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.List;
+import java.util.Collection;
 
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
@@ -87,12 +87,12 @@ public class PlayerListener implements Listener {
         return skill.player().bukkitPlayer().map(player -> {
             String world = player.getWorld().getName().toLowerCase();
 
-            List<String> worlds = skill.configuredSkill().worlds();
+            Collection<String> worlds = skill.configuredSkill().worlds();
             if (worlds.size() > 0) {
                 return !worlds.contains(world);
             }
 
-            List<String> disabledWorlds = skill.configuredSkill().disabledWorlds();
+            Collection<String> disabledWorlds = skill.configuredSkill().disabledWorlds();
             if (disabledWorlds.size() > 0) {
                 return disabledWorlds.contains(world);
             }

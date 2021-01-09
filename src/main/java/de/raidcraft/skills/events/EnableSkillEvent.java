@@ -20,6 +20,7 @@ public class EnableSkillEvent extends PlayerEvent implements Cancellable {
     private final PlayerSkill skill;
     private boolean cancelled = false;
     private boolean enableChildren = true;
+    private boolean disableSkill = true;
 
     public EnableSkillEvent(PlayerSkill skill) {
         super(skill.player());

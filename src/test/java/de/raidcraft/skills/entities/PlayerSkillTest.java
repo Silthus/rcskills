@@ -8,6 +8,7 @@ import de.raidcraft.skills.ExecutionResult;
 import de.raidcraft.skills.SkillsPlugin;
 import de.raidcraft.skills.actions.AddSkillAction;
 import de.raidcraft.skills.util.RandomString;
+import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.junit.jupiter.api.*;
@@ -538,9 +539,54 @@ public class PlayerSkillTest {
         @DisplayName("should not enable skill if world is disabled")
         void shouldNotEnableSkillIfWorldIsDisabled() {
 
-            loadSkill(parent, cfg -> {
-
+            ConfiguredSkill skill = loadSkill(parent, cfg -> {
+                cfg.set("type", "permission");
+                cfg.set("with.permissions", Arrays.asList("foobar"));
+                cfg.set("disabled-worlds", Arrays.asList("world"));
             });
+
+            Location location = new Location(server.addSimpleWorld("world"), 0, 0, 0);
+            playerMock.setLocation(location);
+            playerMock.assertLocation(location, 0);
+
+            AddSkillAction.Result result = player.addSkill(skill, true);
+
+            assertThat(result.success()).isTrue();
+            assertThat(playerMock.hasPermission("foobar")).isFalse();
+
+            location = new Location(server.addSimpleWorld("foobar"), 0, 0, 0);
+            playerMock.teleport(location);
+            playerMock.assertLocation(location, 0);
+
+            result.playerSkill().enable();
+            assertThat(playerMock.hasPermission("foobar")).isTrue();
+        }
+
+        @Test
+        @DisplayName("should enable skill if player is in skill enabled world")
+        void shouldEnableSkillInEnabledWorlds() {
+
+            ConfiguredSkill skill = loadSkill(parent, cfg -> {
+                cfg.set("type", "permission");
+                cfg.set("with.permissions", Arrays.asList("foobar"));
+                cfg.set("worlds", Arrays.asList("world"));
+            });
+
+            Location location = new Location(server.addSimpleWorld("world"), 0, 0, 0);
+            playerMock.setLocation(location);
+            playerMock.assertLocation(location, 0);
+
+            AddSkillAction.Result result = player.addSkill(skill, true);
+
+            assertThat(result.success()).isTrue();
+            assertThat(playerMock.hasPermission("foobar")).isTrue();
+
+            location = new Location(server.addSimpleWorld("foobar"), 0, 0, 0);
+            playerMock.setLocation(location);
+            playerMock.assertLocation(location, 0);
+
+            result.playerSkill().enable();
+            assertThat(playerMock.hasPermission("foobar")).isFalse();
         }
     }
 }

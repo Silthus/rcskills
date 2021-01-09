@@ -192,7 +192,10 @@ public class PlayerSkill extends BaseEntity {
         EnableSkillEvent event = new EnableSkillEvent(this);
         Bukkit.getPluginManager().callEvent(event);
 
-        if (event.isCancelled()) return;
+        if (event.isCancelled()) {
+            if (event.isDisableSkill()) disable();
+            return;
+        }
 
         if (enabled()) {
             context().ifPresent(SkillContext::enable);

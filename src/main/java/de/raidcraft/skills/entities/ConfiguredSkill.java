@@ -110,11 +110,11 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     @DbJson
     @Setter(AccessLevel.PACKAGE)
     @DbDefault("[]")
-    private List<String> worlds = new ArrayList<>();
+    private Set<String> worlds = new HashSet<>();
     @DbJson
     @Setter(AccessLevel.PACKAGE)
     @DbDefault("[]")
-    private List<String> disabledWorlds = new ArrayList<>();
+    private Set<String> disabledWorlds = new HashSet<>();
 
     @Transient
     private transient List<String> categories = new ArrayList<>();
@@ -520,16 +520,22 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
 
     private void setWorlds(ConfigurationSection config) {
 
-        this.worlds().addAll(config.getStringList("worlds").stream()
-                .map(String::toLowerCase)
-                .collect(Collectors.toSet()));
+        if (config.isSet("worlds")) {
+            worlds(config.getStringList("worlds").stream()
+                    .map(String::toLowerCase).collect(Collectors.toSet()));
+        } else if (isChild()) {
+            worlds(parent().worlds());
+        }
     }
 
     private void setDisabledWorlds(ConfigurationSection config) {
 
-        this.worlds().addAll(config.getStringList("disabled-worlds").stream()
-                .map(String::toLowerCase)
-                .collect(Collectors.toSet()));
+        if (config.isSet("disabled-worlds")) {
+            disabledWorlds(config.getStringList("disabled-worlds").stream()
+                    .map(String::toLowerCase).collect(Collectors.toSet()));
+        } else if (isChild()) {
+            disabledWorlds(parent().disabledWorlds());
+        }
     }
 
     @Override

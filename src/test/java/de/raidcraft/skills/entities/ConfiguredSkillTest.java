@@ -254,5 +254,41 @@ class ConfiguredSkillTest {
             assertThat(skillConfig.getInt("exp")).isEqualTo(50);
             assertThat(skillConfig.getInt("interval")).isEqualTo(100);
         }
+
+        @Test
+        @DisplayName("should set enabled worlds property")
+        void shouldSetEnabledWorldsArray() {
+
+            ConfiguredSkill skill = loadSkill(parent, cfg -> cfg.set("worlds", Arrays.asList("world")));
+
+            assertThat(skill.worlds()).containsOnly("world");
+        }
+
+        @Test
+        @DisplayName("should set disabled worlds property")
+        void shouldSetDisabledWorldsArray() {
+
+            ConfiguredSkill skill = loadSkill(parent, cfg -> cfg.set("disabled-worlds", Arrays.asList("world")));
+
+            assertThat(skill.disabledWorlds()).containsOnly("world");
+        }
+
+        @Test
+        @DisplayName("should propagate enabled worlds to child skills")
+        void shouldPropagateEnabledWorldsToChildren() {
+
+            ConfiguredSkill skill = loadSkill(child1, cfg -> cfg.set("worlds", Arrays.asList("world")));
+
+            assertThat(skill.disabledWorlds()).containsOnly("world");
+        }
+
+        @Test
+        @DisplayName("should propagate disable worlds to child skills")
+        void shouldPropagateDisabledWorldsToChildren() {
+
+            ConfiguredSkill skill = loadSkill(child2, cfg -> cfg.set("disabled-worlds", Arrays.asList("world")));
+
+            assertThat(skill.disabledWorlds()).containsOnly("world");
+        }
     }
 }
