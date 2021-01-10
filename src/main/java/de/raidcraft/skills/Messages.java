@@ -49,11 +49,11 @@ public final class Messages {
         public static final TextColor DISABLED = DARK_GRAY;
         public static final TextColor ACCENT = GOLD;
         public static final TextColor DARK_ACCENT = DARK_AQUA;
-        public static final TextColor HIGHLIGHT = LIGHT_PURPLE;
-        public static final TextColor DARK_HIGHLIGHT = DARK_PURPLE;
-        public static final TextColor ACTIVE = ACCENT;
+        public static final TextColor HIGHLIGHT = AQUA;
+        public static final TextColor DARK_HIGHLIGHT = DARK_AQUA;
+        public static final TextColor ACTIVE = GREEN;
         public static final TextColor ENABLED = DARK_GREEN;
-        public static final TextColor UNLOCKED = DARK_ACCENT;
+        public static final TextColor UNLOCKED = GOLD;
         public static final TextColor ERROR = RED;
         public static final TextColor ERROR_ACCENT = DARK_RED;
         public static final TextColor SUCCESS = GREEN;
@@ -516,7 +516,8 @@ public final class Messages {
                 .sorted(Comparator.comparingInt(ConfiguredSkill::level))
                 .collect(Collectors.toUnmodifiableList());
 
-        TextComponent header = text("Skills von ", DARK_ACCENT).append(player(player));
+        TextComponent header = text("Skills von ", DARK_ACCENT).append(player(player)
+                .clickEvent(runCommand("/rcs")));
         return skills(header, player, allSkills, page);
     }
 
@@ -532,7 +533,7 @@ public final class Messages {
                         if (value == null) return Collections.singletonList(empty());
                         return skill(value, player, true, true);
                     }
-                }, p -> "/rcskills info " + p + " " + player.name());
+                }, p -> "/rcskills skills " + p + " " + player.name());
         return pagination.render(skills, page);
     }
 
@@ -604,7 +605,7 @@ public final class Messages {
         }
 
         ClickEvent clickEvent = runCommand("/rcskills skill " + skill.id().toString() + " " + (player != null ? player.id().toString() : ""));
-        if (player != null && player.hasActiveSkill(skill)) {
+        if (player != null && player.hasActiveSkill(skill) && !PlayerSkill.getOrCreate(player, skill).replaced()) {
             builder.append(text(skill.name(), color, BOLD).clickEvent(clickEvent));
         } else {
             builder.append(text(skill.name(), color).clickEvent(clickEvent));
@@ -684,29 +685,32 @@ public final class Messages {
         result.add(builder.build());
 
         if (skill.isParent() && showChildren) {
-
-            List<ConfiguredSkill> childSkills = skill.children().stream()
-                    .filter(ConfiguredSkill::visible)
-                    .collect(Collectors.toList());
-            if (childSkills.size() > 0) {
-                for (ConfiguredSkill child : childSkills) {
-                    TextComponent.Builder childBuilder = text();
-                    childBuilder.append(newline());
-                    ConfiguredSkill tmp = child.parent();
-                    while (tmp.isChild()) {
-                        childBuilder.append(text(" "));
-                        tmp = tmp.parent();
-                    }
-                    childBuilder.append(text(" \u2937 ", TEXT, BOLD)); //⤷
-                    List<Component> childComponents = skill(child, player, showDetails, showChildren);
-                    for (Component childComponent : childComponents) {
-                        result.add(childBuilder.append(childComponent).build());
-                    }
-                }
-            }
-
+            result.addAll(childSkills(skill, player));
         }
 
+        return result;
+    }
+
+    private static List<Component> childSkills(ConfiguredSkill skill, SkilledPlayer player) {
+
+        ArrayList<Component> result = new ArrayList<>();
+        List<ConfiguredSkill> childSkills = skill.children().stream()
+                .filter(ConfiguredSkill::visible)
+                .collect(Collectors.toList());
+        if (childSkills.size() > 0) {
+            for (ConfiguredSkill child : childSkills) {
+                TextComponent.Builder childBuilder = text();
+                ConfiguredSkill tmp = child.parent();
+                while (tmp.isChild()) {
+                    childBuilder.append(text(" "));
+                    tmp = tmp.parent();
+                }
+                childBuilder.append(text(" \u2937 ", TEXT, BOLD)); //⤷
+                result.add(childBuilder.append(skill(child, player, true, false).stream()
+                        .findFirst().orElse(empty())).build());
+                result.addAll(childSkills(child, player));
+            }
+        }
         return result;
     }
 

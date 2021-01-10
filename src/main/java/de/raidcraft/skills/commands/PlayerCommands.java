@@ -32,7 +32,7 @@ import static net.kyori.adventure.text.event.HoverEvent.showText;
 import static net.kyori.adventure.text.format.NamedTextColor.*;
 import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 
-@CommandAlias("rcs|skills|rcskills")
+@CommandAlias("rcs|rcskills")
 public class PlayerCommands extends BaseCommand {
 
     public static String buySkill(SkilledPlayer player, ConfiguredSkill skill) {
@@ -119,11 +119,9 @@ public class PlayerCommands extends BaseCommand {
     @CommandCompletion("@players")
     @CommandPermission("rcskills.player.info")
     @Description("Zeigt Informationen über den Spieler an.")
-    public void info(@Default("1") int page, @Conditions("others:perm=player.info") SkilledPlayer player) {
+    public void info(@Conditions("others:perm=player.info") SkilledPlayer player) {
 
         Messages.send(getCurrentCommandIssuer(), Messages.playerInfo(player));
-        Messages.skills(player, page(getCurrentCommandIssuer() != null ? getCurrentCommandIssuer().getUniqueId() : player.id(), page))
-                .forEach(component -> Messages.send(getCurrentCommandIssuer(), component));
     }
 
     @Subcommand("skill")
@@ -145,6 +143,7 @@ public class PlayerCommands extends BaseCommand {
         help.showHelp();
     }
 
+    @CommandAlias("skills")
     @Subcommand("skills|list")
     @CommandCompletion("@players")
     @CommandPermission("rcskills.player.skills")
@@ -386,7 +385,7 @@ public class PlayerCommands extends BaseCommand {
                     AddSkillAction.Result result = buySkillAction.execute(getCurrentCommandIssuer().hasPermission(SkillsPlugin.BYPASS_REQUIREMENT_CHECKS));
                     if (result.success()) {
                         Messages.send(getCurrentCommandIssuer(), Messages.buySkill(buySkillAction.player(), result.playerSkill()));
-                        info(page(getCurrentCommandIssuer().getUniqueId()), result.playerSkill().player());
+                        list(page(getCurrentCommandIssuer().getUniqueId()), result.playerSkill().player());
                         plugin.getBindingListener().getUpdateBindings().accept(result.playerSkill().player().id());
                     } else {
                         Messages.send(getCurrentCommandIssuer(), text("Du kannst den Skill ", RED)
@@ -435,7 +434,7 @@ public class PlayerCommands extends BaseCommand {
                                 .hoverEvent(showText(text("Klicken um /rcs auszuführen.", GRAY))))
                         .append(text(" zuweisen kannst.", YELLOW))
                 );
-                info(page(getCurrentCommandIssuer().getUniqueId()), player);
+                list(page(getCurrentCommandIssuer().getUniqueId()), player);
             }
         }
 
@@ -486,7 +485,7 @@ public class PlayerCommands extends BaseCommand {
 
         if (skill.activate()) {
             getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + " Der Skill " + skill.name() + " wurde erfolgreich aktiviert.");
-            info(page(getCurrentCommandIssuer().getUniqueId()), skill.player());
+            list(page(getCurrentCommandIssuer().getUniqueId()), skill.player());
             plugin.getBindingListener().getUpdateBindings().accept(skill.player().id());
         } else {
             getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Der Skill konnte nicht aktiviert werden.");
@@ -544,7 +543,7 @@ public class PlayerCommands extends BaseCommand {
 
         if (result.success()) {
             send(result.action().player(), text("Deine Skill Slots wurden erfolgreich zurückgesetzt.", GREEN));
-            Bukkit.getScheduler().runTaskLater(plugin, () -> info(page(id), result.action().player()), 1L);
+            Bukkit.getScheduler().runTaskLater(plugin, () -> list(page(id), result.action().player()), 1L);
         } else {
             send(result.action().player(), text(result.error(), RED));
         }
