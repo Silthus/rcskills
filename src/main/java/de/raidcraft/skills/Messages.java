@@ -620,12 +620,12 @@ public final class Messages {
         if (player != null && showDetails) {
             PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
             if (player.canBuy(skill)) {
-                builder.append(text(" | ", DARK_ACCENT)).append(text(" [$] ", SUCCESS, BOLD)
+                builder.append(text(" | ", DARK_ACCENT)).append(text(" [", TEXT).append(text("kaufen", SUCCESS, BOLD)).append(text("]", TEXT))
                         .hoverEvent(costs(playerSkill).append(text("Klicken um den Skill zu kaufen.", NOTE, ITALIC)))
                         .clickEvent(clickEvent(Action.RUN_COMMAND, PlayerCommands.buySkill(player, skill)))
                 );
             } else if (playerSkill.active() && playerSkill.enabled()) {
-                builder.append(text(" | ", YELLOW)).append(text("aktiv", SUCCESS).hoverEvent(HoverEvent.showText(
+                builder.append(text(" | ", YELLOW)).append(text("[", NOTE)).append(text("aktiv", SUCCESS).hoverEvent(HoverEvent.showText(
                         text("Der Skill ist aktiv.", NOTE).append(newline())
                                 .append(text("Gebe ", NOTE))
                                 .append(text(PlayerCommands.reset(player), ACCENT, ITALIC))
@@ -633,17 +633,17 @@ public final class Messages {
                             .append(text("Klicke um ", NOTE, ITALIC).append(text(PlayerCommands.reset(player), ACCENT, ITALIC)))
                             .append(text(" auszuführen.", NOTE, ITALIC))
                         )).clickEvent(suggestCommand(PlayerCommands.reset(player)))
-                );
+                ).append(text("]", NOTE));
             } else if (playerSkill.unlocked() && !playerSkill.isChild()) {
                 if (playerSkill.canActivate()) {
-                    builder.append(text(" | ", YELLOW)).append(text("aktiv", INACTIVE).hoverEvent(HoverEvent.showText(
+                    builder.append(text(" | ", YELLOW)).append(text("[", SUCCESS)).append(text("aktivieren", INACTIVE, BOLD).hoverEvent(HoverEvent.showText(
                             text("Du besitzt den Skill, er ist aber nicht aktiv.", NOTE).append(newline())
                                     .append(text("Klicke um den Skill zu ", NOTE))
                                     .append(text("aktivieren", SUCCESS))
                                     .append(text(" und ihn einem Slot zuzuweisen.", NOTE)).append(newline())
                                     .append(skillSlots(player))))
                             .clickEvent(runCommand(PlayerCommands.activateSkill(playerSkill)))
-                    );
+                    ).append(text("]", SUCCESS));
                 } else if (!playerSkill.replaced()) {
                     Optional<Map.Entry<Integer, SkillPluginConfig.LevelUp>> nextLevelUp = SkillsPlugin.instance().getPluginConfig()
                             .getLevelUpConfig()
@@ -660,7 +660,9 @@ public final class Messages {
                     }
                     hover.append(text("Mit Events und Achievements kannst du jederzeit weitere Skill Slots erhalten.", NOTE, ITALIC));
 
-                    builder.append(text(" | ", DARK_ACCENT)).append(text("aktiv", DISABLED).hoverEvent(showText(hover)));
+                    builder.append(text(" | ", DARK_ACCENT)).append(text("[", NOTE))
+                            .append(text("aktivieren", ERROR).hoverEvent(showText(hover)))
+                            .append(text("]", NOTE));
                 }
             }
             if (playerSkill.executable() && playerSkill.active() && !playerSkill.isChild()) {
@@ -675,10 +677,10 @@ public final class Messages {
                                 .append(text(" (" + binding.action().friendlyName() + ")")).append(newline());
                     }
                 }
-                builder.append(text("bind", ACCENT, BOLD)
+                builder.append(text("[", NOTE)).append(text("bind", ACCENT, BOLD)
                         .hoverEvent(hover.build())
                         .clickEvent(suggestCommand(PlayerCommands.bindSkill(playerSkill)))
-                );
+                ).append(text("]", NOTE));
             }
         }
 
