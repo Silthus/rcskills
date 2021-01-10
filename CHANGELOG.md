@@ -1,3 +1,10 @@
+## [1.24.1](https://github.com/raidcraft/rcskills/compare/v1.24.0...v1.24.1) (2021-01-10)
+
+
+### Bug Fixes
+
+* **msg:** clean up buttons in skill details ([9e2bafc](https://github.com/raidcraft/rcskills/commit/9e2bafc7a75808158d63597a7c7b70e644c87a19))
+
 # [1.24.0](https://github.com/raidcraft/rcskills/compare/v1.23.0...v1.24.0) (2021-01-10)
 
 
