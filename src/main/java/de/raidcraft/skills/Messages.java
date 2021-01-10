@@ -11,6 +11,7 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TextReplacementConfig;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.feature.pagination.Pagination;
 import net.kyori.adventure.text.format.TextColor;
@@ -30,6 +31,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static de.raidcraft.skills.Messages.Colors.*;
 import static net.kyori.adventure.text.Component.*;
 import static net.kyori.adventure.text.event.ClickEvent.*;
 import static net.kyori.adventure.text.event.HoverEvent.showText;
@@ -39,10 +41,25 @@ import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 
 public final class Messages {
 
-    private static final TextColor ACTIVE_SKILL = GREEN;
-    private static final TextColor UNLOCKED_SKILL = GREEN;
-    private static final TextColor BUYABLE_SKILL = GREEN;
-    private static final TextColor LOCKED_SKILL = DARK_RED;
+    public static final class Colors {
+
+        public static final TextColor BASE = YELLOW;
+        public static final TextColor INACTIVE = GRAY;
+        public static final TextColor DISABLED = DARK_GRAY;
+        public static final TextColor ACCENT = GOLD;
+        public static final TextColor DARK_ACCENT = DARK_AQUA;
+        public static final TextColor HIGHLIGHT = LIGHT_PURPLE;
+        public static final TextColor DARK_HIGHLIGHT = DARK_PURPLE;
+        public static final TextColor ACTIVE = ACCENT;
+        public static final TextColor ENABLED = DARK_GREEN;
+        public static final TextColor UNLOCKED = DARK_ACCENT;
+        public static final TextColor ERROR = RED;
+        public static final TextColor ERROR_ACCENT = DARK_RED;
+        public static final TextColor SUCCESS = GREEN;
+        public static final TextColor WARNING = GOLD;
+        public static final TextColor NOTE = GRAY;
+        public static final TextColor TEXT = BASE;
+    }
 
     public static void send(UUID playerId, Component message) {
         if (SkillsPlugin.isTesting()) return;
@@ -90,23 +107,23 @@ public final class Messages {
     public static Component buySkill(SkilledPlayer player, PlayerSkill skill) {
 
         TextComponent.Builder builder = text().append(player(player))
-                .append(text(" hat den Skill ", GREEN))
+                .append(text(" hat den Skill ", SUCCESS))
                 .append(skill(skill, false))
-                .append(text(" gekauft.", GREEN)).append(newline());
+                .append(text(" gekauft.", SUCCESS)).append(newline());
 
         int skillpoints = skill.configuredSkill().skillpoints();
         if (skillpoints > 0) {
-            builder.append(text("  - Skillpunkte: ", YELLOW))
-                    .append(text("-", DARK_RED, BOLD))
-                    .append(text(skillpoints, RED)).append(newline());
+            builder.append(text("  - Skillpunkte: ", TEXT))
+                    .append(text("-", ERROR_ACCENT, BOLD))
+                    .append(text(skillpoints, ERROR)).append(newline());
         }
 
         double cost = skill.configuredSkill().money();
         if (cost > 0d) {
             String currencyNamePlural = Economy.get().currencyNamePlural();
-            builder.append(text("  - " + currencyNamePlural + ": ", YELLOW))
-                    .append(text("-", DARK_RED, BOLD))
-                    .append(text(cost, RED)).append(newline());
+            builder.append(text("  - " + currencyNamePlural + ": ", TEXT))
+                    .append(text("-", ERROR_ACCENT, BOLD))
+                    .append(text(cost, ERROR)).append(newline());
         }
 
         return builder.build();
@@ -115,125 +132,128 @@ public final class Messages {
     public static Component addSkill(SkilledPlayer player, PlayerSkill skill) {
 
         return text().append(player(player))
-                .append(text(" hat den Skill ", GREEN))
+                .append(text(" hat den Skill ", SUCCESS))
                 .append(skill(skill, false))
-                .append(text(" erhalten.", GREEN)).build();
+                .append(text(" erhalten.", SUCCESS)).build();
     }
 
     public static Component removeSkill(PlayerSkill playerSkill) {
 
-        return text("Der Skill ", RED)
+        return text("Der Skill ", ERROR)
                 .append(skill(playerSkill, true))
-                .append(text(" wurde von ", RED))
+                .append(text(" wurde von ", ERROR))
                 .append(player(playerSkill.player()))
-                .append(text(" entfernt.", RED));
+                .append(text(" entfernt.", ERROR));
     }
 
     public static Component addSkillpoints(SkilledPlayer player, int skillpoints) {
 
         if (skillpoints == 0) return empty();
 
-        return text("Die Skillpunkte von ", YELLOW)
+        return text("Die Skillpunkte von ", SUCCESS)
                 .append(player(player))
-                .append(text(" wurden um ", YELLOW))
-                .append(text(skillpoints, AQUA))
-                .append(text(" Skillpunkt(e) auf ", YELLOW))
-                .append(text(player.skillPoints(), AQUA))
-                .append(text(" erhöht.", YELLOW));
+                .append(text(" wurden um ", SUCCESS))
+                .append(text(skillpoints, HIGHLIGHT))
+                .append(text(" Skillpunkt(e) auf ", SUCCESS))
+                .append(text(player.skillPoints(), HIGHLIGHT))
+                .append(text(" erhöht.", SUCCESS));
     }
 
     public static Component addSkillSlots(SkilledPlayer player, int slots) {
 
         if (slots == 0) return empty();
 
-        return text("Die Skill Slots von ", YELLOW)
+        return text("Die Skill Slots von ", SUCCESS)
                 .append(player(player))
-                .append(text(" wurden um ", YELLOW))
-                .append(text(slots, AQUA))
-                .append(text(" Slots auf ", YELLOW))
-                .append(text(player.skillSlots().size(), AQUA))
-                .append(text(" erhöht.", YELLOW));
+                .append(text(" wurden um ", SUCCESS))
+                .append(text(slots, HIGHLIGHT))
+                .append(text(" Slots auf ", SUCCESS))
+                .append(text(player.skillSlots().size(), HIGHLIGHT))
+                .append(text(" erhöht.", SUCCESS));
     }
 
 
     public static Component setSkillpoints(SkilledPlayer player, int skillpoints) {
 
-        return text("Die Skillpunkte von ", YELLOW)
+        return text("Die Skillpunkte von ", TEXT)
                 .append(player(player))
-                .append(text(" wurden auf ", YELLOW))
-                .append(text(skillpoints, AQUA))
-                .append(text(" Skillpunkt(e) gesetzt.", YELLOW));
+                .append(text(" wurden auf ", TEXT))
+                .append(text(skillpoints, HIGHLIGHT))
+                .append(text(" Skillpunkt(e) gesetzt.", TEXT));
     }
 
     public static Component setSkillSlots(SkilledPlayer player, int skillslots) {
 
-        return text("Die Skill Slots von ", YELLOW)
+        return text("Die Skill Slots von ", TEXT)
                 .append(player(player))
-                .append(text(" wurden auf ", YELLOW))
-                .append(text(skillslots, AQUA))
-                .append(text(" Slot(s) gesetzt.", YELLOW));
+                .append(text(" wurden auf ", TEXT))
+                .append(text(skillslots, HIGHLIGHT))
+                .append(text(" Slot(s) gesetzt.", TEXT));
     }
 
     public static Component addExp(SkilledPlayer player, int exp) {
 
         if (exp == 0) return empty();
 
-        return text("Die Erfahrungspunkte von ", YELLOW)
+        return text("Die Erfahrungspunkte von ", SUCCESS)
                 .append(player(player))
-                .append(text(" wurden um ", YELLOW))
-                .append(text(exp + " EXP", AQUA)).append(text(" auf ", YELLOW))
-                .append(text(player.level().getTotalExp() + " EXP", AQUA))
-                .append(text(" erhöht.", YELLOW));
+                .append(text(" wurden um ", SUCCESS))
+                .append(text(exp + " EXP", HIGHLIGHT))
+                .append(text(" auf ", SUCCESS))
+                .append(text(player.level().getTotalExp() + " EXP", HIGHLIGHT))
+                .append(text(" erhöht.", SUCCESS));
     }
 
     public static Component setExp(SkilledPlayer player, int exp) {
 
-        return text("Die Erfahrungspunkte von ", YELLOW)
+        return text("Die Erfahrungspunkte von ", TEXT)
                 .append(player(player))
-                .append(text(" wurden auf ", YELLOW))
-                .append(text(exp + " EXP", AQUA))
-                .append(text(" gesetzt.", YELLOW));
+                .append(text(" wurden auf ", TEXT))
+                .append(text(exp + " EXP", HIGHLIGHT))
+                .append(text(" gesetzt.", TEXT));
     }
 
     public static Component addLevel(SkilledPlayer player, int level) {
 
-        return text("Das Level von ", YELLOW)
+        return text("Das Level von ", SUCCESS)
                 .append(player(player))
-                .append(text(" wurde um ", YELLOW))
-                .append(text(level, AQUA)).append(text(" Level auf ", YELLOW))
-                .append(text(player.level().getLevel(), AQUA))
-                .append(text(" erhöht.", YELLOW));
+                .append(text(" wurde um ", SUCCESS))
+                .append(text(level + " Level", HIGHLIGHT))
+                .append(text(" auf ", SUCCESS))
+                .append(text("Level " + player.level().getLevel(), HIGHLIGHT))
+                .append(text(" erhöht.", SUCCESS));
     }
 
     public static Component setLevel(SkilledPlayer player, int level) {
 
-        return text("Das Level von ", YELLOW)
+        return text("Das Level von ", TEXT)
                 .append(player(player))
-                .append(text(" wurde auf ", YELLOW))
-                .append(text("Level " + level, AQUA))
-                .append(text(" gesetzt.", YELLOW));
+                .append(text(" wurde auf ", TEXT))
+                .append(text("Level " + level, HIGHLIGHT))
+                .append(text(" gesetzt.", TEXT));
     }
 
     public static BossBar levelProgressBar(int level, long exp, long expToNextLevel) {
 
-        TextComponent title = text("Level " + level, GOLD, BOLD)
-                .append(text("  -  ", DARK_AQUA))
-                .append(text(exp, GREEN))
-                .append(text("/", YELLOW))
-                .append(text(expToNextLevel, AQUA))
-                .append(text(" EXP", YELLOW));
+        TextComponent title = text("Level " + level, ACCENT, BOLD)
+                .append(text("  -  ", DARK_ACCENT))
+                .append(text(exp, HIGHLIGHT))
+                .append(text("/", TEXT))
+                .append(text(expToNextLevel, HIGHLIGHT))
+                .append(text(" EXP", TEXT));
 
         float progress = exp * 1.0f / expToNextLevel;
         if (progress > 1f) progress = 1f;
         if (progress < 0f) progress = 0f;
-        return BossBar.bossBar(title, progress, BossBar.Color.BLUE, BossBar.Overlay.NOTCHED_20);
+        return BossBar.bossBar(title, progress, BossBar.Color.GREEN, BossBar.Overlay.NOTCHED_20);
     }
 
     public static Title levelUpTitle(int level) {
 
-        TextComponent headline = text("Level Aufstieg!", GOLD);
-        TextComponent subline = text("Du hast ", YELLOW).append(text(" Level " + level, GREEN))
-                .append(text(" erreicht.", YELLOW));
+        TextComponent headline = text("Level Aufstieg!", ACCENT);
+        TextComponent subline = text("Du hast ", SUCCESS)
+                .append(text(" Level " + level, HIGHLIGHT))
+                .append(text(" erreicht.", SUCCESS));
         return Title.title(headline, subline);
     }
 
@@ -241,10 +261,11 @@ public final class Messages {
 
         if (exp == 0) return empty();
 
-        return text().append(text("Du", GOLD, BOLD).hoverEvent(showText(playerInfo(player))))
-                .append(text(" hast ", GREEN))
-                .append(text(exp + " EXP", AQUA))
-                .append(text(" erhalten!", GREEN))
+        return text().append(text("Du", ACCENT, BOLD)
+                .hoverEvent(showText(playerInfo(player))))
+                .append(text(" hast ", SUCCESS))
+                .append(text(exp + " EXP", HIGHLIGHT))
+                .append(text(" erhalten!", SUCCESS))
                 .build();
     }
 
@@ -252,10 +273,10 @@ public final class Messages {
 
         if (level == 0) return empty();
 
-        return text().append(text("Du", GOLD, BOLD).hoverEvent(showText(playerInfo(player))))
-                .append(text(" hast ", GREEN))
-                .append(text(level + " Level", AQUA))
-                .append(text(" erhalten!", GREEN))
+        return text().append(text("Du", ACCENT, BOLD).hoverEvent(showText(playerInfo(player))))
+                .append(text(" hast ", SUCCESS))
+                .append(text(level + " Level", HIGHLIGHT))
+                .append(text(" erhalten!", SUCCESS))
                 .build();
     }
 
@@ -263,10 +284,10 @@ public final class Messages {
 
         if (skillpoints == 0) return empty();
 
-        return text().append(text("Du", GOLD, BOLD).hoverEvent(showText(playerInfo(player))))
-                .append(text(" hast ", GREEN))
-                .append(text(skillpoints + " Skillpunkt(e)", AQUA))
-                .append(text(" erhalten!", GREEN))
+        return text().append(text("Du", ACCENT, BOLD).hoverEvent(showText(playerInfo(player))))
+                .append(text(" hast ", SUCCESS))
+                .append(text(skillpoints + " Skillpunkt(e)", HIGHLIGHT))
+                .append(text(" erhalten!", SUCCESS))
                 .build();
     }
 
@@ -274,10 +295,10 @@ public final class Messages {
 
         if (slots == 0) return empty();
 
-        return text().append(text("Du", GOLD, BOLD).hoverEvent(showText(playerInfo(player))))
-                .append(text(" hast ", GREEN))
-                .append(text(slots + " Skill Slot(s)", AQUA))
-                .append(text(" erhalten!", GREEN))
+        return text().append(text("Du", ACCENT, BOLD).hoverEvent(showText(playerInfo(player))))
+                .append(text(" hast ", SUCCESS))
+                .append(text(slots + " Skill Slot(s)", HIGHLIGHT))
+                .append(text(" erhalten!", SUCCESS))
                 .build();
     }
 
@@ -285,10 +306,11 @@ public final class Messages {
 
         if (freeResets < 1) return empty();
 
-        return text().append(text(player.name(), GOLD, BOLD).hoverEvent(showText(playerInfo(player))))
-                .append(text(" hat ", GREEN))
-                .append(text(freeResets + " kostenlose(n) Reset(s)", AQUA))
-                .append(text(" für seine Skill Slots erhalten!", GREEN))
+        return text().append(text(player.name(), ACCENT, BOLD)
+                .hoverEvent(showText(playerInfo(player))))
+                .append(text(" hat ", SUCCESS))
+                .append(text(freeResets + " kostenlose(n) Reset(s)", HIGHLIGHT))
+                .append(text(" für seine Skill Slots erhalten!", SUCCESS))
                 .build();
     }
 
@@ -296,41 +318,41 @@ public final class Messages {
 
         if (freeResets < 1) return empty();
 
-        return text().append(text("Du", GOLD, BOLD).hoverEvent(showText(playerInfo(player))))
-                .append(text(" hast ", GREEN))
-                .append(text(freeResets + " kostenlose(n) Reset(s)", AQUA))
-                .append(text(" für deine Skill Slots erhalten!", GREEN))
+        return text().append(text("Du", ACCENT, BOLD).hoverEvent(showText(playerInfo(player))))
+                .append(text(" hast ", SUCCESS))
+                .append(text(freeResets + " kostenlose(n) Reset(s)", HIGHLIGHT))
+                .append(text(" für deine Skill Slots erhalten!", SUCCESS))
                 .build();
     }
 
     public static Component levelUpSelf(SkilledPlayer player, int level) {
 
-        return text().append(text("Du", GOLD, BOLD).hoverEvent(playerInfo(player)))
-                .append(text(" bist im Level aufgestiegen: ", GREEN))
-                .append(text("Level " + level, AQUA))
-                .append(text(" erreicht.", GREEN)).build();
+        return text().append(text("Du", ACCENT, BOLD).hoverEvent(playerInfo(player)))
+                .append(text(" bist im Level aufgestiegen: ", SUCCESS))
+                .append(text("Level " + level, HIGHLIGHT))
+                .append(text(" erreicht.", SUCCESS)).build();
     }
 
     public static Component levelDownSelf(SkilledPlayer player, int level) {
 
-        return text().append(text("Du", GOLD, BOLD).hoverEvent(playerInfo(player)))
-                .append(text(" bist im Level abgestiegen: ", RED))
-                .append(text("Level " + level, AQUA)).build();
+        return text().append(text("Du", ACCENT, BOLD).hoverEvent(playerInfo(player)))
+                .append(text(" bist im Level abgestiegen: ", ERROR))
+                .append(text("Level " + level, HIGHLIGHT)).build();
     }
 
     public static Component levelUp(SkilledPlayer player) {
 
         return text().append(player(player))
-                .append(text(" ist im Level aufgestiegen: ", GREEN))
-                .append(text("Level " + player.level().getLevel(), AQUA))
-                .append(text(" erreicht.", GREEN)).build();
+                .append(text(" ist im Level aufgestiegen: ", SUCCESS))
+                .append(text("Level " + player.level().getLevel(), HIGHLIGHT))
+                .append(text(" erreicht.", SUCCESS)).build();
     }
 
     public static Component levelDown(SkilledPlayer player) {
 
         return text().append(player(player))
-                .append(text(" ist im Level abgestiegen: ", RED))
-                .append(text("Level " + player.level().getLevel(), AQUA)).build();
+                .append(text(" ist im Level abgestiegen: ", ERROR))
+                .append(text("Level " + player.level().getLevel(), HIGHLIGHT)).build();
     }
 
     public static Component level(SkilledPlayer player) {
@@ -345,15 +367,18 @@ public final class Messages {
             exp = level.getTotalExp() - levelManager.getTotalExpForLevel(level.getLevel());
         }
 
-        return text("Level: ", YELLOW).append(text(level.getLevel(), AQUA)).append(newline())
-                .append(text("EXP: ", YELLOW)).append(text(exp, GREEN)).append(text("/", YELLOW))
-                .append(text(expToNext, AQUA)).append(newline())
-                .append(text("Gesamt EXP: ", YELLOW)).append(text(level.getTotalExp(), AQUA));
+        return text("Level: ", TEXT)
+                .append(text(level.getLevel(), HIGHLIGHT)).append(newline())
+                .append(text("EXP: ", TEXT)).append(text(exp, HIGHLIGHT))
+                .append(text("/", TEXT))
+                .append(text(expToNext, DARK_HIGHLIGHT)).append(newline())
+                .append(text("Gesamt EXP: ", TEXT)).append(text(level.getTotalExp(), HIGHLIGHT));
     }
 
     public static Component skillPoints(SkilledPlayer player) {
 
-        return text("Skillpunkte: ", YELLOW).append(text(player.skillPoints(), AQUA));
+        return text("Skillpunkte: ", TEXT)
+                .append(text(player.skillPoints(), HIGHLIGHT));
     }
 
     public static Component skillSlots(SkilledPlayer player) {
@@ -374,43 +399,46 @@ public final class Messages {
         double resetCost = slotManager.calculateSlotResetCost(player);
 
         TextComponent.Builder builder = text()
-                .append(text("Slots ", YELLOW))
-                .append(text("(", GRAY))
-                .append(text(freeSkillSlots, freeSkillSlots > 0 ? GREEN : RED))
-                .append(text("/", DARK_AQUA))
-                .append(text(slots.size(), AQUA))
-                .append(text(")", GRAY))
-                .append(text(" [?]", GRAY).hoverEvent(showText(text()
-                        .append(text("Nächster Slot: ", YELLOW))
-                        .append(nextSlot.map(integer -> text("auf Level " + integer, GREEN))
-                                .orElse(text("N/A", GRAY))).append(newline())
-                        .append(text("Slot Kosten: ", YELLOW)).append(newline())
-                        .append(text(" - ", YELLOW)).append(text((slotCount + 1) + ". Slot: ", DARK_AQUA))
-                        .append(text(Economy.get().format(firstSlot), Economy.get().has(player.offlinePlayer(), firstSlot) ? GREEN : RED)).append(newline())
-                        .append(text(" - ", YELLOW)).append(text((slotCount + 2) + ". Slot: ", DARK_AQUA))
-                        .append(text(Economy.get().format(secondSlot), Economy.get().has(player.offlinePlayer(), secondSlot) ? GREEN : RED))
-                        .append(newline()).append(newline())
-                        .append(text("Du kannst deine Skill Slots mit ", GRAY)).append(text("/rcs reset", GOLD)).append(text(" zurücksetzen.", GRAY)).append(newline())
-                        .append(text("Du hast noch ", GRAY)).append(text(player.freeResets(), player.freeResets() > 0 ? GREEN : RED))
-                        .append(text(" kostenlose(n) Reset(s).", player.freeResets() > 0 ? GREEN : GRAY))
+                .append(text("Slots ", TEXT))
+                .append(text("(", NOTE))
+                .append(text(freeSkillSlots, freeSkillSlots > 0 ? SUCCESS : ERROR))
+                .append(text("/", DARK_ACCENT))
+                .append(text(slots.size(), ACCENT))
+                .append(text(")", NOTE))
+                .append(text(" [?]", NOTE).hoverEvent(showText(text()
+                        .append(text("Nächster Slot: ", TEXT))
+                        .append(nextSlot.map(integer -> text("auf Level " + integer, SUCCESS))
+                                .orElse(text("N/A", NOTE))).append(newline())
+                        .append(text("Slot Kosten: ", TEXT)).append(newline())
+                        .append(text(" - ", TEXT)).append(text((slotCount + 1) + ". Slot: ", DARK_ACCENT))
+                        .append(text(Economy.get().format(firstSlot), Economy.get().has(player.offlinePlayer(), firstSlot) ? SUCCESS : ERROR))
                         .append(newline())
-                        .append(text("Der nächste nicht kostenlose Reset kostet dich: ", GRAY))
-                        .append(text(Economy.get().format(resetCost), Economy.get().has(player.offlinePlayer(), resetCost) ? GREEN : RED)).append(newline())
-                        .append(text("Die Kosten für das Zurücksetzen steigen jedes Mal weiter an.", GRAY))
+                        .append(text(" - ", TEXT)).append(text((slotCount + 2) + ". Slot: ", DARK_ACCENT))
+                        .append(text(Economy.get().format(secondSlot), Economy.get().has(player.offlinePlayer(), secondSlot) ? SUCCESS : ERROR))
                         .append(newline()).append(newline())
-                        .append(text("Tipp: ", GREEN)).append(text("Du erhältst neue Skill Slots beim Level Aufstieg, " +
-                                "durch Events und Achievements.", GRAY, ITALIC))
+                        .append(text("Du kannst deine Skill Slots mit ", NOTE)).append(text("/rcs reset", ACCENT))
+                        .append(text(" zurücksetzen.", NOTE)).append(newline())
+                        .append(text("Du hast noch ", NOTE))
+                        .append(text(player.freeResets(), player.freeResets() > 0 ? SUCCESS : ERROR))
+                        .append(text(" kostenlose(n) Reset(s).", player.freeResets() > 0 ? SUCCESS : ERROR))
+                        .append(newline())
+                        .append(text("Der nächste nicht kostenlose Reset kostet dich: ", NOTE))
+                        .append(text(Economy.get().format(resetCost), Economy.get().has(player.offlinePlayer(), resetCost) ? SUCCESS : ERROR)).append(newline())
+                        .append(text("Die Kosten für das Zurücksetzen steigen jedes Mal weiter an.", NOTE))
+                        .append(newline()).append(newline())
+                        .append(text("Tipp: ", HIGHLIGHT)).append(text("Du erhältst neue Skill Slots beim Level Aufstieg, " +
+                                "durch Events und Achievements.", NOTE, ITALIC))
                 )))
-                .append(text(": ", YELLOW));
+                .append(text(": ", TEXT));
 
         if (slots.isEmpty()) {
-            builder.append(text("N/A", GRAY));
+            builder.append(text("N/A", NOTE));
         }
 
         for (int i = 0; i < slots.size(); i++) {
             builder.append(skillSlot(slots.get(i)));
             if (i != slots.size() - 1) {
-                builder.append(text(" | ", YELLOW));
+                builder.append(text(" | ", DARK_ACCENT));
             }
         }
 
@@ -422,23 +450,23 @@ public final class Messages {
         TextComponent.Builder builder = text();
         SkilledPlayer player = slot.player();
         if (slot.status() == SkillSlot.Status.IN_USE) {
-            builder.append(text("[", DARK_AQUA))
-                    .append(text("*", DARK_AQUA)
+            builder.append(text("[", ACCENT))
+                    .append(text("*", HIGHLIGHT)
                             .hoverEvent(showText(slot.skill().map(skill -> skillInfo(skill.configuredSkill(), player)).orElse(empty()))))
-                    .append(text("]", DARK_AQUA));
+                    .append(text("]", ACCENT));
         } else if (slot.status() == SkillSlot.Status.FREE) {
-            return builder.append(text("[", DARK_AQUA)).append(text("O", GREEN)).append(text("]", DARK_AQUA))
-                    .build().hoverEvent(showText(text("Aktiviere einen Skill um den Skill Slot zu belegen.", GRAY)))
+            return builder.append(text("[", ACCENT)).append(text("O", SUCCESS)).append(text("]", ACCENT))
+                    .build().hoverEvent(showText(text("Aktiviere einen Skill um den Skill Slot zu belegen.", NOTE)))
                     .clickEvent(suggestCommand(PlayerCommands.activateSkill(null)));
         } else if (slot.status() == SkillSlot.Status.ELIGIBLE) {
             double cost = SkillsPlugin.instance().getSlotManager().calculateSlotCost(player);
-            return builder.append(text("[", RED))
-                    .append(text("$", Economy.get().has(player.offlinePlayer(), cost) ? GREEN : DARK_RED))
-                    .append(text("]", RED)).build()
-                    .hoverEvent(showText(text("Du kannst diesen Skill Slot für ", GRAY)
-                            .append(text(Economy.get().format(cost), AQUA))
-                            .append(text(" kaufen.", GRAY)).append(newline()).append(newline())
-                            .append(text("Klicke um den Slot zu kaufen."))
+            return builder.append(text("[", ERROR))
+                    .append(text("$", Economy.get().has(player.offlinePlayer(), cost) ? SUCCESS : ERROR_ACCENT))
+                    .append(text("]", ERROR)).build()
+                    .hoverEvent(showText(text("Du kannst diesen Skill Slot für ", NOTE)
+                            .append(text(Economy.get().format(cost), Economy.get().has(player.offlinePlayer(), cost) ? SUCCESS : ERROR_ACCENT))
+                            .append(text(" kaufen.", NOTE)).append(newline()).append(newline())
+                            .append(text("Klicke um den Slot zu kaufen.", NOTE))
                     )).clickEvent(runCommand(PlayerCommands.buySkillSlot()));
         }
 
@@ -449,23 +477,23 @@ public final class Messages {
 
     public static Component activeSkills(SkilledPlayer player) {
 
-        return text().append(text("aktive Skills: ", YELLOW))
-                .append(text(player.activeSkills().size(), GREEN)).append(text("/", DARK_AQUA))
-                .append(text(player.unlockedSkills().size(), AQUA))
+        return text().append(text("aktive Skills: ", TEXT))
+                .append(text(player.activeSkills().size(), SUCCESS)).append(text("/", DARK_ACCENT))
+                .append(text(player.unlockedSkills().size(), ACCENT))
                 .build();
     }
 
     public static Component player(SkilledPlayer player) {
 
-        return text(player.name(), GOLD, BOLD)
+        return text(player.name(), ACCENT, BOLD)
                 .hoverEvent(showText(playerInfo(player)));
     }
 
     public static Component playerInfo(SkilledPlayer player) {
 
-        return text().append(text("--- [ ", DARK_AQUA))
-                .append(text(player.name(), GOLD))
-                .append(text(" ] ---", DARK_AQUA)).append(newline())
+        return text().append(text("--- [ ", DARK_ACCENT))
+                .append(text(player.name(), ACCENT))
+                .append(text(" ] ---", DARK_ACCENT)).append(newline())
                 .append(level(player)).append(newline())
                 .append(skillPoints(player)).append(newline())
                 .append(skillSlots(player)).append(newline())
@@ -487,7 +515,7 @@ public final class Messages {
                 .sorted(Comparator.comparingInt(ConfiguredSkill::level))
                 .collect(Collectors.toUnmodifiableList());
 
-        TextComponent header = text("Skills von ", DARK_AQUA).append(player(player));
+        TextComponent header = text("Skills von ", DARK_ACCENT).append(player(player));
         return skills(header, player, allSkills, page);
     }
 
@@ -513,7 +541,7 @@ public final class Messages {
 
         TextComponent.Builder builder = text();
         for (int i = 0; i < skills.size(); i++) {
-            builder.append(text("  - ", YELLOW)).append(skill(skills.get(i).configuredSkill(), skills.get(i).player(), true, false));
+            builder.append(text("  - ", TEXT)).append(skill(skills.get(i).configuredSkill(), skills.get(i).player(), true, false));
             if (i != skills.size() - 1) {
                 builder.append(newline());
             }
@@ -534,37 +562,43 @@ public final class Messages {
 
     public static Component skill(ConfiguredSkill skill, SkilledPlayer player, boolean showDetails, boolean showChildren) {
 
-        TextColor color = GRAY;
+        TextColor color = NOTE;
         if (skill.disabled()) {
-            color = DARK_GRAY;
+            color = DISABLED;
         } else if (player != null) {
             if (player.hasActiveSkill(skill)) {
-                color = GREEN;
+                color = ACTIVE;
             } else if (player.hasSkill(skill)) {
-                color = DARK_AQUA;
+                color = UNLOCKED;
+            } else if (player.canBuy(skill)) {
+                color = SUCCESS;
             } else {
-                color = player.canBuy(skill) ? GRAY : RED;
+                color = skill.level() > player.level().getLevel() ? ERROR_ACCENT : ERROR;
             }
         }
 
-        TextColor levelColor = AQUA;
+        TextColor levelColor = HIGHLIGHT;
         if (player != null) {
-            levelColor = player.level().getLevel() >= skill.level() ? GREEN : RED;
+            levelColor = player.level().getLevel() >= skill.level() ? SUCCESS : ERROR_ACCENT;
         }
 
         TextComponent.Builder builder = text();
 
         if (showDetails) {
-            builder.append(text("[", YELLOW))
+            builder.append(text("[", TEXT))
                     .append(text(skill.level(), levelColor))
-                    .append(text("] ", YELLOW));
+                    .append(text("] ", TEXT));
         }
 
-        builder.append(text(skill.name(), color, BOLD)
-                .clickEvent(runCommand("/rcskills skill " + skill.id().toString() + " " + (player != null ? player.id().toString() : ""))));
+        ClickEvent clickEvent = runCommand("/rcskills skill " + skill.id().toString() + " " + (player != null ? player.id().toString() : ""));
+        if (player != null && player.hasActiveSkill(skill)) {
+            builder.append(text(skill.name(), color, BOLD).clickEvent(clickEvent));
+        } else {
+            builder.append(text(skill.name(), color).clickEvent(clickEvent));
+        }
 
         if (skill.disabled()) {
-            return builder.hoverEvent(showText(text("Der Skill ist deaktiviert.", RED))).build();
+            return builder.hoverEvent(showText(text("Der Skill ist deaktiviert.", ERROR))).build();
         }
 
         builder.hoverEvent(skillInfo(skill, player));
@@ -572,25 +606,27 @@ public final class Messages {
         if (player != null && showDetails) {
             PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
             if (player.canBuy(skill)) {
-                builder.append(text(" | ", YELLOW)).append(text(" [$] ", GREEN)
-                        .hoverEvent(costs(playerSkill).append(text("Klicken um den Skill zu kaufen.", GRAY, ITALIC)))
+                builder.append(text(" | ", DARK_ACCENT)).append(text(" [$] ", SUCCESS, BOLD)
+                        .hoverEvent(costs(playerSkill).append(text("Klicken um den Skill zu kaufen.", NOTE, ITALIC)))
                         .clickEvent(clickEvent(Action.RUN_COMMAND, PlayerCommands.buySkill(player, skill)))
                 );
             } else if (playerSkill.active() && playerSkill.enabled()) {
-                builder.append(text(" | ", YELLOW)).append(text("aktiv", AQUA).hoverEvent(HoverEvent.showText(
-                        text("Der Skill ist aktiv.", GRAY).append(newline())
-                                .append(text("Gebe ", GRAY))
-                                .append(text(PlayerCommands.reset(player), GOLD, ITALIC))
-                                .append(text(" ein um alle deine Skills zurückzusetzen.", GRAY)).append(newline())
-                            .append(text("Klicke um ", GRAY, ITALIC).append(text(PlayerCommands.reset(player), GOLD, ITALIC)))
-                            .append(text(" auszuführen.", GRAY, ITALIC))
+                builder.append(text(" | ", YELLOW)).append(text("aktiv", SUCCESS).hoverEvent(HoverEvent.showText(
+                        text("Der Skill ist aktiv.", NOTE).append(newline())
+                                .append(text("Gebe ", NOTE))
+                                .append(text(PlayerCommands.reset(player), ACCENT, ITALIC))
+                                .append(text(" ein um alle deine Skills zurückzusetzen.", NOTE)).append(newline())
+                            .append(text("Klicke um ", NOTE, ITALIC).append(text(PlayerCommands.reset(player), ACCENT, ITALIC)))
+                            .append(text(" auszuführen.", NOTE, ITALIC))
                         )).clickEvent(suggestCommand(PlayerCommands.reset(player)))
                 );
             } else if (playerSkill.unlocked() && !playerSkill.isChild()) {
                 if (playerSkill.canActivate()) {
-                    builder.append(text(" | ", YELLOW)).append(text("aktivieren", GREEN).hoverEvent(HoverEvent.showText(
-                            text("Du besitzt den Skill, er ist aber nicht aktiv.", GRAY).append(newline())
-                                    .append(text("Klicke um den Skill zu aktivieren und einem Slot zuzuweisen.", GRAY)).append(newline())
+                    builder.append(text(" | ", YELLOW)).append(text("aktiv", INACTIVE).hoverEvent(HoverEvent.showText(
+                            text("Du besitzt den Skill, er ist aber nicht aktiv.", NOTE).append(newline())
+                                    .append(text("Klicke um den Skill zu ", NOTE))
+                                    .append(text("aktivieren", SUCCESS))
+                                    .append(text(" und ihn einem Slot zuzuweisen.", NOTE)).append(newline())
                                     .append(skillSlots(player))))
                             .clickEvent(runCommand(PlayerCommands.activateSkill(playerSkill)))
                     );
@@ -599,32 +635,33 @@ public final class Messages {
                             .getLevelUpConfig()
                             .getNextLevelUp(player.level().getLevel());
 
-                    TextComponent hover = text("Du besitzt den Skill, kannst ihn aber nicht aktivieren, da du keinen freien Skill Slot hast.", GRAY).append(newline());
+                    TextComponent hover = text("Du besitzt den Skill, kannst ihn aber nicht aktivieren, da du keinen freien Skill Slot hast.", ERROR)
+                            .append(newline());
                     if (nextLevelUp.isPresent() && nextLevelUp.get().getValue().getSlots() > 0) {
-                        hover.append(text("Mit ", GRAY))
-                                .append(text("Level " + nextLevelUp.get().getKey(), DARK_AQUA))
-                                .append(text(" erhältst du ", GRAY))
-                                .append(text(nextLevelUp.get().getValue().getSlots() + " Skill Slot(s)", GREEN))
-                                .append(text(".", GRAY)).append(newline());
+                        hover.append(text("Mit ", NOTE))
+                                .append(text("Level " + nextLevelUp.get().getKey(), HIGHLIGHT))
+                                .append(text(" erhältst du ", NOTE))
+                                .append(text(nextLevelUp.get().getValue().getSlots() + " Skill Slot(s)", SUCCESS))
+                                .append(text(".", NOTE)).append(newline());
                     }
-                    hover.append(text("Mit Events und Achievements kannst du jederzeit weitere Skill Slots erhalten.", GRAY, ITALIC));
+                    hover.append(text("Mit Events und Achievements kannst du jederzeit weitere Skill Slots erhalten.", NOTE, ITALIC));
 
-                    builder.append(text(" | ", YELLOW)).append(text("aktivieren", GRAY).hoverEvent(showText(hover)));
+                    builder.append(text(" | ", DARK_ACCENT)).append(text("aktiv", DISABLED).hoverEvent(showText(hover)));
                 }
             }
             if (playerSkill.executable() && playerSkill.active() && !playerSkill.isChild()) {
                 builder.append(text(" | ", YELLOW));
                 List<ItemBinding> bindings = player.bindings().get(playerSkill);
-                TextComponent.Builder hover = text().append(text("Klicke um den Skill auf das Item in deiner Hand zu binden.", GRAY));
+                TextComponent.Builder hover = text().append(text("Klicke um den Skill auf das Item in deiner Hand zu binden.", NOTE));
                 if (!bindings.isEmpty()) {
-                    hover.append(newline()).append(text("Bestehende Item Bindings: ", YELLOW)).append(newline());
+                    hover.append(newline()).append(text("Bestehende Item Bindings: ", TEXT)).append(newline());
                     for (ItemBinding binding : bindings) {
-                        hover.append(text(" - ", YELLOW))
-                                .append(text(binding.material().getKey().getKey(), DARK_AQUA))
+                        hover.append(text(" - ", TEXT))
+                                .append(text(binding.material().getKey().getKey(), ACCENT))
                                 .append(text(" (" + binding.action().friendlyName() + ")")).append(newline());
                     }
                 }
-                builder.append(text("bind", GOLD)
+                builder.append(text("bind", ACCENT, BOLD)
                         .hoverEvent(hover.build())
                         .clickEvent(suggestCommand(PlayerCommands.bindSkill(playerSkill)))
                 );
@@ -644,7 +681,7 @@ public final class Messages {
                         builder.append(text(" "));
                         tmp = tmp.parent();
                     }
-                    builder.append(text(" \u2937 ", YELLOW, BOLD)) //⤷
+                    builder.append(text(" \u2937 ", TEXT, BOLD)) //⤷
                             .append(skill(child, player, showDetails, showChildren));
                 }
             }
@@ -659,14 +696,16 @@ public final class Messages {
         TextComponent.Builder builder = text().append(skillInfo(skill));
         if (player != null) {
             PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
-            builder.append(text("Status: ", YELLOW)).append(text(playerSkill.configuredSkill().disabled() ? "deaktiviert" : playerSkill.status().localized(), AQUA)).append(newline())
+            builder.append(text("Status: ", TEXT))
+                    .append(text(playerSkill.configuredSkill().disabled() ? "deaktiviert" : playerSkill.status().localized(), ACCENT))
+                    .append(newline())
                     .append(costs(playerSkill)).append(newline())
                     .append(requirements(playerSkill));
             if (playerSkill.executable() && !playerSkill.isChild()) {
                 builder.append(newline())
-                        .append(text("Tipp: ", GREEN).append(text("Du kannst den Skill mit "))
-                                .append(text("/bind " + skill.alias(), GOLD, ITALIC))
-                                .append(text(" auf Gegenstände binden um sie mit einem Rechts- oder Linksklick auszuführen.", GRAY, ITALIC)));
+                        .append(text("Tipp: ", SUCCESS).append(text("Du kannst den Skill mit ", NOTE))
+                                .append(text("/bind " + skill.alias(), ACCENT, ITALIC))
+                                .append(text(" auf Gegenstände binden um sie mit einem Rechts- oder Linksklick auszuführen.", NOTE, ITALIC)));
             }
         }
         return builder.build();
@@ -674,29 +713,29 @@ public final class Messages {
 
     public static Component skillInfo(ConfiguredSkill skill) {
 
-        TextComponent.Builder builder = text().append(text(skill.name(), GOLD))
-                .append(text(" (" + skill.alias() + ")", GRAY, ITALIC)).append(newline())
-                .append(text("Level: ", YELLOW).append(text(skill.level(), AQUA))).append(newline())
-                .append(text("Typ: ", YELLOW));
+        TextComponent.Builder builder = text().append(text(skill.name(), ACCENT))
+                .append(text(" (" + skill.alias() + ")", NOTE, ITALIC)).append(newline())
+                .append(text("Level: ", TEXT).append(text(skill.level(), HIGHLIGHT))).append(newline())
+                .append(text("Typ: ", TEXT));
         if (SkillsPlugin.instance().getSkillManager().isExecutable(skill)) {
-            builder.append(text("AKTIV", GREEN, BOLD)).append(newline());
+            builder.append(text("AKTIV", SUCCESS, BOLD)).append(newline());
         } else {
-            builder.append(text("PASSIV", DARK_AQUA)).append(newline());
+            builder.append(text("PASSIV", DARK_ACCENT)).append(newline());
         }
 
         if (skill.money() > 0d) {
-            builder.append(text("Kosten: ", YELLOW))
-                    .append(text(Economy.get().format(skill.money()), AQUA))
+            builder.append(text("Kosten: ", TEXT))
+                    .append(text(Economy.get().format(skill.money()), HIGHLIGHT))
                     .append(newline());
         }
         if (skill.skillpoints() > 0) {
-            builder.append(text("Skillpunkte: ", YELLOW))
-                    .append(text(skill.skillpoints(), AQUA))
+            builder.append(text("Skillpunkte: ", TEXT))
+                    .append(text(skill.skillpoints(), HIGHLIGHT))
                     .append(newline());
         }
         return builder
-                .append(text("Beschreibung: ", YELLOW))
-                .append(text(skill.description(), GRAY, ITALIC)).append(newline())
+                .append(text("Beschreibung: ", TEXT))
+                .append(text(skill.description(), NOTE, ITALIC)).append(newline())
                 .build();
     }
 
@@ -713,10 +752,10 @@ public final class Messages {
                 .collect(Collectors.toUnmodifiableList());
 
         if (!requirements.isEmpty()) {
-            builder.append(text("Vorraussetzungen: ", YELLOW)).append(newline());
+            builder.append(text("Vorraussetzungen: ", TEXT)).append(newline());
             for (Requirement requirement : requirements) {
-                builder.append(text(" - ", YELLOW))
-                        .append(text(requirement.name(), requirementColor(requirement, skill.player()), BOLD)
+                builder.append(text(" - ", TEXT))
+                        .append(text(requirement.name(), requirementColor(requirement, skill.player()))
                         .hoverEvent(showText(requirement(requirement, skill.player()))))
                         .append(newline());
             }
@@ -731,10 +770,10 @@ public final class Messages {
         List<Requirement> costs = skill.configuredSkill().costRequirements();
 
         if (!costs.isEmpty()) {
-            builder.append(text("Kosten:", YELLOW)).append(newline());
+            builder.append(text("Kosten:", TEXT)).append(newline());
             for (Requirement cost : costs) {
-                builder.append(text(" - ", YELLOW))
-                        .append(text(cost.name(), requirementColor(cost, skill.player()), BOLD)
+                builder.append(text(" - ", TEXT))
+                        .append(text(cost.name(), requirementColor(cost, skill.player()))
                                 .hoverEvent(showText(requirement(cost, skill.player()))))
                         .append(newline());
             }
@@ -745,50 +784,50 @@ public final class Messages {
 
     public static Component requirement(Requirement requirement, SkilledPlayer player) {
 
-        return text().append(text("--- [ ", DARK_AQUA))
+        return text().append(text("--- [ ", DARK_ACCENT))
                 .append(text(requirement.name(), requirementColor(requirement, player)))
-                .append(text(" ] ---", DARK_AQUA))
+                .append(text(" ] ---", DARK_ACCENT))
                 .append(newline())
-                .append(text(requirement.description(), GRAY, ITALIC))
+                .append(text(requirement.description(), NOTE, ITALIC))
                 .build();
     }
 
     public static Component resultOf(ExecutionResult executionResult) {
 
-        TextComponent.Builder builder = text().append(text("Der Skill ", YELLOW)
+        TextComponent.Builder builder = text().append(text("Der Skill ", TEXT)
                 .append(skill(executionResult.context().source().playerSkill(), false)));
 
         switch (executionResult.status()) {
             case SUCCESS:
-                return builder.append(text(" wurde ", YELLOW)
-                        .append(text("erfolgreich", GREEN))
-                        .append(text(" ausgeführt.", YELLOW)))
+                return builder.append(text(" wurde ", TEXT)
+                        .append(text("erfolgreich", SUCCESS))
+                        .append(text(" ausgeführt.", TEXT)))
                         .build();
             case COOLDOWN:
-                return builder.append(text(" hat noch einen Cooldown von ", YELLOW)
-                        .append(text(executionResult.formattedCooldown(), AQUA))
-                        .append(text(".", YELLOW)))
+                return builder.append(text(" hat noch einen Cooldown von ", TEXT)
+                        .append(text(executionResult.formattedCooldown(), ERROR))
+                        .append(text(".", TEXT)))
                         .build();
             case DELAYED:
-                return builder.append(text(" wird in ", YELLOW)
-                        .append(text(executionResult.formattedDelay(), AQUA))
-                        .append(text(" ausgeführt.", YELLOW)))
+                return builder.append(text(" wird in ", TEXT)
+                        .append(text(executionResult.formattedDelay(), WARNING))
+                        .append(text(" ausgeführt.", TEXT)))
                         .build();
             case EXCEPTION:
             case FAILURE:
-                return builder.append(text(" konnte nicht ausgeführt werden.", YELLOW).append(newline())
-                        .append(text("Bei der Ausführung des Skills ist ein Fehler aufgetreten: ", RED))
-                        .append(text(String.join(",", executionResult.errors()), RED)))
+                return builder.append(text(" konnte nicht ausgeführt werden.", ERROR_ACCENT).append(newline())
+                        .append(text("Bei der Ausführung des Skills ist ein Fehler aufgetreten: ", ERROR))
+                        .append(text(String.join(",", executionResult.errors()), ERROR)))
                         .build();
         }
 
-        return builder.append(text(" wurde ausgeführt.", YELLOW)).build();
+        return builder.append(text(" wurde ausgeführt.", TEXT)).build();
     }
 
     public static TextColor requirementColor(Requirement requirement, SkilledPlayer player) {
 
-        if (player == null) return YELLOW;
-        return requirement.test(player).success() ? GREEN : RED;
+        if (player == null) return TEXT;
+        return requirement.test(player).success() ? SUCCESS : ERROR;
     }
 
     public static TextReplacementConfig replacePlayer(SkilledPlayer player) {
@@ -814,11 +853,11 @@ public final class Messages {
 
         switch (skill.status()) {
             case ACTIVE:
-                return GREEN;
+                return ACTIVE;
             case UNLOCKED:
-                return GRAY;
+                return UNLOCKED;
             default:
-                return WHITE;
+                return TEXT;
         }
     }
 
