@@ -1,3 +1,15 @@
+# [1.24.0](https://github.com/raidcraft/rcskills/compare/v1.23.0...v1.24.0) (2021-01-10)
+
+
+### Bug Fixes
+
+* child skills not spaced correctly ([f45d302](https://github.com/raidcraft/rcskills/commit/f45d30226f9afa2af40c235462a2166963d7a4a1))
+
+
+### Features
+
+* display cooldown and range in skill info ([77cfb28](https://github.com/raidcraft/rcskills/commit/77cfb28fcfd7c4cfe21010ea4bcf0372cf680436)), closes [#64](https://github.com/raidcraft/rcskills/issues/64)
+
 # [1.23.0](https://github.com/raidcraft/rcskills/compare/v1.22.2...v1.23.0) (2021-01-09)
 
 
