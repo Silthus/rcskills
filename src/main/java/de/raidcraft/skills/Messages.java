@@ -556,8 +556,11 @@ public final class Messages {
 
         List<Component> components = skill(skill.configuredSkill(), skill.player(), showDetails, false);
         TextComponent.Builder text = text();
-        for (Component component : components) {
-            text.append(component).append(newline());
+        for (int i = 0; i < components.size(); i++) {
+            text.append(components.get(i));
+            if (i < components.size() - 1) {
+                text.append(newline());
+            }
         }
         return text.build();
     }
@@ -565,11 +568,14 @@ public final class Messages {
     public static Component skill(ConfiguredSkill skill, SkilledPlayer player) {
 
         List<Component> components = skill(skill, player, false, false);
-        TextComponent.Builder builder = text();
-        for (Component component : components) {
-            builder.append(component).append(newline());
+        TextComponent.Builder text = text();
+        for (int i = 0; i < components.size(); i++) {
+            text.append(components.get(i));
+            if (i < components.size() - 1) {
+                text.append(newline());
+            }
         }
-        return builder.build();
+        return text.build();
     }
 
     public static List<Component> skill(ConfiguredSkill skill, SkilledPlayer player, boolean showDetails, boolean showChildren) {
