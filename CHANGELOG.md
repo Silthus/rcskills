@@ -1,3 +1,10 @@
+## [1.24.2](https://github.com/raidcraft/rcskills/compare/v1.24.1...v1.24.2) (2021-01-10)
+
+
+### Bug Fixes
+
+* **msg:** invalid newline break for single listed skills ([902220d](https://github.com/raidcraft/rcskills/commit/902220d70458ac791f15d3b7ea365c53663cce55))
+
 ## [1.24.1](https://github.com/raidcraft/rcskills/compare/v1.24.0...v1.24.1) (2021-01-10)
 
 
