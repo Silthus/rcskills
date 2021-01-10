@@ -17,6 +17,7 @@ import org.bukkit.Bukkit;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -119,6 +120,26 @@ public class PlayerSkill extends BaseEntity {
     public boolean disabled() {
 
         return replaced() || configuredSkill.disabled();
+    }
+
+    public boolean onCooldown() {
+
+        return remainingCooldown() > 0;
+    }
+
+    public long remainingCooldown() {
+
+        if (configuredSkill().executionConfig().cooldown() > 0) {
+            return cooldownExpiresAt().toEpochMilli() - Instant.now().toEpochMilli();
+        }
+
+        return -1;
+    }
+
+    public Instant cooldownExpiresAt() {
+
+        return lastUsed()
+                .plus(configuredSkill().executionConfig().cooldown(), ChronoUnit.MILLIS);
     }
 
     /**

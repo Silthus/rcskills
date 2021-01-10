@@ -12,6 +12,7 @@ import de.raidcraft.skills.actions.AddSkillAction;
 import de.raidcraft.skills.actions.BuySkillAction;
 import de.raidcraft.skills.actions.ResetSlotsAction;
 import de.raidcraft.skills.entities.*;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -131,7 +132,8 @@ public class PlayerCommands extends BaseCommand {
     @Description("Zeigt detaillierte Informationen über einen Skill an.")
     public void skillInfo(ConfiguredSkill skill, @Conditions("others:perm=skill.info") SkilledPlayer player) {
 
-        Messages.send(getCurrentCommandIssuer(), Messages.skill(skill, player, true, true));
+        List<Component> components = skill(skill, player, true, true);
+        components.forEach(component -> Messages.send(getCurrentCommandIssuer(), component));
     }
 
     @HelpCommand

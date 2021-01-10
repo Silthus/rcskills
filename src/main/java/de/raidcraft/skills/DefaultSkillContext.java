@@ -16,8 +16,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -188,16 +186,6 @@ class DefaultSkillContext implements SkillContext {
     @Override
     public long getRemainingCooldown() {
 
-        if (configuredSkill().executionConfig().cooldown() > 0) {
-            return getCooldown().toEpochMilli() - Instant.now().toEpochMilli();
-        }
-
-        return -1;
-    }
-
-    private Instant getCooldown() {
-
-        return playerSkill().lastUsed()
-                .plus(configuredSkill().executionConfig().cooldown(), ChronoUnit.MILLIS);
+        return playerSkill().remainingCooldown();
     }
 }

@@ -4,6 +4,7 @@ import co.aikar.commands.CommandIssuer;
 import de.raidcraft.economy.wrapper.Economy;
 import de.raidcraft.skills.commands.PlayerCommands;
 import de.raidcraft.skills.entities.*;
+import de.raidcraft.skills.util.TimeUtil;
 import lombok.AccessLevel;
 import lombok.Setter;
 import net.kyori.adventure.bossbar.BossBar;
@@ -140,7 +141,7 @@ public final class Messages {
     public static Component removeSkill(PlayerSkill playerSkill) {
 
         return text("Der Skill ", ERROR)
-                .append(skill(playerSkill, true))
+                .append(skill(playerSkill, false))
                 .append(text(" wurde von ", ERROR))
                 .append(player(playerSkill.player()))
                 .append(text(" entfernt.", ERROR));
@@ -529,7 +530,7 @@ public final class Messages {
                     public @NonNull Collection<Component> renderRow(ConfiguredSkill value, int index) {
 
                         if (value == null) return Collections.singletonList(empty());
-                        return Collections.singletonList(skill(value, player));
+                        return skill(value, player, true, true);
                     }
                 }, p -> "/rcskills info " + p + " " + player.name());
         return pagination.render(skills, page);
@@ -552,15 +553,27 @@ public final class Messages {
 
     public static Component skill(PlayerSkill skill, boolean showDetails) {
 
-        return skill(skill.configuredSkill(), skill.player(), showDetails, showDetails);
+        List<Component> components = skill(skill.configuredSkill(), skill.player(), showDetails, false);
+        TextComponent.Builder text = text();
+        for (Component component : components) {
+            text.append(component).append(newline());
+        }
+        return text.build();
     }
 
     public static Component skill(ConfiguredSkill skill, SkilledPlayer player) {
 
-        return skill(skill, player, true, true);
+        List<Component> components = skill(skill, player, false, false);
+        TextComponent.Builder builder = text();
+        for (Component component : components) {
+            builder.append(component).append(newline());
+        }
+        return builder.build();
     }
 
-    public static Component skill(ConfiguredSkill skill, SkilledPlayer player, boolean showDetails, boolean showChildren) {
+    public static List<Component> skill(ConfiguredSkill skill, SkilledPlayer player, boolean showDetails, boolean showChildren) {
+
+        ArrayList<Component> result = new ArrayList<>();
 
         TextColor color = NOTE;
         if (skill.disabled()) {
@@ -598,7 +611,7 @@ public final class Messages {
         }
 
         if (skill.disabled()) {
-            return builder.hoverEvent(showText(text("Der Skill ist deaktiviert.", ERROR))).build();
+            return Collections.singletonList(builder.hoverEvent(showText(text("Der Skill ist deaktiviert.", ERROR))).build());
         }
 
         builder.hoverEvent(skillInfo(skill, player));
@@ -668,6 +681,8 @@ public final class Messages {
             }
         }
 
+        result.add(builder.build());
+
         if (skill.isParent() && showChildren) {
 
             List<ConfiguredSkill> childSkills = skill.children().stream()
@@ -675,20 +690,24 @@ public final class Messages {
                     .collect(Collectors.toList());
             if (childSkills.size() > 0) {
                 for (ConfiguredSkill child : childSkills) {
-                    builder.append(newline());
+                    TextComponent.Builder childBuilder = text();
+                    childBuilder.append(newline());
                     ConfiguredSkill tmp = child.parent();
                     while (tmp.isChild()) {
-                        builder.append(text(" "));
+                        childBuilder.append(text(" "));
                         tmp = tmp.parent();
                     }
-                    builder.append(text(" \u2937 ", TEXT, BOLD)) //⤷
-                            .append(skill(child, player, showDetails, showChildren));
+                    childBuilder.append(text(" \u2937 ", TEXT, BOLD)); //⤷
+                    List<Component> childComponents = skill(child, player, showDetails, showChildren);
+                    for (Component childComponent : childComponents) {
+                        result.add(childBuilder.append(childComponent).build());
+                    }
                 }
             }
 
         }
 
-        return builder.build();
+        return result;
     }
 
     public static Component skillInfo(ConfiguredSkill skill, SkilledPlayer player) {
@@ -701,6 +720,11 @@ public final class Messages {
                     .append(newline())
                     .append(costs(playerSkill)).append(newline())
                     .append(requirements(playerSkill));
+            if (playerSkill.executable() && skill.executionConfig().cooldown() > 0) {
+                builder.append(newline())
+                        .append(text("Verbleibender Cooldown: ", TEXT))
+                        .append(text(TimeUtil.formatTime(playerSkill.remainingCooldown()), playerSkill.onCooldown() ? ERROR : SUCCESS));
+            }
             if (playerSkill.executable() && !playerSkill.isChild()) {
                 builder.append(newline())
                         .append(text("Tipp: ", SUCCESS).append(text("Du kannst den Skill mit ", NOTE))
@@ -718,7 +742,14 @@ public final class Messages {
                 .append(text("Level: ", TEXT).append(text(skill.level(), HIGHLIGHT))).append(newline())
                 .append(text("Typ: ", TEXT));
         if (SkillsPlugin.instance().getSkillManager().isExecutable(skill)) {
-            builder.append(text("AKTIV", SUCCESS, BOLD)).append(newline());
+            builder.append(text("AKTIV", SUCCESS, BOLD)).append(newline())
+                    .append(text("| ", DARK_ACCENT))
+                    .append(text("Cooldown: ", TEXT))
+                    .append(text(TimeUtil.formatTime(skill.executionConfig().cooldown()), HIGHLIGHT))
+                    .append(text(" | ", DARK_ACCENT))
+                    .append(text("Reichweite: ", TEXT)).append(text(skill.executionConfig().range(), HIGHLIGHT))
+                    .append(text(" |", DARK_ACCENT)).append(newline());
+
         } else {
             builder.append(text("PASSIV", DARK_ACCENT)).append(newline());
         }
