@@ -1,3 +1,12 @@
+## [1.24.3](https://github.com/raidcraft/rcskills/compare/v1.24.2...v1.24.3) (2021-01-11)
+
+
+### Bug Fixes
+
+* **msg:** display if skill slot is required ([8f4a8ec](https://github.com/raidcraft/rcskills/commit/8f4a8ec363c187da1973e02aa467e888a1c57812)), closes [#69](https://github.com/raidcraft/rcskills/issues/69)
+* auto save when giving exp, level or skillpoints ([acb65bc](https://github.com/raidcraft/rcskills/commit/acb65bc9b25a583e1657a4361c86c1e5a3a3af93)), closes [#72](https://github.com/raidcraft/rcskills/issues/72)
+* parent skill slot not replaced by child skill ([0c60219](https://github.com/raidcraft/rcskills/commit/0c602198eb69fc9b73a32746fcbb0406fe62816a)), closes [#68](https://github.com/raidcraft/rcskills/issues/68)
+
 ## [1.24.2](https://github.com/raidcraft/rcskills/compare/v1.24.1...v1.24.2) (2021-01-10)
 
 
