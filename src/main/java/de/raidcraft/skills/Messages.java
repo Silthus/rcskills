@@ -400,6 +400,9 @@ public final class Messages {
         double resetCost = slotManager.calculateSlotResetCost(player);
 
         TextComponent.Builder builder = text()
+                .append(text("Kostenlose Resets: ", TEXT))
+                .append(text(player.freeResets(), player.freeResets() > 0 ? SUCCESS : ERROR))
+                .append(newline())
                 .append(text("Slots ", TEXT))
                 .append(text("(", NOTE))
                 .append(text(freeSkillSlots, freeSkillSlots > 0 ? SUCCESS : ERROR))
