@@ -4,6 +4,7 @@ import co.aikar.commands.CommandIssuer;
 import de.raidcraft.economy.wrapper.Economy;
 import de.raidcraft.skills.commands.PlayerCommands;
 import de.raidcraft.skills.entities.*;
+import de.raidcraft.skills.entities.query.QSkilledPlayer;
 import de.raidcraft.skills.util.TimeUtil;
 import lombok.AccessLevel;
 import lombok.Setter;
@@ -24,6 +25,7 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -582,6 +584,32 @@ public final class Messages {
                 .append(skillSlots(player)).append(newline())
                 .append(playerSkills(player))
                 .build();
+    }
+
+    public static List<Component> topList(int page) {
+
+        List<SkilledPlayer> players = new QSkilledPlayer()
+                .orderBy().level.level
+                .desc()
+                .findList();
+        return Pagination.builder()
+                .resultsPerPage(10)
+                .build(text("Top Spieler", ACCENT), new Pagination.Renderer.RowRenderer<SkilledPlayer>() {
+                    @Override
+                    public @NonNull Collection<Component> renderRow(@Nullable SkilledPlayer player, int index) {
+
+                        if (player == null) return Collections.singleton(empty());
+
+                        return Collections.singleton(text()
+                                .append(text(index + ". ", HIGHLIGHT))
+                                .append(player(player).clickEvent(runCommand(PlayerCommands.playerInfo(player))))
+                                .append(text(" [", NOTE))
+                                .append(text(player.level().getLevel(), ACCENT).hoverEvent(showText(text("Level " + player.level().getLevel(), HIGHLIGHT))))
+                                .append(text("]", NOTE))
+                                .build());
+                    }
+                }, p -> "/rcskills top " + p)
+                .render(players, page);
     }
 
     public static List<Component> skills(SkilledPlayer player, int page) {

@@ -95,7 +95,13 @@ public class PlayerCommands extends BaseCommand {
         return "/unbind " + binding.action().name() + " " + binding.material().getKey().getKey();
     }
 
+    public static String playerInfo(SkilledPlayer player) {
+
+        return "/rcskills info " + player.id().toString();
+    }
+
     private final SkillsPlugin plugin;
+
     private final Map<UUID, Integer> lastPage = new HashMap<>();
 
     public PlayerCommands(SkillsPlugin plugin) {
@@ -122,6 +128,14 @@ public class PlayerCommands extends BaseCommand {
     public void info(@Conditions("others:perm=player.info") SkilledPlayer player) {
 
         Messages.send(getCurrentCommandIssuer(), Messages.playerInfo(player));
+    }
+
+    @Subcommand("top")
+    @CommandPermission("rcskills.toplist")
+    @Description("Zeigt die Top Spieler mit ihren Level an.")
+    public void top(int page) {
+
+        Messages.topList(page).forEach(component -> Messages.send(getCurrentCommandIssuer(), component));
     }
 
     @Subcommand("skill")
