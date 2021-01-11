@@ -1,3 +1,11 @@
+## [1.24.4](https://github.com/raidcraft/rcskills/compare/v1.24.3...v1.24.4) (2021-01-11)
+
+
+### Bug Fixes
+
+* **cmd:** list skills after slot reset ([7365a78](https://github.com/raidcraft/rcskills/commit/7365a78be18073977f4dcd7d95ef92f1efac4d50))
+* **msg:** add missing like break after skill slot info ([9f542e8](https://github.com/raidcraft/rcskills/commit/9f542e808a850f4f963f3ad95b856bc8f2c9105c))
+
 ## [1.24.3](https://github.com/raidcraft/rcskills/compare/v1.24.2...v1.24.3) (2021-01-11)
 
 
