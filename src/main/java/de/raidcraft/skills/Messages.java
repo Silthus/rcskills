@@ -771,6 +771,10 @@ public final class Messages {
                     .append(text(Economy.get().format(skill.money()), HIGHLIGHT))
                     .append(newline());
         }
+
+        builder.append(text("Skill Slot: ", TEXT))
+                .append(text(skill.skillSlot() ? "JA" : "NEIN", skill.skillSlot() ? ERROR : SUCCESS));
+
         if (skill.skillpoints() > 0) {
             builder.append(text("Skillpunkte: ", TEXT))
                     .append(text(skill.skillpoints(), HIGHLIGHT))
