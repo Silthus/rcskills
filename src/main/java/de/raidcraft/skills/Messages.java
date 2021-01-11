@@ -479,12 +479,50 @@ public final class Messages {
         return builder.build();
     }
 
-    public static Component activeSkills(SkilledPlayer player) {
+    public static Component playerSkills(SkilledPlayer player) {
 
-        return text().append(text("aktive Skills: ", TEXT))
-                .append(text(player.activeSkills().size(), SUCCESS)).append(text("/", DARK_ACCENT))
-                .append(text(player.unlockedSkills().size(), ACCENT))
-                .build();
+        Collection<PlayerSkill> unlockedSkills = player.unlockedSkills();
+        TextComponent.Builder builder = text().append(text("Gekaufte Skills ", TEXT))
+                .append(text("(", NOTE))
+                .append(text(unlockedSkills.size(), SUCCESS))
+                .append(text("/", DARK_ACCENT))
+                .append(text(ConfiguredSkill.allEnabled().size(), ACCENT))
+                .append(text(")", NOTE)).append(text(": ", TEXT));
+
+        if (unlockedSkills.isEmpty()) {
+            builder.append(text("Keine", NOTE)
+                    .hoverEvent(showText(text("Gebe /skills ein um Skills zu kaufen.")))
+                    .clickEvent(runCommand("/skills"))
+            );
+        } else {
+            unlockedSkills.stream()
+                    .filter(skill -> !skill.active())
+                    .filter(skill -> !skill.replaced())
+                    .forEach(skill -> builder.append(skill(skill, false)).append(text(" ")));
+        }
+
+        List<PlayerSkill> activeSkills = player.activeSkills();
+
+        builder.append(newline())
+                .append(text("Aktive Skills ", TEXT))
+                .append(text("(", NOTE))
+                .append(text(activeSkills.size(), SUCCESS))
+                .append(text("/", DARK_ACCENT))
+                .append(text(unlockedSkills.size(), ACCENT))
+                .append(text(")", NOTE)).append(text(": ", TEXT));
+
+        if (activeSkills.isEmpty()) {
+            builder.append(text("Keine", NOTE)
+                    .hoverEvent(showText(text("Gebe /skills ein um deine Skills zu aktivieren.")))
+                    .clickEvent(runCommand("/skills"))
+            );
+        } else {
+            activeSkills.stream()
+                    .filter(skill -> !skill.replaced())
+                    .forEach(skill -> builder.append(skill(skill, false).append(text(" "))));
+        }
+
+        return builder.build();
     }
 
     public static Component player(SkilledPlayer player) {
@@ -501,7 +539,7 @@ public final class Messages {
                 .append(level(player)).append(newline())
                 .append(skillPoints(player)).append(newline())
                 .append(skillSlots(player)).append(newline())
-                .append(activeSkills(player))
+                .append(playerSkills(player))
                 .build();
     }
 
