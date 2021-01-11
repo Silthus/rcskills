@@ -89,6 +89,8 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     private boolean restricted = false;
     private boolean autoUnlock = false;
     private boolean autoActivate = true;
+    private boolean replaceParent = false;
+    private boolean replaceParentSlot = false;
 
     @ManyToOne
     private ConfiguredSkill parent;
@@ -156,6 +158,11 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     public boolean isParent() {
 
         return !children().isEmpty();
+    }
+
+    public boolean skillSlot() {
+
+        return !noSkillSlot();
     }
 
     public List<String> categories() {
@@ -268,10 +275,7 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         if (!Strings.isNullOrEmpty(parent)) {
             try {
                 parent(ConfiguredSkill.find.byId(UUID.fromString(parent)));
-                if (config.getBoolean("disable-parent", false)
-                        || config.getBoolean("replace-parent", false)) {
-                    replacedSkillIds().add(parent);
-                }
+                setReplaceParent(config);
 
                 ConfigurationSection parentSkillConfig = parent().getSkillConfig();
                 for (String key : parentSkillConfig.getKeys(true)) {
@@ -300,6 +304,7 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         setAutoUnlock(config);
         setAutoActivate(config);
         setHidden(config);
+        setReplaceParentSlot(config);
 
         setCategories(config);
         setExecutionConfig(config);
@@ -469,6 +474,19 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
     private void setAutoActivate(ConfigurationSection config) {
 
         autoActivate(config.getBoolean("auto-activate", isChild() ? parent().autoActivate() : autoActivate()));
+    }
+
+    private void setReplaceParentSlot(ConfigurationSection config) {
+
+        replaceParentSlot(config.getBoolean("replace-parent-slot", isChild() && replaceParent() && parent().skillSlot()));
+    }
+
+    private void setReplaceParent(ConfigurationSection config) {
+
+        if (config.getBoolean("replace-parent", replaceParent) || config.getBoolean("disable-parent", replaceParent)) {
+            replaceParent(true);
+            replacedSkillIds().add(parent().id().toString());
+        }
     }
 
     private void setCategories(ConfigurationSection config) {

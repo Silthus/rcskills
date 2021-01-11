@@ -588,5 +588,39 @@ public class PlayerSkillTest {
             result.playerSkill().enable();
             assertThat(playerMock.hasPermission("foobar")).isFalse();
         }
+
+        @Test
+        @DisplayName("should replace parent skill in slot")
+        void shouldReplaceParentSkillSlot() {
+
+            ConfiguredSkill skill = loadSkill(parent, cfg -> {
+                cfg.set("no-skill-slot", false);
+                cfg.set("skills.child1.replace-parent", true);
+                cfg.set("skills.child1.skillpoints", 1);
+            });
+
+            AddSkillAction.Result result = player.addSkill(skill, true);
+            assertThat(result.success()).isTrue();
+
+            ConfiguredSkill childSkill = getOrAssertSkill(child1);
+            PlayerSkill childPlayerSkill = PlayerSkill.getOrCreate(player, childSkill);
+
+            assertThat(result.playerSkill().active()).isTrue();
+            assertThat(childPlayerSkill.active()).isFalse();
+
+            assertThat(SkillSlot.of(result.playerSkill())).isPresent();
+            assertThat(SkillSlot.of(childPlayerSkill)).isEmpty();
+
+            player.addSkill(childSkill, true);
+
+            result.playerSkill().refresh();
+            childPlayerSkill.refresh();
+
+            assertThat(result.playerSkill().replaced()).isTrue();
+            assertThat(childPlayerSkill.active()).isTrue();
+
+            assertThat(SkillSlot.of(result.playerSkill())).isEmpty();
+            assertThat(SkillSlot.of(childPlayerSkill)).isPresent();
+        }
     }
 }

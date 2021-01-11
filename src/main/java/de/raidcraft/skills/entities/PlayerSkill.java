@@ -305,8 +305,11 @@ public class PlayerSkill extends BaseEntity {
             if (event.isCancelled()) return false;
 
             if (event.isAutoAssignSlot() && configuredSkill.autoActivate()) {
-                if (!configuredSkill.noSkillSlot())
+                if (configuredSkill.skillSlot()) {
                     player().freeSkillSlot().assign(this).save();
+                } else if (isChild() && configuredSkill.replaceParentSlot()) {
+                    SkillSlot.of(parent()).ifPresent(skillSlot -> skillSlot.assign(this));
+                }
             }
 
             refresh();

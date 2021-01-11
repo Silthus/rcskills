@@ -71,6 +71,8 @@ public class SkillSlot extends BaseEntity implements Comparable<SkillSlot> {
             this.skillId(null);
         }
 
+        save();
+
         return this;
     }
 

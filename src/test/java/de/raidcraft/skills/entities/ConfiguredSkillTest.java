@@ -290,5 +290,18 @@ class ConfiguredSkillTest {
 
             assertThat(skill.disabledWorlds()).containsOnly("world");
         }
+
+        @Test
+        @DisplayName("should set replace parent slot if parent is replaced")
+        void shouldSetReplaceParentSlot() {
+
+            ConfiguredSkill skill = loadSkill(child1, cfg -> {
+                cfg.set("skills.child1.replace-parent", true);
+            });
+
+            assertThat(skill).extracting(
+                    ConfiguredSkill::replaceParent, ConfiguredSkill::replaceParentSlot
+            ).contains(true, true);
+        }
     }
 }
