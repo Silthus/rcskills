@@ -1,3 +1,11 @@
+# [1.25.0](https://github.com/raidcraft/rcskills/compare/v1.24.4...v1.25.0) (2021-01-11)
+
+
+### Features
+
+* display free resets in player overview ([1b8e613](https://github.com/raidcraft/rcskills/commit/1b8e6139effbda905f710ace139e7c9290fd73ec))
+* display list of active and unlocked skills ([600edb8](https://github.com/raidcraft/rcskills/commit/600edb878a31f0d706cb234223600031ae0942de))
+
 ## [1.24.4](https://github.com/raidcraft/rcskills/compare/v1.24.3...v1.24.4) (2021-01-11)
 
 
