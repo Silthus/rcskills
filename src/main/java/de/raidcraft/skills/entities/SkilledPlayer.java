@@ -248,7 +248,7 @@ public class SkilledPlayer extends BaseEntity {
         return getSkill(alias).map(PlayerSkill::unlocked).orElse(false);
     }
 
-    public Collection<PlayerSkill> unlockedSkills() {
+    public List<PlayerSkill> unlockedSkills() {
 
         return skills().stream()
                 .filter(PlayerSkill::unlocked)

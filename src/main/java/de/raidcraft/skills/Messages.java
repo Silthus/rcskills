@@ -481,13 +481,21 @@ public final class Messages {
 
     public static Component playerSkills(SkilledPlayer player) {
 
-        Collection<PlayerSkill> unlockedSkills = player.unlockedSkills();
+        List<PlayerSkill> unlockedSkills = player.unlockedSkills();
         TextComponent.Builder builder = text().append(text("Gekaufte Skills ", TEXT))
-                .append(text("(", NOTE))
-                .append(text(unlockedSkills.size(), SUCCESS))
-                .append(text("/", DARK_ACCENT))
-                .append(text(ConfiguredSkill.allEnabled().size(), ACCENT))
-                .append(text(")", NOTE)).append(text(": ", TEXT));
+                .append(text()
+                        .append(text("(", NOTE))
+                        .append(text(unlockedSkills.size(), SUCCESS))
+                        .append(text("/", DARK_ACCENT))
+                        .append(text(ConfiguredSkill.allEnabled().size(), ACCENT))
+                        .append(text(")", NOTE)).build()
+                        .hoverEvent(showText(text()
+                                .append(text("Klicke auf einen Skill um seine Details zu sehen und ihn zu aktivieren.", NOTE))
+                                .append(newline())
+                                .append(text("Aktivierte Skills werden nicht in der Liste, sondern unten angezeigt.", NOTE, ITALIC))
+                                .append(newline())
+                                .append(skills(unlockedSkills))))
+                ).append(text(": ", TEXT));
 
         if (unlockedSkills.isEmpty()) {
             builder.append(text("Keine", NOTE)
@@ -498,18 +506,28 @@ public final class Messages {
             unlockedSkills.stream()
                     .filter(skill -> !skill.active())
                     .filter(skill -> !skill.replaced())
-                    .forEach(skill -> builder.append(skill(skill, false)).append(text(" ")));
+                    .forEach(skill -> builder.append(text("[", DISABLED))
+                            .append(skill(skill, false))
+                            .append(text("] ", DISABLED)));
         }
 
         List<PlayerSkill> activeSkills = player.activeSkills();
 
         builder.append(newline())
                 .append(text("Aktive Skills ", TEXT))
-                .append(text("(", NOTE))
-                .append(text(activeSkills.size(), SUCCESS))
-                .append(text("/", DARK_ACCENT))
-                .append(text(unlockedSkills.size(), ACCENT))
-                .append(text(")", NOTE)).append(text(": ", TEXT));
+                .append(text()
+                    .append(text("(", NOTE))
+                    .append(text(activeSkills.size(), SUCCESS))
+                    .append(text("/", DARK_ACCENT))
+                    .append(text(unlockedSkills.size(), ACCENT))
+                    .append(text(")", NOTE)).build()
+                        .hoverEvent(showText(text()
+                                .append(text("Klicke auf einen Skill um seine Details zu sehen.", NOTE))
+                                .append(newline())
+                                .append(text("In dieser Liste wird immer nur das aktuellste Upgrade anzeigt.", NOTE, ITALIC))
+                                .append(newline())
+                                .append(skills(unlockedSkills))))
+                ).append(text(": ", TEXT));
 
         if (activeSkills.isEmpty()) {
             builder.append(text("Keine", NOTE)
@@ -517,9 +535,32 @@ public final class Messages {
                     .clickEvent(runCommand("/skills"))
             );
         } else {
-            activeSkills.stream()
+            for (PlayerSkill skill : activeSkills.stream()
                     .filter(skill -> !skill.replaced())
-                    .forEach(skill -> builder.append(skill(skill, false).append(text(" "))));
+                    .collect(Collectors.toList())) {
+                builder.append(text("[", ACCENT))
+                        .append(skill(skill, false));
+                int count = 0;
+                PlayerSkill parent = skill;
+                Stack<PlayerSkill> parents = new Stack<>();
+                while (parent.isChild()) {
+                    parent = parent.parent();
+                    parents.push(parent);
+                    count++;
+                }
+                if (count > 0) {
+                    builder.append(text().append(text("(", NOTE))
+                            .append(text(count + "x", HIGHLIGHT))
+                            .append(text(")", NOTE))
+                            .build().hoverEvent(showText(
+                                    text().append(text(count, HIGHLIGHT))
+                                            .append(text(" Skill Upgrades vorgenommen: ", TEXT)).append(newline())
+                                            .append(skills(parents))
+                            ))
+                    );
+                }
+                builder.append(text("] ", ACCENT));
+            }
         }
 
         return builder.build();
