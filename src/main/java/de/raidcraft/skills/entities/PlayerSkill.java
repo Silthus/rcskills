@@ -31,7 +31,7 @@ import java.util.function.Consumer;
 @Index(columnNames = {"player_id", "configured_skill_id"})
 @Accessors(fluent = true)
 @Log(topic = "RCSkills")
-public class PlayerSkill extends BaseEntity {
+public class PlayerSkill extends BaseEntity implements Comparable<PlayerSkill> {
 
     public static Optional<PlayerSkill> find(SkilledPlayer player, ConfiguredSkill skill) {
 
@@ -430,5 +430,11 @@ public class PlayerSkill extends BaseEntity {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public int compareTo(PlayerSkill o) {
+
+        return configuredSkill().compareTo(o.configuredSkill());
     }
 }

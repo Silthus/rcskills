@@ -481,7 +481,7 @@ public final class Messages {
 
     public static Component playerSkills(SkilledPlayer player) {
 
-        List<PlayerSkill> unlockedSkills = player.unlockedSkills();
+        List<PlayerSkill> unlockedSkills = player.unlockedSkills().stream().sorted().collect(Collectors.toList());
         TextComponent.Builder builder = text().append(text("Gekaufte Skills ", TEXT))
                 .append(text()
                         .append(text("(", NOTE))
@@ -511,7 +511,7 @@ public final class Messages {
                             .append(text("] ", DISABLED)));
         }
 
-        List<PlayerSkill> activeSkills = player.activeSkills();
+        List<PlayerSkill> activeSkills = player.activeSkills().stream().sorted().collect(Collectors.toList());
 
         builder.append(newline())
                 .append(text("Aktive Skills ", TEXT))
