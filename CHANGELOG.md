@@ -1,3 +1,10 @@
+# [1.26.0](https://github.com/raidcraft/rcskills/compare/v1.25.0...v1.26.0) (2021-01-11)
+
+
+### Features
+
+* improve player skills view and display upgrade count ([9f27fbf](https://github.com/raidcraft/rcskills/commit/9f27fbf50526d12caef719bbe3c087ba2b865455))
+
 # [1.25.0](https://github.com/raidcraft/rcskills/compare/v1.24.4...v1.25.0) (2021-01-11)
 
 
