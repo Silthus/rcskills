@@ -2,6 +2,7 @@ package de.raidcraft.skills;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
+import de.raidcraft.skills.entities.Level;
 import de.raidcraft.skills.entities.SkilledPlayer;
 import org.assertj.core.util.Strings;
 import org.junit.jupiter.api.AfterEach;
@@ -16,8 +17,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class SlotManagerTest {
 
@@ -64,7 +64,9 @@ class SlotManagerTest {
 
         when(player.slotCount()).thenReturn(slots);
         when(player.skillCount()).thenReturn(skills);
-        player.setLevel(level);
+        Level mock = mock(Level.class);
+        when(mock.getLevel()).thenReturn(level);
+        player.level(mock);
 
         assertThat(slotManager.calculateSlotCost(player))
                 .isEqualTo(result);
@@ -92,7 +94,9 @@ class SlotManagerTest {
         when(player.slotCount()).thenReturn(slots);
         when(player.skillCount()).thenReturn(skills);
         when(player.resetCount()).thenReturn(resets);
-        player.setLevel(level);
+        Level mock = mock(Level.class);
+        when(mock.getLevel()).thenReturn(level);
+        player.level(mock);
 
         assertThat(slotManager.calculateSlotResetCost(player))
                 .isEqualTo(result);
