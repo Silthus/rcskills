@@ -409,7 +409,7 @@ public class SkillsPlugin extends JavaPlugin {
                 }
                 try {
                     UUID uuid = UUID.fromString(arg);
-                    player = Bukkit.getPlayer(uuid);
+                    return SkilledPlayer.find.byId(uuid);
                 } catch (Exception e) {
                     player = Bukkit.getPlayerExact(arg);
                 }

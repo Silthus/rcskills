@@ -133,7 +133,7 @@ public class PlayerCommands extends BaseCommand {
     @Subcommand("top")
     @CommandPermission("rcskills.toplist")
     @Description("Zeigt die Top Spieler mit ihren Level an.")
-    public void top(int page) {
+    public void top(@Default("1") int page) {
 
         Messages.topList(page).forEach(component -> Messages.send(getCurrentCommandIssuer(), component));
     }

@@ -600,7 +600,7 @@ public final class Messages {
                         if (player == null) return Collections.singleton(empty());
 
                         return Collections.singleton(text()
-                                .append(text(index + ". ", HIGHLIGHT))
+                                .append(text((index + 1) + ". ", HIGHLIGHT))
                                 .append(player(player).clickEvent(runCommand(PlayerCommands.playerInfo(player))))
                                 .append(text(" [", NOTE))
                                 .append(text(player.level().getLevel(), ACCENT).hoverEvent(showText(text("Level " + player.level().getLevel(), HIGHLIGHT))))
