@@ -4,7 +4,6 @@ import co.aikar.commands.CommandIssuer;
 import de.raidcraft.economy.wrapper.Economy;
 import de.raidcraft.skills.commands.PlayerCommands;
 import de.raidcraft.skills.entities.*;
-import de.raidcraft.skills.entities.query.QSkilledPlayer;
 import de.raidcraft.skills.util.TimeUtil;
 import lombok.AccessLevel;
 import lombok.Setter;
@@ -588,9 +587,9 @@ public final class Messages {
 
     public static List<Component> topList(int page) {
 
-        List<SkilledPlayer> players = new QSkilledPlayer()
-                .orderBy().level.level
-                .desc()
+        List<SkilledPlayer> players = SkilledPlayer.find.query()
+                .orderBy()
+                .desc("level.level")
                 .findList();
         return Pagination.builder()
                 .resultsPerPage(10)

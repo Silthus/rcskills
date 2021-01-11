@@ -67,10 +67,6 @@ dependencies {
     api 'net.silthus:ebean-wrapper:2.8.1'
     api 'com.github.Slikey:EffectLib:master-SNAPSHOT'
     api 'net.silthus.config-mapper:bukkit:1.1.4'
-    implementation 'io.ebean:ebean-querybean:12.6.2'
-
-    // query bean generation
-    annotationProcessor 'io.ebean:querybean-generator:12.6.2'
 
     api 'net.kyori:adventure-api:4.3.0'
     api 'net.kyori:adventure-text-minimessage:4.0.0-SNAPSHOT'
