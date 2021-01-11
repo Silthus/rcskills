@@ -694,7 +694,7 @@ public final class Messages {
 
         ClickEvent clickEvent = runCommand("/rcskills skill " + skill.id().toString() + " " + (player != null ? player.id().toString() : ""));
         if (player != null && player.hasActiveSkill(skill) && !PlayerSkill.getOrCreate(player, skill).replaced()) {
-            builder.append(text(skill.name(), color, BOLD).clickEvent(clickEvent));
+            builder.append(text(skill.name(), color).clickEvent(clickEvent));
         } else {
             builder.append(text(skill.name(), color).clickEvent(clickEvent));
         }
@@ -708,7 +708,7 @@ public final class Messages {
         if (player != null && showDetails) {
             PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
             if (player.canBuy(skill)) {
-                builder.append(text(" | ", DARK_ACCENT)).append(text(" [", TEXT).append(text("kaufen", SUCCESS, BOLD)).append(text("]", TEXT))
+                builder.append(text(" | ", DARK_ACCENT)).append(text(" [", TEXT).append(text("kaufen", SUCCESS)).append(text("]", TEXT))
                         .hoverEvent(costs(playerSkill).append(text("Klicken um den Skill zu kaufen.", NOTE, ITALIC)))
                         .clickEvent(clickEvent(Action.RUN_COMMAND, PlayerCommands.buySkill(player, skill)))
                 );
@@ -724,7 +724,7 @@ public final class Messages {
                 ).append(text("]", NOTE));
             } else if (playerSkill.unlocked() && !playerSkill.isChild()) {
                 if (playerSkill.canActivate()) {
-                    builder.append(text(" | ", YELLOW)).append(text("[", SUCCESS)).append(text("aktivieren", INACTIVE, BOLD).hoverEvent(HoverEvent.showText(
+                    builder.append(text(" | ", YELLOW)).append(text("[", SUCCESS)).append(text("aktivieren", INACTIVE).hoverEvent(HoverEvent.showText(
                             text("Du besitzt den Skill, er ist aber nicht aktiv.", NOTE).append(newline())
                                     .append(text("Klicke um den Skill zu ", NOTE))
                                     .append(text("aktivieren", SUCCESS))
@@ -765,7 +765,7 @@ public final class Messages {
                                 .append(text(" (" + binding.action().friendlyName() + ")")).append(newline());
                     }
                 }
-                builder.append(text("[", NOTE)).append(text("bind", ACCENT, BOLD)
+                builder.append(text("[", NOTE)).append(text("bind", ACCENT)
                         .hoverEvent(hover.build())
                         .clickEvent(suggestCommand(PlayerCommands.bindSkill(playerSkill)))
                 ).append(text("]", NOTE));
@@ -833,8 +833,8 @@ public final class Messages {
 
         TextComponent.Builder builder = text().append(text(skill.name(), ACCENT))
                 .append(text(" (" + skill.alias() + ")", NOTE, ITALIC)).append(newline())
-                .append(text("Level: ", TEXT).append(text(skill.level(), HIGHLIGHT))).append(newline())
-                .append(text("Typ: ", TEXT));
+                .append(text("Level: ", TEXT).append(text(skill.level(), HIGHLIGHT)))
+                .append(text(" | ", DARK_ACCENT));
         if (SkillsPlugin.instance().getSkillManager().isExecutable(skill)) {
             builder.append(text("AKTIV", SUCCESS, BOLD)).append(newline())
                     .append(text("| ", DARK_ACCENT))
