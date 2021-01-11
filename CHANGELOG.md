@@ -1,3 +1,10 @@
+## [1.26.1](https://github.com/raidcraft/rcskills/compare/v1.26.0...v1.26.1) (2021-01-11)
+
+
+### Bug Fixes
+
+* sort skills by level ([2fe339c](https://github.com/raidcraft/rcskills/commit/2fe339c8d2a788b9bba7a0cea16bb06950aa81ab))
+
 # [1.26.0](https://github.com/raidcraft/rcskills/compare/v1.25.0...v1.26.0) (2021-01-11)
 
 
