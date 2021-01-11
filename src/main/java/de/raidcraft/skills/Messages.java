@@ -773,7 +773,8 @@ public final class Messages {
         }
 
         builder.append(text("Skill Slot: ", TEXT))
-                .append(text(skill.skillSlot() ? "JA" : "NEIN", skill.skillSlot() ? ERROR : SUCCESS));
+                .append(text(skill.skillSlot() ? "JA" : "NEIN", skill.skillSlot() ? ERROR : SUCCESS))
+                .append(newline());
 
         if (skill.skillpoints() > 0) {
             builder.append(text("Skillpunkte: ", TEXT))
