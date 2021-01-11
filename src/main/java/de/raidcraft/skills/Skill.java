@@ -148,6 +148,28 @@ public interface Skill {
         return context().notApplicable(player);
     }
 
+    /**
+     * Adds the given amount of exp to the player of this skill
+     * using the skill alias as reason.
+     *
+     * @param exp the exp that should be added to the player
+     */
+    default void addExp(long exp) {
+
+        addExp(exp, alias());
+    }
+
+    /**
+     * Adds the given amount of exp to the player of this skill.
+     *
+     * @param exp the exp that should be added to the player
+     * @param reason the reason for giving the exp
+     */
+    default void addExp(long exp, String reason) {
+
+        context().skilledPlayer().addExp(exp, reason);
+    }
+
     @Value
     @Accessors(fluent = true)
     class Registration<TSkill extends Skill> {

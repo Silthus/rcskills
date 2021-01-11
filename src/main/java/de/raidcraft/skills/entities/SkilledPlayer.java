@@ -255,6 +255,7 @@ public class SkilledPlayer extends BaseEntity {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public SkilledPlayer setLevel(int level) {
 
         if (this.level().getLevel() == level) return this;
@@ -273,6 +274,8 @@ public class SkilledPlayer extends BaseEntity {
 
         Bukkit.getPluginManager().callEvent(new PlayerLeveledEvent(this, event.getOldLevel(), event.getNewLevel(), event.getExp()));
 
+        save();
+
         return this;
     }
 
@@ -286,6 +289,7 @@ public class SkilledPlayer extends BaseEntity {
         return setExp(exp, null);
     }
 
+    @Transactional
     public SkilledPlayer setExp(long exp, String reason) {
 
         if (this.level().getTotalExp() == exp) return this;
@@ -299,6 +303,9 @@ public class SkilledPlayer extends BaseEntity {
         if (event.getLevel() != level().getLevel()) {
             setLevel(event.getLevel());
         }
+
+        save();
+
         return this;
     }
 
@@ -307,6 +314,7 @@ public class SkilledPlayer extends BaseEntity {
         return this.setExp(level().getTotalExp() + exp, reason);
     }
 
+    @Transactional
     public SkilledPlayer setSkillPoints(int skillPoints) {
 
         if (this.skillPoints() == skillPoints) return this;
@@ -319,6 +327,9 @@ public class SkilledPlayer extends BaseEntity {
         if (event.getNewSkillPoints() < 0) event.setNewSkillPoints(0);
 
         this.skillPoints(event.getNewSkillPoints());
+
+        save();
+
         return this;
     }
 
@@ -375,6 +386,8 @@ public class SkilledPlayer extends BaseEntity {
         }
 
         Bukkit.getPluginManager().callEvent(new PlayerSkillSlotsChangedEvent(this, event.getOldSkillSlots(), event.getNewSkillSlots()));
+
+        save();
 
         return this;
     }
