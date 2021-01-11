@@ -543,7 +543,7 @@ public class PlayerCommands extends BaseCommand {
 
         if (result.success()) {
             send(result.action().player(), text("Deine Skill Slots wurden erfolgreich zurückgesetzt.", GREEN));
-            Bukkit.getScheduler().runTaskLater(plugin, () -> list(page(id), result.action().player()), 1L);
+            list(page(id), result.action().player());
         } else {
             send(result.action().player(), text(result.error(), RED));
         }
