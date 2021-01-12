@@ -1,3 +1,16 @@
+# [1.27.0](https://github.com/raidcraft/rcskills/compare/v1.26.1...v1.27.0) (2021-01-12)
+
+
+### Bug Fixes
+
+* **cmd:** get player by exact id ([b14eb76](https://github.com/raidcraft/rcskills/commit/b14eb7615a8a006bfbe0ac8302a15e0979bba0f1))
+* **msg:** remove unneeded bold messages ([dd8360d](https://github.com/raidcraft/rcskills/commit/dd8360deb40fb71c5ad0639d504da524f2c83946))
+
+
+### Features
+
+* **cmd:** add /rcs top command to show top player levels ([9245baf](https://github.com/raidcraft/rcskills/commit/9245baf0d5d9c077a6f2da81abb70fab89d39577))
+
 ## [1.26.1](https://github.com/raidcraft/rcskills/compare/v1.26.0...v1.26.1) (2021-01-11)
 
 
