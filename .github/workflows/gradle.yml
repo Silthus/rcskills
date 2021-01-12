@@ -20,7 +20,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.gradle
-          key: ${{ runner.os }}-gradle
+          key: ${{ runner.os }}-gradle-${{ secrets.CACHE_VERSION }}
 
       - uses: actions/checkout@v1
 
@@ -52,7 +52,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.gradle
-          key: ${{ runner.os }}-gradle
+          key: ${{ runner.os }}-gradle-${{ secrets.CACHE_VERSION }}
 
       - uses: actions/checkout@v1
 
@@ -103,7 +103,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.gradle
-          key: ${{ runner.os }}-gradle
+          key: ${{ runner.os }}-gradle-${{ secrets.CACHE_VERSION }}
 
       - uses: actions/checkout@v1
 
