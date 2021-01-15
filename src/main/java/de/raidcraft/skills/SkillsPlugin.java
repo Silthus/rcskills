@@ -9,6 +9,7 @@ import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.registry.FlagConflictException;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import com.sk89q.worldguard.session.SessionManager;
+import de.raidcraft.skills.art.*;
 import de.raidcraft.skills.commands.AdminCommands;
 import de.raidcraft.skills.commands.PlayerCommands;
 import de.raidcraft.skills.entities.*;
@@ -16,6 +17,9 @@ import de.raidcraft.skills.listener.BindingListener;
 import de.raidcraft.skills.listener.PlayerListener;
 import de.raidcraft.skills.worldguard.SkillSessionHandler;
 import de.slikey.effectlib.EffectManager;
+import io.artframework.Scope;
+import io.artframework.annotations.ArtModule;
+import io.artframework.annotations.OnLoad;
 import io.ebean.Database;
 import kr.entree.spigradle.annotations.PluginMain;
 import lombok.AccessLevel;
@@ -45,6 +49,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @PluginMain
+@ArtModule(value = "rcskills", packages = "de.raidcraft.skills.art")
 public class SkillsPlugin extends JavaPlugin {
 
     public static final String PERMISSION_PREFIX = "rcskills.";
@@ -92,6 +97,21 @@ public class SkillsPlugin extends JavaPlugin {
         super(loader, description, dataFolder, file);
         instance = this;
         testing = true;
+    }
+
+    @OnLoad
+    public void onArtLoad(Scope scope) {
+
+        scope.configuration().art()
+                .actions()
+                    .add(AddExpAction.class)
+                    .add(AddLevelAction.class)
+                    .add(AddSkillAction.class)
+                .requirements()
+                    .add(LevelRequirement.class)
+                    .add(SkillRequirement.class)
+                .trigger()
+                    .add(PlayerTrigger.class);
     }
 
     @Override
