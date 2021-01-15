@@ -20,6 +20,7 @@ import org.bukkit.entity.Player;
 import javax.persistence.*;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Entity
 @Accessors(fluent = true)
@@ -345,22 +346,23 @@ public class SkilledPlayer extends BaseEntity {
     }
 
     @Transactional
-    public SkilledPlayer resetSkillSlots() {
+    public List<PlayerSkill> resetSkillSlots() {
 
         List<SkillSlot> skillSlots = skillSlots().stream()
                 .filter(skillSlot -> skillSlot.status() == SkillSlot.Status.IN_USE)
                 .collect(Collectors.toList());
 
-        if (skillSlots.isEmpty()) return this;
-
-        skillSlots.stream()
+        List<PlayerSkill> skills = Stream.concat(skillSlots.stream()
                 .map(SkillSlot::skill)
-                .flatMap(Optional::stream)
-                .forEach(PlayerSkill::deactivate);
+                .flatMap(Optional::stream), activeSkills().stream()
+                .filter(skill -> skill.configuredSkill().skillSlot()))
+                .collect(Collectors.toList());
+
+        skills.forEach(PlayerSkill::deactivate);
 
         save();
 
-        return this;
+        return skills;
     }
 
     @Transactional

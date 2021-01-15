@@ -8,6 +8,7 @@ import de.raidcraft.skills.events.*;
 import io.ebean.Finder;
 import io.ebean.annotation.DbDefault;
 import io.ebean.annotation.Index;
+import io.ebean.annotation.Transactional;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -148,9 +149,9 @@ public class PlayerSkill extends BaseEntity implements Comparable<PlayerSkill> {
      *
      * @param replaced true to replace this skill disabling and removing it from the player
      */
-    void replaced(boolean replaced) {
+    PlayerSkill replaced(boolean replaced) {
 
-        if (replaced() == replaced) return;
+        if (replaced() == replaced) return this;
 
         this.replaced = replaced;
         save();
@@ -160,6 +161,8 @@ public class PlayerSkill extends BaseEntity implements Comparable<PlayerSkill> {
         } else {
             enable();
         }
+
+        return this;
     }
 
     /**
@@ -289,6 +292,7 @@ public class PlayerSkill extends BaseEntity implements Comparable<PlayerSkill> {
                 .orElse(false);
     }
 
+    @Transactional
     public boolean activate() {
 
         if (checkDeactivate()) return false;
@@ -341,7 +345,10 @@ public class PlayerSkill extends BaseEntity implements Comparable<PlayerSkill> {
         return false;
     }
 
+    @Transactional
     public boolean deactivate() {
+
+        refresh();
 
         if (!active()) return false;
 

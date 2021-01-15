@@ -18,6 +18,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -621,6 +622,48 @@ public class PlayerSkillTest {
 
             assertThat(SkillSlot.of(result.playerSkill())).isEmpty();
             assertThat(SkillSlot.of(childPlayerSkill)).isPresent();
+        }
+
+        @Test
+        @DisplayName("resetSkillSlots() should reset and deactivate replaced parent skills")
+        void shouldResetParentSkills() {
+
+            ConfiguredSkill skill = loadSkill(parent, cfg -> {
+                cfg.set("type", "none");
+                cfg.set("no-skill-slot", false);
+                cfg.set("skills.child1.replace-parent", true);
+                cfg.set("skills.child1.type", "none");
+                cfg.set("skills.child1.skills.child2.type", "none");
+                cfg.set("skills.child1.skills.child2.replace-parent", true);
+            });
+
+            AddSkillAction.Result result = player.addSkill(skill);
+
+            assertThat(result.success()).isTrue();
+            PlayerSkill playerSkill = result.playerSkill();
+            assertThat(playerSkill)
+                    .extracting(PlayerSkill::active, PlayerSkill::replaced)
+                    .contains(true, true);
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child1)))
+                    .extracting(PlayerSkill::active, PlayerSkill::replaced)
+                    .contains(true, true);
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child2)))
+                    .extracting(PlayerSkill::active, PlayerSkill::replaced)
+                    .contains(true, false);
+
+            player.refresh();
+            List<PlayerSkill> skills = player.resetSkillSlots();
+            playerSkill.refresh();
+
+            assertThat(playerSkill)
+                    .extracting(PlayerSkill::active, PlayerSkill::replaced)
+                    .contains(false, false);
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child1)))
+                    .extracting(PlayerSkill::active, PlayerSkill::replaced)
+                    .contains(false, false);
+            assertThat(PlayerSkill.getOrCreate(player, getOrAssertSkill(ParentChildSkills.child2)))
+                    .extracting(PlayerSkill::active, PlayerSkill::replaced)
+                    .contains(false, false);
         }
     }
 }
