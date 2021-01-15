@@ -17,7 +17,7 @@ public class AddSkillAction implements Action<OfflinePlayer> {
     private String skill;
 
     @ConfigOption(description = "Set to true if you want to bypass the requirement checks of the skill", position = 1)
-    private final boolean bypass = false;
+    private boolean bypass = false;
 
     @Override
     public Result execute(@NonNull Target<OfflinePlayer> target, @NonNull ExecutionContext<ActionContext<OfflinePlayer>> context) {

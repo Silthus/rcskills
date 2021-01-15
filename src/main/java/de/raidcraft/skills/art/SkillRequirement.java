@@ -13,7 +13,7 @@ public class SkillRequirement implements Requirement<OfflinePlayer> {
     @ConfigOption(required = true, position = 0, description = "The skill to check.")
     private String skill;
     @ConfigOption(position = 1, description = "Set to true to only check skills the player has active.")
-    private final boolean active = false;
+    private boolean active = false;
 
     @Override
     public Result test(@NonNull Target<OfflinePlayer> target, @NonNull ExecutionContext<RequirementContext<OfflinePlayer>> context) {

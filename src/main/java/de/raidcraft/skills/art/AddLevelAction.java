@@ -17,7 +17,7 @@ public class AddLevelAction implements Action<OfflinePlayer> {
     @ConfigOption(required = true, position = 0, description = "The amount of exp to add to the player.")
     private int amount;
     @ConfigOption(position = 1, description = "The reason for adding exp.")
-    private final String reason = "ART-Action";
+    private String reason = "ART-Action";
 
     @Override
     public Result execute(@NonNull Target<OfflinePlayer> target, @NonNull ExecutionContext<ActionContext<OfflinePlayer>> context) {

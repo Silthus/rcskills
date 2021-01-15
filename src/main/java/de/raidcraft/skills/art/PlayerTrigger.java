@@ -14,7 +14,7 @@ public class PlayerTrigger implements Trigger, Listener {
     private static final String LEVEL_UP = "rcskills:level";
 
     @ConfigOption(description = "The level required by the level up trigger.", position = 0)
-    private final int level = 1;
+    private int level = 1;
 
     @ART(value = LEVEL_UP, alias = "level", description = "Called when the player levels up in RCSkills.")
     @EventHandler(ignoreCancelled = true)
