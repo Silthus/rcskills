@@ -1,3 +1,10 @@
+# [1.28.0](https://github.com/raidcraft/rcskills/compare/v1.27.0...v1.28.0) (2021-01-15)
+
+
+### Features
+
+* add art actions, requirements and trigger ([ced7428](https://github.com/raidcraft/rcskills/commit/ced7428b0a61dffd2e810980b5bf13d554389951))
+
 # [1.27.0](https://github.com/raidcraft/rcskills/compare/v1.26.1...v1.27.0) (2021-01-12)
 
 
