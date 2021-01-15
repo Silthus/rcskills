@@ -1,3 +1,10 @@
+## [1.28.2](https://github.com/raidcraft/rcskills/compare/v1.28.1...v1.28.2) (2021-01-15)
+
+
+### Bug Fixes
+
+* **art:** remove auto created final modifier from art actions ([f95afde](https://github.com/raidcraft/rcskills/commit/f95afde288237a25461490ca88af111d84103a51))
+
 ## [1.28.1](https://github.com/raidcraft/rcskills/compare/v1.28.0...v1.28.1) (2021-01-15)
 
 
