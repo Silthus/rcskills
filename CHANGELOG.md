@@ -1,3 +1,10 @@
+## [1.28.1](https://github.com/raidcraft/rcskills/compare/v1.28.0...v1.28.1) (2021-01-15)
+
+
+### Bug Fixes
+
+* reset all active skills that require a slot regardless if they are in a slot ([b312460](https://github.com/raidcraft/rcskills/commit/b312460db91ad8bf8d3ed5deb3f41e59b4d50179)), closes [#76](https://github.com/raidcraft/rcskills/issues/76)
+
 # [1.28.0](https://github.com/raidcraft/rcskills/compare/v1.27.0...v1.28.0) (2021-01-15)
 
 
