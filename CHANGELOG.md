@@ -1,3 +1,10 @@
+## [1.28.3](https://github.com/raidcraft/rcskills/compare/v1.28.2...v1.28.3) (2021-01-16)
+
+
+### Bug Fixes
+
+* **plugin:** add depend and softdepends ([5374918](https://github.com/raidcraft/rcskills/commit/53749189cb66eec1459f9130caaf062384254ca0))
+
 ## [1.28.2](https://github.com/raidcraft/rcskills/compare/v1.28.1...v1.28.2) (2021-01-15)
 
 
