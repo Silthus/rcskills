@@ -1,3 +1,10 @@
+## [1.28.4](https://github.com/raidcraft/rcskills/compare/v1.28.3...v1.28.4) (2021-01-17)
+
+
+### Bug Fixes
+
+* **msg:** always display cooldown and range regardless of skill type ([d7c7114](https://github.com/raidcraft/rcskills/commit/d7c71140b51bc257378b5dd5669a2391594d3c21)), closes [#77](https://github.com/raidcraft/rcskills/issues/77)
+
 ## [1.28.3](https://github.com/raidcraft/rcskills/compare/v1.28.2...v1.28.3) (2021-01-16)
 
 
