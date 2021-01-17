@@ -862,17 +862,26 @@ public final class Messages {
                 .append(text(" (" + skill.alias() + ")", NOTE, ITALIC)).append(newline())
                 .append(text("Level: ", TEXT).append(text(skill.level(), HIGHLIGHT)))
                 .append(text(" | ", DARK_ACCENT));
+
         if (SkillsPlugin.instance().getSkillManager().isExecutable(skill)) {
-            builder.append(text("AKTIV", SUCCESS, BOLD)).append(newline())
-                    .append(text("| ", DARK_ACCENT))
+            builder.append(text("AKTIV", SUCCESS, BOLD));
+        } else {
+            builder.append(text("PASSIV", DARK_ACCENT));
+        }
+
+        builder.append(text(" |", DARK_ACCENT)).append(newline());
+
+        if (skill.executionConfig().cooldown() > 0) {
+            builder.append(text("| ", DARK_ACCENT))
                     .append(text("Cooldown: ", TEXT))
                     .append(text(TimeUtil.formatTime(skill.executionConfig().cooldown()), HIGHLIGHT))
-                    .append(text(" | ", DARK_ACCENT))
+                    .append(text(" "));
+        }
+
+        if (skill.executionConfig().range() > 0) {
+            builder.append(text("| ", DARK_ACCENT))
                     .append(text("Reichweite: ", TEXT)).append(text(skill.executionConfig().range(), HIGHLIGHT))
                     .append(text(" |", DARK_ACCENT)).append(newline());
-
-        } else {
-            builder.append(text("PASSIV", DARK_ACCENT)).append(newline());
         }
 
         if (skill.money() > 0d) {
@@ -890,6 +899,7 @@ public final class Messages {
                     .append(text(skill.skillpoints(), HIGHLIGHT))
                     .append(newline());
         }
+
         return builder
                 .append(text("Beschreibung: ", TEXT))
                 .append(text(skill.description(), NOTE, ITALIC)).append(newline())
