@@ -406,7 +406,7 @@ public final class Messages {
                 .append(newline())
                 .append(text("Slots ", TEXT))
                 .append(text("(", NOTE))
-                .append(text(freeSkillSlots, freeSkillSlots > 0 ? SUCCESS : ERROR))
+                .append(text(slots.size() - freeSkillSlots, freeSkillSlots > 0 ? SUCCESS : ERROR))
                 .append(text("/", DARK_ACCENT))
                 .append(text(slots.size(), ACCENT))
                 .append(text(")", NOTE))
