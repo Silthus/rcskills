@@ -1,3 +1,10 @@
+## [1.28.5](https://github.com/raidcraft/rcskills/compare/v1.28.4...v1.28.5) (2021-01-21)
+
+
+### Bug Fixes
+
+* **msg:** show occupied instead of free skill slots ([128153f](https://github.com/raidcraft/rcskills/commit/128153f25de0be7ad35751a446560da769031eb7))
+
 ## [1.28.4](https://github.com/raidcraft/rcskills/compare/v1.28.3...v1.28.4) (2021-01-17)
 
 
