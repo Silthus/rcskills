@@ -64,7 +64,7 @@ repositories {
 dependencies {
     compileOnly spigot(mcVersion)
 
-    api 'de.raidcraft.economy:wrapper:2.0.1'
+    api 'de.raidcraft.economy:wrapper:2.3.0'
     api 'net.silthus:ebean-wrapper:2.9.1'
     api 'com.github.Slikey:EffectLib:master-SNAPSHOT'
     api 'net.silthus.config-mapper:bukkit:1.1.4'
