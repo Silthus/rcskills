@@ -10,7 +10,7 @@ plugins {
     id 'jacoco'
     id 'idea'
     id 'io.freefair.lombok' version '5.3.0'
-    id 'io.ebean' version '12.6.5'
+    id 'io.ebean' version '12.6.6'
     id 'kr.entree.spigradle' version '2.2.3'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
@@ -65,7 +65,7 @@ dependencies {
     compileOnly spigot(mcVersion)
 
     api 'de.raidcraft.economy:wrapper:2.0.1'
-    api 'net.silthus:ebean-wrapper:2.8.1'
+    api 'net.silthus:ebean-wrapper:2.9.1'
     api 'com.github.Slikey:EffectLib:master-SNAPSHOT'
     api 'net.silthus.config-mapper:bukkit:1.1.4'
 
