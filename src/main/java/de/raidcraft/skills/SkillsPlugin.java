@@ -108,10 +108,10 @@ public class SkillsPlugin extends JavaPlugin {
                     .add(AddLevelAction.class)
                     .add(AddSkillAction.class)
                 .requirements()
-                    .add(LevelRequirement.class)
+                    .add(PlayerLevelTrigger.class, () -> new PlayerLevelTrigger(scope))
                     .add(SkillRequirement.class)
                 .trigger()
-                    .add(PlayerTrigger.class);
+                    .add(PlayerLevelTrigger.class, () -> new PlayerLevelTrigger(scope));
     }
 
     @Override
