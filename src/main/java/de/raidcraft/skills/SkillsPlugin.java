@@ -104,8 +104,8 @@ public class SkillsPlugin extends JavaPlugin {
 
         scope.configuration().art()
                 .actions()
-                    .add(AddExpAction.class)
                     .add(AddLevelAction.class)
+                    .add(AddExpAction.class)
                     .add(AddSkillAction.class)
                 .requirements()
                     .add(PlayerLevelTrigger.class, () -> new PlayerLevelTrigger(scope))

@@ -8,19 +8,21 @@ import lombok.NonNull;
 import org.bukkit.OfflinePlayer;
 
 @ART(
-        value = "rcskills:level.add",
-        alias = {"addlevel", "addrclevel", "level.add"},
-        description = "Adds RC-Level to the player."
+        value = "rcskills:exp.add",
+        alias = {"addexp", "addrcexp", "addxp", "xp", "exp", "rcxp", "rcexp", "addrcxp", "rcskills:exp", "rcskills:xp", "exp.add", "rcexp.add", "xp.add"},
+        description = "Adds RC-EXP to the player."
 )
 public class AddExpAction implements Action<OfflinePlayer> {
 
-    @ConfigOption(required = true, position = 0, description = "The amount of level to add to the player.")
+    @ConfigOption(required = true, position = 0, description = "The amount of exp to add to the player.")
     private int amount;
+    @ConfigOption(position = 1, description = "The reason for adding exp.")
+    private String reason = "ART-Action";
 
     @Override
     public Result execute(@NonNull Target<OfflinePlayer> target, @NonNull ExecutionContext<ActionContext<OfflinePlayer>> context) {
 
-        SkilledPlayer.getOrCreate(target.source()).addLevel(amount);
+        SkilledPlayer.getOrCreate(target.source()).addExp(amount, reason);
 
         return success();
     }
