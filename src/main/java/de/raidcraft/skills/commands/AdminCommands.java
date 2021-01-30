@@ -13,7 +13,6 @@ import de.raidcraft.skills.entities.SkillSlot;
 import de.raidcraft.skills.entities.SkilledPlayer;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Bukkit;
 
 @CommandAlias("rcsa|rcs:admin|rcskills:admin|skills:admin")
 @CommandPermission("rcskills.admin.*")
@@ -185,11 +184,9 @@ public class AdminCommands extends BaseCommand {
 
         player.bukkitPlayer().ifPresent(p -> p.kickPlayer("Dein RCSkills Profil wird zurückgesetzt. Bitte warte kurz..."));
 
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            if (player.delete() && getCurrentCommandIssuer() != null) {
-                getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + "Das RCSkills Profil des Spielers " + player.name() + " wurde komplett zurückgesetzt.");
-            }
-        });
+        if (player.delete() && getCurrentCommandIssuer() != null) {
+            getCurrentCommandIssuer().sendMessage(ChatColor.GREEN + "Das RCSkills Profil des Spielers " + player.name() + " wurde komplett zurückgesetzt.");
+        }
     }
 
     @Subcommand("reload")
