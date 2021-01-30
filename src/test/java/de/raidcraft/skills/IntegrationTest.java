@@ -97,6 +97,7 @@ public class IntegrationTest {
             class buySkill {
 
                 @Test
+                @Disabled
                 @DisplayName("player should be able to buy skills when all requirements are met")
                 void shouldBuySkillIfAllRequirementsAreMet() {
 
