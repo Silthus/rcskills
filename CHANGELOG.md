@@ -1,3 +1,12 @@
+## [1.28.6](https://github.com/raidcraft/rcskills/compare/v1.28.5...v1.28.6) (2021-01-30)
+
+
+### Bug Fixes
+
+* implement new art trigger api ([d028485](https://github.com/raidcraft/rcskills/commit/d02848575fa2a64bf5a8b45aac219bab95d4cdf9))
+* name actions correctly ([f429aeb](https://github.com/raidcraft/rcskills/commit/f429aeb9b95d4602d6f8a43447c98f59abd4973b))
+* run player deletion sync ([65aeb93](https://github.com/raidcraft/rcskills/commit/65aeb9357863af339d8bb631fa1b0d2567d0decc))
+
 ## [1.28.5](https://github.com/raidcraft/rcskills/compare/v1.28.4...v1.28.5) (2021-01-21)
 
 
