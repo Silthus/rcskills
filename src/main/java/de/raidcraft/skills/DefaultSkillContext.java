@@ -112,14 +112,14 @@ class DefaultSkillContext implements SkillContext {
 
         if (skill instanceof Periodic) {
             task = Bukkit.getScheduler().runTaskTimer(
-                    SkillsPlugin.instance(),
+                    RCSkills.instance(),
                     ((Periodic) skill)::tick,
                     interval,
                     interval
             );
         } else if (skill instanceof PeriodicAsync) {
             task = Bukkit.getScheduler().runTaskTimerAsynchronously(
-                    SkillsPlugin.instance(),
+                    RCSkills.instance(),
                     ((PeriodicAsync) skill)::tickAsync,
                     interval,
                     interval
@@ -127,7 +127,7 @@ class DefaultSkillContext implements SkillContext {
         }
 
         if (skill instanceof Listener) {
-            Bukkit.getPluginManager().registerEvents((Listener) skill, SkillsPlugin.instance());
+            Bukkit.getPluginManager().registerEvents((Listener) skill, RCSkills.instance());
         }
 
         attached(true);
@@ -173,7 +173,7 @@ class DefaultSkillContext implements SkillContext {
         }
 
         if (context.config().delay() > 0) {
-            Bukkit.getScheduler().runTaskLater(SkillsPlugin.instance(),
+            Bukkit.getScheduler().runTaskLater(RCSkills.instance(),
                     context,
                     context.config().delay()
             );

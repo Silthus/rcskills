@@ -26,7 +26,7 @@ class DefaultExecutionContext implements ExecutionContext {
     @Override
     public <TTarget> Optional<TTarget> target(Class<TTarget> targetClass) {
 
-        return SkillsPlugin.instance().getTargetManager().resolve(this, targetClass);
+        return RCSkills.instance().getTargetManager().resolve(this, targetClass);
     }
 
     @Override

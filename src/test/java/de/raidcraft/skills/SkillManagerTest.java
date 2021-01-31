@@ -11,11 +11,7 @@ import org.apache.commons.io.FileUtils;
 import org.assertj.core.api.Assertions;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
@@ -30,14 +26,14 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 class SkillManagerTest {
 
     private ServerMock server;
-    private SkillsPlugin plugin;
+    private RCSkills plugin;
     private SkillManager skillManager;
 
     @BeforeEach
     void setUp(@TempDir Path temp) {
 
         this.server = MockBukkit.mock();
-        this.plugin = MockBukkit.load(SkillsPlugin.class);
+        this.plugin = MockBukkit.load(RCSkills.class);
         this.skillManager = new SkillManager(plugin, new SkillPluginConfig(new File(temp.toFile(), "config.yml").toPath()));
     }
 

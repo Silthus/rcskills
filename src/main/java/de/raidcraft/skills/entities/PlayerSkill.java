@@ -1,9 +1,9 @@
 package de.raidcraft.skills.entities;
 
 import de.raidcraft.skills.ExecutionResult;
+import de.raidcraft.skills.RCSkills;
 import de.raidcraft.skills.SkillContext;
 import de.raidcraft.skills.SkillStatus;
-import de.raidcraft.skills.SkillsPlugin;
 import de.raidcraft.skills.events.*;
 import io.ebean.Finder;
 import io.ebean.annotation.DbDefault;
@@ -179,7 +179,7 @@ public class PlayerSkill extends BaseEntity implements Comparable<PlayerSkill> {
 
     Optional<SkillContext> context() {
 
-        return Optional.ofNullable(SkillsPlugin.instance().getSkillManager().loadSkill(this));
+        return Optional.ofNullable(RCSkills.instance().getSkillManager().loadSkill(this));
     }
 
     public boolean executable() {
@@ -288,7 +288,7 @@ public class PlayerSkill extends BaseEntity implements Comparable<PlayerSkill> {
         if (player().hasFreeSkillSlot()) return true;
 
         return player().bukkitPlayer()
-                .map(p -> p.hasPermission(SkillsPlugin.BYPASS_ACTIVE_SKILL_LIMIT))
+                .map(p -> p.hasPermission(RCSkills.BYPASS_ACTIVE_SKILL_LIMIT))
                 .orElse(false);
     }
 

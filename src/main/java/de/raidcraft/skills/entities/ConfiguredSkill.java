@@ -315,7 +315,7 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
         setDisabledWorlds(config);
 
         if (restricted) {
-            requirements.add(new PermissionRequirement().add(SkillsPlugin.SKILL_PERMISSION_PREFIX + alias).load(new MemoryConfiguration()));
+            requirements.add(new PermissionRequirement().add(RCSkills.SKILL_PERMISSION_PREFIX + alias).load(new MemoryConfiguration()));
         }
 
         if (level > 0) {
@@ -526,7 +526,7 @@ public class ConfiguredSkill extends BaseEntity implements Comparable<Configured
 
     private void setRequirements(ConfigurationSection config) {
 
-        this.requirements(SkillsPlugin.instance().getSkillManager()
+        this.requirements(RCSkills.instance().getSkillManager()
                 .loadRequirements(config.getConfigurationSection("requirements")));
         this.costRequirements = new ArrayList<>();
     }

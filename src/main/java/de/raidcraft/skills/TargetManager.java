@@ -12,10 +12,10 @@ import java.util.Optional;
 @Log(topic = "RCSkills")
 public final class TargetManager {
 
-    private final SkillsPlugin plugin;
+    private final RCSkills plugin;
     private final Map<Class<?>, TargetResolver<?>> resolvers = new HashMap<>();
 
-    public TargetManager(SkillsPlugin plugin) {
+    public TargetManager(RCSkills plugin) {
         this.plugin = plugin;
     }
 

@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 class LevelManagerTest {
 
     private ServerMock server;
-    private SkillsPlugin plugin;
+    private RCSkills plugin;
     private LevelManager levelManager;
     private SkilledPlayer player;
 
@@ -28,7 +28,7 @@ class LevelManagerTest {
     void setUp() {
 
         server = MockBukkit.mock();
-        plugin = MockBukkit.load(SkillsPlugin.class);
+        plugin = MockBukkit.load(RCSkills.class);
         this.levelManager = new LevelManager(plugin);
         this.player = SkilledPlayer.getOrCreate(server.addPlayer());
     }

@@ -41,7 +41,7 @@ import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 public final class LevelManager implements Listener {
 
     @Getter
-    private final SkillsPlugin plugin;
+    private final RCSkills plugin;
     private final Map<UUID, Map<Integer, Integer>> cache = new HashMap<>();
     private Map<Integer, Integer> levelToExpMap = new HashMap<>();
     private final Map<UUID, Map.Entry<BossBar, BukkitTask>> activeExpBars = new HashMap<>();
@@ -53,7 +53,7 @@ public final class LevelManager implements Listener {
     private double y;
     private double z;
 
-    public LevelManager(SkillsPlugin plugin) {
+    public LevelManager(RCSkills plugin) {
         this.plugin = plugin;
     }
 
@@ -175,7 +175,7 @@ public final class LevelManager implements Listener {
             TextComponent subheading = text("Skill '", NamedTextColor.GREEN).append(text(event.getSkill().name(), NamedTextColor.AQUA))
                     .append(text("' freigeschaltet!", NamedTextColor.GREEN));
             Title title = Title.title(heading, subheading);
-            BukkitAudiences.create(SkillsPlugin.instance())
+            BukkitAudiences.create(RCSkills.instance())
                     .player(player)
                     .showTitle(title);
         });

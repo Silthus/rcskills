@@ -3,7 +3,7 @@ package de.raidcraft.skills.entities;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import de.raidcraft.skills.SkillsPlugin;
+import de.raidcraft.skills.RCSkills;
 import org.bukkit.Material;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,12 +20,12 @@ import static org.mockito.Mockito.when;
 class SkilledPlayerTest {
 
     private ServerMock server;
-    private SkillsPlugin plugin;
+    private RCSkills plugin;
 
     @BeforeEach
     void setUp() {
         server = MockBukkit.mock();
-        plugin = MockBukkit.load(SkillsPlugin.class);
+        plugin = MockBukkit.load(RCSkills.class);
     }
 
     @AfterEach

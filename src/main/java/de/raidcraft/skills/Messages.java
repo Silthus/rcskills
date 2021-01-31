@@ -64,8 +64,8 @@ public final class Messages {
     }
 
     public static void send(UUID playerId, Component message) {
-        if (SkillsPlugin.isTesting()) return;
-        BukkitAudiences.create(SkillsPlugin.instance())
+        if (RCSkills.isTesting()) return;
+        BukkitAudiences.create(RCSkills.instance())
                 .player(playerId)
                 .sendMessage(message);
     }
@@ -360,7 +360,7 @@ public final class Messages {
     public static Component level(SkilledPlayer player) {
 
         Level level = player.level();
-        LevelManager levelManager = SkillsPlugin.instance().getLevelManager();
+        LevelManager levelManager = RCSkills.instance().getLevelManager();
         int expToNext = levelManager.calculateExpToNextLevel(player);
         long exp;
         if (level.getLevel() == 1) {
@@ -390,11 +390,11 @@ public final class Messages {
                 .collect(Collectors.toUnmodifiableList());
         int freeSkillSlots = player.freeSkillSlots();
 
-        Optional<Integer> nextSlot = SkillsPlugin.instance().getPluginConfig()
+        Optional<Integer> nextSlot = RCSkills.instance().getPluginConfig()
                 .getLevelUpConfig()
                 .getNextLevelUpSlot(player.level().getLevel());
 
-        SlotManager slotManager = SkillsPlugin.instance().getSlotManager();
+        SlotManager slotManager = RCSkills.instance().getSlotManager();
         int slotCount = player.slotCount();
         double firstSlot = slotManager.calculateSlotCost(player, slotCount + 1);
         double secondSlot = slotManager.calculateSlotCost(player, slotCount + 2);
@@ -464,7 +464,7 @@ public final class Messages {
                     .build().hoverEvent(showText(text("Aktiviere einen Skill um den Skill Slot zu belegen.", NOTE)))
                     .clickEvent(suggestCommand(PlayerCommands.activateSkill(null)));
         } else if (slot.status() == SkillSlot.Status.ELIGIBLE) {
-            double cost = SkillsPlugin.instance().getSlotManager().calculateSlotCost(player);
+            double cost = RCSkills.instance().getSlotManager().calculateSlotCost(player);
             return builder.append(text("[", ERROR))
                     .append(text("$", Economy.get().has(player.offlinePlayer(), cost) ? SUCCESS : ERROR_ACCENT))
                     .append(text("]", ERROR)).build()
@@ -760,7 +760,7 @@ public final class Messages {
                             .clickEvent(runCommand(PlayerCommands.activateSkill(playerSkill)))
                     ).append(text("]", SUCCESS));
                 } else if (!playerSkill.replaced()) {
-                    Optional<Map.Entry<Integer, SkillPluginConfig.LevelUp>> nextLevelUp = SkillsPlugin.instance().getPluginConfig()
+                    Optional<Map.Entry<Integer, SkillPluginConfig.LevelUp>> nextLevelUp = RCSkills.instance().getPluginConfig()
                             .getLevelUpConfig()
                             .getNextLevelUp(player.level().getLevel());
 
@@ -863,7 +863,7 @@ public final class Messages {
                 .append(text("Level: ", TEXT).append(text(skill.level(), HIGHLIGHT)))
                 .append(text(" | ", DARK_ACCENT));
 
-        if (SkillsPlugin.instance().getSkillManager().isExecutable(skill)) {
+        if (RCSkills.instance().getSkillManager().isExecutable(skill)) {
             builder.append(text("AKTIV", SUCCESS, BOLD));
         } else {
             builder.append(text("PASSIV", DARK_ACCENT));

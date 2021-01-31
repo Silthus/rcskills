@@ -33,7 +33,7 @@ class DefaultSkillContextTest {
 
     private String skillAlias;
     private ServerMock server;
-    private SkillsPlugin plugin;
+    private RCSkills plugin;
     private BukkitSchedulerMock scheduler;
     private ConfiguredSkill configuredSkill;
     private PlayerMock playerMock;
@@ -44,7 +44,7 @@ class DefaultSkillContextTest {
     void setUp() {
         this.skillAlias = new RandomString().nextString();
         this.server = MockBukkit.mock(new de.raidcraft.skills.ServerMock());
-        this.plugin = MockBukkit.load(SkillsPlugin.class);
+        this.plugin = MockBukkit.load(RCSkills.class);
         this.scheduler = server.getScheduler();
         this.config = new MemoryConfiguration();
 

@@ -5,7 +5,7 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import com.google.common.base.Strings;
 import de.raidcraft.skills.Messages;
-import de.raidcraft.skills.SkillsPlugin;
+import de.raidcraft.skills.RCSkills;
 import de.raidcraft.skills.actions.AddSkillAction;
 import de.raidcraft.skills.entities.ConfiguredSkill;
 import de.raidcraft.skills.entities.PlayerSkill;
@@ -19,9 +19,9 @@ import net.md_5.bungee.api.ChatColor;
 public class AdminCommands extends BaseCommand {
 
     @Getter
-    private final SkillsPlugin plugin;
+    private final RCSkills plugin;
 
-    public AdminCommands(SkillsPlugin plugin) {
+    public AdminCommands(RCSkills plugin) {
         this.plugin = plugin;
     }
 

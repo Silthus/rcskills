@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 class SlotManagerTest {
 
     private ServerMock server;
-    private SkillsPlugin plugin;
+    private RCSkills plugin;
     private SkillPluginConfig.SkillSlotConfig config;
     private SlotManager slotManager;
     private SkilledPlayer player;
@@ -31,7 +31,7 @@ class SlotManagerTest {
     void setUp() {
 
         server = MockBukkit.mock();
-        plugin = MockBukkit.load(SkillsPlugin.class);
+        plugin = MockBukkit.load(RCSkills.class);
         config = plugin.getPluginConfig().getSlotConfig();
         this.slotManager = new SlotManager();
         this.player = spy(SkilledPlayer.getOrCreate(server.addPlayer()));

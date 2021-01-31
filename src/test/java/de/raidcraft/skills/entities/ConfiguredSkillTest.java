@@ -3,7 +3,7 @@ package de.raidcraft.skills.entities;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import de.raidcraft.skills.ExecutionConfig;
-import de.raidcraft.skills.SkillsPlugin;
+import de.raidcraft.skills.RCSkills;
 import de.raidcraft.skills.TaskConfig;
 import de.raidcraft.skills.requirements.LevelRequirement;
 import de.raidcraft.skills.requirements.PermissionRequirement;
@@ -26,13 +26,13 @@ class ConfiguredSkillTest {
     private static final String TEST_SKILL = "test";
 
     private ServerMock server;
-    private SkillsPlugin plugin;
+    private RCSkills plugin;
 
     @BeforeEach
     void setUp() {
 
         this.server = MockBukkit.mock();
-        this.plugin = MockBukkit.load(SkillsPlugin.class);
+        this.plugin = MockBukkit.load(RCSkills.class);
 
         MemoryConfiguration cfg = new MemoryConfiguration();
         cfg.set("type", "permission");
@@ -77,7 +77,7 @@ class ConfiguredSkillTest {
                 .filteredOn(o -> o instanceof PermissionRequirement)
                 .extracting("permissions")
                 .asList()
-                .contains(Collections.singletonList(SkillsPlugin.SKILL_PERMISSION_PREFIX + TEST_SKILL));
+                .contains(Collections.singletonList(RCSkills.SKILL_PERMISSION_PREFIX + TEST_SKILL));
     }
 
     @Test

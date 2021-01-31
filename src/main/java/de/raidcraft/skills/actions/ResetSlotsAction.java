@@ -2,7 +2,7 @@ package de.raidcraft.skills.actions;
 
 import com.google.common.base.Strings;
 import de.raidcraft.economy.wrapper.Economy;
-import de.raidcraft.skills.SkillsPlugin;
+import de.raidcraft.skills.RCSkills;
 import de.raidcraft.skills.entities.SkillSlot;
 import de.raidcraft.skills.entities.SkilledPlayer;
 import lombok.Value;
@@ -15,12 +15,12 @@ import java.util.Map;
 public class ResetSlotsAction {
 
     SkilledPlayer player;
-    SkillsPlugin plugin;
+    RCSkills plugin;
 
     public ResetSlotsAction(SkilledPlayer player) {
 
         this.player = player;
-        this.plugin = SkillsPlugin.instance();
+        this.plugin = RCSkills.instance();
     }
 
     public double cost() {

@@ -3,16 +3,12 @@ package de.raidcraft.skills.skills;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import de.raidcraft.skills.SkillsPlugin;
+import de.raidcraft.skills.RCSkills;
 import de.raidcraft.skills.actions.AddSkillAction;
 import de.raidcraft.skills.entities.ConfiguredSkill;
 import de.raidcraft.skills.entities.SkilledPlayer;
 import org.bukkit.configuration.MemoryConfiguration;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.Collections;
 
@@ -23,13 +19,13 @@ class PermissionSkillTest {
     private static final String TEST_SKILL = "test";
 
     private ServerMock server;
-    private SkillsPlugin plugin;
+    private RCSkills plugin;
 
     @BeforeEach
     void setUp() {
 
         server = MockBukkit.mock();
-        plugin = MockBukkit.load(SkillsPlugin.class);
+        plugin = MockBukkit.load(RCSkills.class);
         MemoryConfiguration cfg = new MemoryConfiguration();
         cfg.set("type", "permission");
         cfg.set("name", "Test Skill");
@@ -56,8 +52,8 @@ class PermissionSkillTest {
     void shouldHavePermissionWhenSkillIsApplied() {
 
         PlayerMock player = server.addPlayer();
-        player.addAttachment(plugin, SkillsPlugin.BYPASS_ACTIVE_SKILL_LIMIT, true);
-        player.addAttachment(plugin, SkillsPlugin.SKILL_PERMISSION_PREFIX + TEST_SKILL, true);
+        player.addAttachment(plugin, RCSkills.BYPASS_ACTIVE_SKILL_LIMIT, true);
+        player.addAttachment(plugin, RCSkills.SKILL_PERMISSION_PREFIX + TEST_SKILL, true);
         assertThat(player.hasPermission("foobar")).isFalse();
 
         SkilledPlayer skilledPlayer = SkilledPlayer.getOrCreate(player);

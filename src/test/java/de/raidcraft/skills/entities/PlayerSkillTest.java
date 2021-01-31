@@ -5,7 +5,7 @@ import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import de.raidcraft.skills.DefaultSkillContextTest;
 import de.raidcraft.skills.ExecutionResult;
-import de.raidcraft.skills.SkillsPlugin;
+import de.raidcraft.skills.RCSkills;
 import de.raidcraft.skills.actions.AddSkillAction;
 import de.raidcraft.skills.util.RandomString;
 import org.bukkit.Location;
@@ -32,7 +32,7 @@ public class PlayerSkillTest {
     private String TEST_SKILL = "test";
 
     private ServerMock server;
-    private SkillsPlugin plugin;
+    private RCSkills plugin;
 
     private SkilledPlayer player;
     private PlayerMock playerMock;
@@ -43,7 +43,7 @@ public class PlayerSkillTest {
     void setUp() {
 
         server = MockBukkit.mock();
-        plugin = MockBukkit.load(SkillsPlugin.class);
+        plugin = MockBukkit.load(RCSkills.class);
 
         TEST_SKILL = rnd.nextString();
         MemoryConfiguration cfg = new MemoryConfiguration();

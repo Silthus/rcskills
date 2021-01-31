@@ -1,6 +1,6 @@
 package de.raidcraft.skills.entities;
 
-import de.raidcraft.skills.SkillsPlugin;
+import de.raidcraft.skills.RCSkills;
 import de.raidcraft.skills.actions.AddSkillAction;
 import de.raidcraft.skills.actions.BuySkillAction;
 import de.raidcraft.skills.events.*;
@@ -454,7 +454,7 @@ public class SkilledPlayer extends BaseEntity {
     @Override
     public boolean delete() {
 
-        SkillsPlugin.instance().getSkillManager().clearPlayerCache(id());
+        RCSkills.instance().getSkillManager().clearPlayerCache(id());
 
         resetSkillSlots();
         refresh();

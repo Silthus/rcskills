@@ -20,10 +20,10 @@ import static net.kyori.adventure.text.format.NamedTextColor.RED;
 
 public class PlayerListener implements Listener {
 
-    private final SkillsPlugin plugin;
+    private final RCSkills plugin;
     private final SkillManager skillManager;
 
-    public PlayerListener(SkillsPlugin plugin, SkillManager skillManager) {
+    public PlayerListener(RCSkills plugin, SkillManager skillManager) {
         this.plugin = plugin;
         this.skillManager = skillManager;
     }

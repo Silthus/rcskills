@@ -9,7 +9,7 @@ import com.sk89q.worldguard.session.MoveType;
 import com.sk89q.worldguard.session.Session;
 import com.sk89q.worldguard.session.handler.Handler;
 import de.raidcraft.skills.Messages;
-import de.raidcraft.skills.SkillsPlugin;
+import de.raidcraft.skills.RCSkills;
 import de.raidcraft.skills.entities.PlayerSkill;
 import de.raidcraft.skills.entities.SkilledPlayer;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -45,14 +45,14 @@ public class SkillSessionHandler extends Handler {
     public boolean onCrossBoundary(LocalPlayer player, Location from, Location to, ApplicableRegionSet toSet, Set<ProtectedRegion> entered, Set<ProtectedRegion> exited, MoveType moveType) {
 
         for (ProtectedRegion region : entered) {
-            StateFlag.State flag = region.getFlag(SkillsPlugin.ALLOW_SKILLS_FLAG);
+            StateFlag.State flag = region.getFlag(RCSkills.ALLOW_SKILLS_FLAG);
             if (flag != null) {
                 SkilledPlayer skilledPlayer = SkilledPlayer.find.byId(player.getUniqueId());
                 if (skilledPlayer != null) {
                     if (flag == StateFlag.State.DENY) {
                         skilledPlayer.activeSkills().forEach(PlayerSkill::disable);
                         Messages.send(skilledPlayer, Component.text("Deine Skills funktionieren in dieser Region nicht und wurden deaktiviert.", NamedTextColor.RED));
-                        BukkitAudiences.create(SkillsPlugin.instance()).player(player.getUniqueId()).showTitle(Title.title(
+                        BukkitAudiences.create(RCSkills.instance()).player(player.getUniqueId()).showTitle(Title.title(
                                 Component.text("Skills deaktiviert", NamedTextColor.RED),
                                 Component.text("Skills werden in dieser Region deaktiviert.", NamedTextColor.YELLOW)
                         ));
@@ -62,14 +62,14 @@ public class SkillSessionHandler extends Handler {
         }
 
         for (ProtectedRegion region : exited) {
-            StateFlag.State flag = region.getFlag(SkillsPlugin.ALLOW_SKILLS_FLAG);
+            StateFlag.State flag = region.getFlag(RCSkills.ALLOW_SKILLS_FLAG);
             if (flag != null) {
                 SkilledPlayer skilledPlayer = SkilledPlayer.find.byId(player.getUniqueId());
                 if (skilledPlayer != null) {
                     if (flag == StateFlag.State.DENY) {
                         skilledPlayer.activeSkills().forEach(PlayerSkill::enable);
                         Messages.send(skilledPlayer, Component.text("Du hast die Region verlassen und deine Skills funktionieren wieder.", NamedTextColor.GREEN));
-                        BukkitAudiences.create(SkillsPlugin.instance()).player(player.getUniqueId()).showTitle(Title.title(
+                        BukkitAudiences.create(RCSkills.instance()).player(player.getUniqueId()).showTitle(Title.title(
                                 Component.text("Skills reaktiviert", NamedTextColor.GREEN),
                                 Component.text("Anti-Skills Region verlassen.", NamedTextColor.YELLOW)
                         ));

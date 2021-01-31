@@ -7,7 +7,7 @@ import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.annotation.*;
 import de.raidcraft.economy.wrapper.Economy;
 import de.raidcraft.skills.Messages;
-import de.raidcraft.skills.SkillsPlugin;
+import de.raidcraft.skills.RCSkills;
 import de.raidcraft.skills.actions.AddSkillAction;
 import de.raidcraft.skills.actions.BuySkillAction;
 import de.raidcraft.skills.actions.ResetSlotsAction;
@@ -100,11 +100,11 @@ public class PlayerCommands extends BaseCommand {
         return "/rcskills info " + player.id().toString();
     }
 
-    private final SkillsPlugin plugin;
+    private final RCSkills plugin;
 
     private final Map<UUID, Integer> lastPage = new HashMap<>();
 
-    public PlayerCommands(SkillsPlugin plugin) {
+    public PlayerCommands(RCSkills plugin) {
         this.plugin = plugin;
     }
 
@@ -295,7 +295,7 @@ public class PlayerCommands extends BaseCommand {
                 throw new ConditionFailedException("Du besitzt den Skill " + skill.name() + " bereits.");
             }
 
-            if (!getCurrentCommandIssuer().hasPermission(SkillsPlugin.BYPASS_REQUIREMENT_CHECKS) && !player.canBuy(skill)) {
+            if (!getCurrentCommandIssuer().hasPermission(RCSkills.BYPASS_REQUIREMENT_CHECKS) && !player.canBuy(skill)) {
                 PlayerSkill playerSkill = PlayerSkill.getOrCreate(player, skill);
                 Messages.send(getCurrentCommandIssuer(), text("Du kannst den Skill ", RED)
                         .append(skill(playerSkill, false))
@@ -396,7 +396,7 @@ public class PlayerCommands extends BaseCommand {
                 if (buySkillAction == null) {
                     getCurrentCommandIssuer().sendMessage(ChatColor.RED + "Der Zeitraum zum Kaufen des Skills ist abgelaufen bitte gebe den Befehl erneut ein.");
                 } else {
-                    AddSkillAction.Result result = buySkillAction.execute(getCurrentCommandIssuer().hasPermission(SkillsPlugin.BYPASS_REQUIREMENT_CHECKS));
+                    AddSkillAction.Result result = buySkillAction.execute(getCurrentCommandIssuer().hasPermission(RCSkills.BYPASS_REQUIREMENT_CHECKS));
                     if (result.success()) {
                         Messages.send(getCurrentCommandIssuer(), Messages.buySkill(buySkillAction.player(), result.playerSkill()));
                         list(page(getCurrentCommandIssuer().getUniqueId()), result.playerSkill().player());

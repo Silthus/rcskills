@@ -1,6 +1,6 @@
 package de.raidcraft.skills.util;
 
-import de.raidcraft.skills.SkillsPlugin;
+import de.raidcraft.skills.RCSkills;
 import de.slikey.effectlib.effect.DnaEffect;
 import lombok.NonNull;
 import org.bukkit.entity.Player;
@@ -12,9 +12,9 @@ public final class Effects {
 
     public static void playerUnlockSkill(@NonNull Player player) {
 
-        if (SkillsPlugin.isTesting()) return;
+        if (RCSkills.isTesting()) return;
 
-        SkillsPlugin plugin = SkillsPlugin.instance();
+        RCSkills plugin = RCSkills.instance();
 
         DnaEffect effect = new DnaEffect(plugin.getEffectManager());
         effect.setLocation(player.getLocation());
@@ -26,42 +26,42 @@ public final class Effects {
 
     public static void activateSkill(Player player) {
 
-        if (SkillsPlugin.isTesting()) return;
+        if (RCSkills.isTesting()) return;
 
-        playSound(player, SkillsPlugin.instance().getPluginConfig().getSounds().getSkillActivate());
+        playSound(player, RCSkills.instance().getPluginConfig().getSounds().getSkillActivate());
     }
 
     public static void levelUp(Player player) {
 
-        if (SkillsPlugin.isTesting()) return;
+        if (RCSkills.isTesting()) return;
 
-        playSound(player, SkillsPlugin.instance().getPluginConfig().getSounds().getLevelUp());
+        playSound(player, RCSkills.instance().getPluginConfig().getSounds().getLevelUp());
     }
 
     public static void unlockSlot(Player player) {
 
-        if (SkillsPlugin.isTesting()) return;
+        if (RCSkills.isTesting()) return;
 
-        playSound(player, SkillsPlugin.instance().getPluginConfig().getSounds().getSlotUnlock());
+        playSound(player, RCSkills.instance().getPluginConfig().getSounds().getSlotUnlock());
     }
 
     public static void activateSlot(Player player) {
 
-        if (SkillsPlugin.isTesting()) return;
+        if (RCSkills.isTesting()) return;
 
-        playSound(player, SkillsPlugin.instance().getPluginConfig().getSounds().getSlotActivate());
+        playSound(player, RCSkills.instance().getPluginConfig().getSounds().getSlotActivate());
     }
 
     public static void skillReset(Player player) {
 
-        if (SkillsPlugin.isTesting()) return;
+        if (RCSkills.isTesting()) return;
 
-        playSound(player, SkillsPlugin.instance().getPluginConfig().getSounds().getSkillReset());
+        playSound(player, RCSkills.instance().getPluginConfig().getSounds().getSkillReset());
     }
 
     public static void playSound(Player player, String sound) {
 
-        if (SkillsPlugin.isTesting()) return;
+        if (RCSkills.isTesting()) return;
 
         player.playSound(player.getLocation(), sound, 10f, 1f);
     }

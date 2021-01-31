@@ -24,15 +24,15 @@ public class PermissionSkill extends AbstractSkill {
         @Override
         public PermissionSkill create(SkillContext context) {
 
-            return new PermissionSkill(context, SkillsPlugin.instance());
+            return new PermissionSkill(context, RCSkills.instance());
         }
     }
 
-    private final SkillsPlugin plugin;
+    private final RCSkills plugin;
     private final List<String> permissions = new ArrayList<>();
     private final Set<PermissionAttachment> attachments = new HashSet<>();
 
-    public PermissionSkill(SkillContext context, SkillsPlugin plugin) {
+    public PermissionSkill(SkillContext context, RCSkills plugin) {
 
         super(context);
         this.plugin = plugin;

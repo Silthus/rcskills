@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
 
 @PluginMain
 @ArtModule(value = "rcskills", packages = "de.raidcraft.skills.art")
-public class SkillsPlugin extends JavaPlugin {
+public class RCSkills extends JavaPlugin {
 
     public static final String PERMISSION_PREFIX = "rcskills.";
     public static final String SKILL_PERMISSION_PREFIX = PERMISSION_PREFIX + "skill.";
@@ -63,7 +63,7 @@ public class SkillsPlugin extends JavaPlugin {
 
     @Getter
     @Accessors(fluent = true)
-    private static SkillsPlugin instance;
+    private static RCSkills instance;
 
     @Getter
     private SkillManager skillManager;
@@ -88,11 +88,11 @@ public class SkillsPlugin extends JavaPlugin {
     @Getter
     private static boolean testing = false;
 
-    public SkillsPlugin() {
+    public RCSkills() {
         instance = this;
     }
 
-    public SkillsPlugin(
+    public RCSkills(
             JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file) {
         super(loader, description, dataFolder, file);
         instance = this;

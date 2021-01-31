@@ -51,10 +51,10 @@ public final class SkillManager {
     // player_id -> player_skill_id -> context
     private final Map<UUID, Map<UUID, SkillContext>> cachedPlayerSkills = new HashMap<>();
 
-    private final SkillsPlugin plugin;
+    private final RCSkills plugin;
     private final SkillPluginConfig config;
 
-    public SkillManager(SkillsPlugin plugin, SkillPluginConfig config) {
+    public SkillManager(RCSkills plugin, SkillPluginConfig config) {
         this.plugin = plugin;
         this.config = config;
     }
@@ -136,7 +136,7 @@ public final class SkillManager {
         return skills.stream()
                 .filter(ConfiguredSkill::enabled)
                 .map(skill -> new Permission(
-                        SkillsPlugin.SKILL_PERMISSION_PREFIX + skill.alias(),
+                        RCSkills.SKILL_PERMISSION_PREFIX + skill.alias(),
                         skill.description(),
                         skill.restricted() ? PermissionDefault.OP : PermissionDefault.TRUE)
                 ).collect(Collectors.toUnmodifiableList());
@@ -144,7 +144,7 @@ public final class SkillManager {
 
     void loadSkillsFromPlugins() {
 
-        if (SkillsPlugin.isTesting() || !plugin.getPluginConfig().isLoadClassesFromPlugins()) return;
+        if (RCSkills.isTesting() || !plugin.getPluginConfig().isLoadClassesFromPlugins()) return;
 
         for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
 
@@ -517,7 +517,7 @@ public final class SkillManager {
         config.set("id", skill.id().toString());
         config.set("enabled", skill.enabled());
 
-        if (!SkillsPlugin.isTesting()) {
+        if (!RCSkills.isTesting()) {
             PluginManager pluginManager = Bukkit.getPluginManager();
             configuredSkill.requirements().stream()
                     .filter(r -> r instanceof PermissionRequirement)
