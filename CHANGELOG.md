@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/raidcraft/rcskills/compare/v1.30.0...v2.0.0) (2021-02-10)
+
+
+### Bug Fixes
+
+* remove shaded dependencies from api surface ([299fa6b](https://github.com/raidcraft/rcskills/commit/299fa6b25271941a008a565abbd208d99aa08d29))
+
+
+### BREAKING CHANGES
+
+* if using adventure text use own dependencies
+
 # [1.30.0](https://github.com/raidcraft/rcskills/compare/v1.29.0...v1.30.0) (2021-02-10)
 
 
