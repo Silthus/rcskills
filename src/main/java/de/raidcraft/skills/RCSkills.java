@@ -49,7 +49,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @PluginMain
-@ArtModule(value = "rcskills", packages = "de.raidcraft.skills.art")
+@ArtModule(value = "rcskills")
 public class RCSkills extends JavaPlugin {
 
     public static final String PERMISSION_PREFIX = "rcskills.";
@@ -132,6 +132,7 @@ public class RCSkills extends JavaPlugin {
         setupSlotManager();
         setupTargetManager();
         setupEffectManager();
+        setupPlaceholder();
         setupListener();
         if (!isTesting()) {
             setupCommands();
@@ -211,6 +212,13 @@ public class RCSkills extends JavaPlugin {
     private void setupEffectManager() {
 
         this.effectManager = new EffectManager(this);
+    }
+
+    private void setupPlaceholder() {
+
+        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null){
+            new SkillsExpansion().register();
+        }
     }
 
     private void setupTargetManager() {
