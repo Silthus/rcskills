@@ -1,3 +1,10 @@
+# [1.30.0](https://github.com/raidcraft/rcskills/compare/v1.29.0...v1.30.0) (2021-02-10)
+
+
+### Features
+
+* add proper dependencies to plugin.yml ([902adc7](https://github.com/raidcraft/rcskills/commit/902adc71664a36ab1d05162cd2d7af268b250032))
+
 # [1.29.0](https://github.com/raidcraft/rcskills/compare/v1.28.6...v1.29.0) (2021-02-10)
 
 
