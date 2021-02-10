@@ -1,3 +1,10 @@
+# [1.29.0](https://github.com/raidcraft/rcskills/compare/v1.28.6...v1.29.0) (2021-02-10)
+
+
+### Features
+
+* add placeholderapi support ([5c322a9](https://github.com/raidcraft/rcskills/commit/5c322a99be7e22fc9d9168fc4030a0a6c87612c1))
+
 ## [1.28.6](https://github.com/raidcraft/rcskills/compare/v1.28.5...v1.28.6) (2021-01-30)
 
 
