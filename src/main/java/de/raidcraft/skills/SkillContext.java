@@ -150,7 +150,7 @@ public interface SkillContext {
 
         if (player == null) return false;
 
-        return offlinePlayer().getUniqueId().equals(skilledPlayer().id());
+        return player.getUniqueId().equals(skilledPlayer().id());
     }
 
     /**
