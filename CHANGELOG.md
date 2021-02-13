@@ -1,3 +1,15 @@
+## [2.0.1](https://github.com/raidcraft/rcskills/compare/v2.0.0...v2.0.1) (2021-02-13)
+
+
+### Bug Fixes
+
+* applicable check of skills not working ([d95754a](https://github.com/raidcraft/rcskills/commit/d95754a5f5c067bbdbacbe36a7d0a0a0efc5190b)), closes [#29](https://github.com/raidcraft/rcskills/issues/29)
+
+
+### Reverts
+
+* remove shaded dependencies from api surface ([e54fc77](https://github.com/raidcraft/rcskills/commit/e54fc778b9f4731ff39af2f4edec8a5cc0be277b))
+
 # [2.0.0](https://github.com/raidcraft/rcskills/compare/v1.30.0...v2.0.0) (2021-02-10)
 
 
