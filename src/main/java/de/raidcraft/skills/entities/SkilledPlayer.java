@@ -1,5 +1,6 @@
 package de.raidcraft.skills.entities;
 
+import com.google.common.base.Strings;
 import de.raidcraft.skills.RCSkills;
 import de.raidcraft.skills.actions.AddSkillAction;
 import de.raidcraft.skills.actions.BuySkillAction;
@@ -47,6 +48,22 @@ public class SkilledPlayer extends BaseEntity {
                     skilledPlayer.insert();
                     return skilledPlayer;
                 });
+    }
+
+    /**
+     * Tries to find a skilled player with the given name.
+     * <p>The name can be case insensitive.
+     *
+     * @param name the name of the player. can be case insensitive.
+     * @return the player if found
+     */
+    public static Optional<SkilledPlayer> byName(String name) {
+
+        if (Strings.isNullOrEmpty(name)) return Optional.empty();
+
+        return find.query().where()
+                .ieq("name", name)
+                .findOneOrEmpty();
     }
 
     private String name;

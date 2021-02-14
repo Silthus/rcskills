@@ -439,7 +439,8 @@ public class RCSkills extends JavaPlugin {
                     UUID uuid = UUID.fromString(arg);
                     return SkilledPlayer.find.byId(uuid);
                 } catch (Exception e) {
-                    player = Bukkit.getPlayerExact(arg);
+                    return SkilledPlayer.byName(arg)
+                            .orElseThrow(() -> new InvalidCommandArgument("Der Spieler " + arg + " wurde nicht gefunden."));
                 }
             }
 
