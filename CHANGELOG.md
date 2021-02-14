@@ -1,3 +1,10 @@
+# [2.2.0](https://github.com/raidcraft/rcskills/compare/v2.1.0...v2.2.0) (2021-02-14)
+
+
+### Features
+
+* add optional reason to exp gain command ([57129f8](https://github.com/raidcraft/rcskills/commit/57129f86d312057e21708c5e49c9f422792a1bf6))
+
 # [2.1.0](https://github.com/raidcraft/rcskills/compare/v2.0.1...v2.1.0) (2021-02-14)
 
 
