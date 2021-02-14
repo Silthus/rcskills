@@ -1,3 +1,15 @@
+# [2.1.0](https://github.com/raidcraft/rcskills/compare/v2.0.1...v2.1.0) (2021-02-14)
+
+
+### Bug Fixes
+
+* allow commands on offline players ([f89073b](https://github.com/raidcraft/rcskills/commit/f89073b05a91a655fa9ce2484e03f0f983f22780))
+
+
+### Features
+
+* remove gained skillpoints and slots on level down ([8201f85](https://github.com/raidcraft/rcskills/commit/8201f85be85017a8c62f3eedb616762a442e731e)), closes [#45](https://github.com/raidcraft/rcskills/issues/45)
+
 ## [2.0.1](https://github.com/raidcraft/rcskills/compare/v2.0.0...v2.0.1) (2021-02-13)
 
 
