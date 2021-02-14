@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import de.raidcraft.skills.entities.*;
 import de.raidcraft.skills.events.*;
 import de.raidcraft.skills.util.Effects;
+import io.ebean.annotation.Transactional;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -182,20 +183,22 @@ public final class LevelManager implements Listener {
     }
 
     @EventHandler
+    @Transactional
     public void onLeveledUp(PlayerLeveledEvent event) {
 
         SkillPluginConfig.LevelUpConfig config = getPlugin().getPluginConfig().getLevelUpConfig();
 
         int levelDiff = event.getNewLevel() - event.getOldLevel();
         if (levelDiff == 0) return;
+        boolean levelDown = levelDiff < 0;
 
         int skillpoints = levelDiff * config.getSkillPointsPerLevel();
         Map<SkillSlot.Status, Integer> skillSlots = new HashMap<>();
         skillSlots.put(SkillSlot.Status.valueOf(config.getSlotStatus()), levelDiff * config.getSlotsPerLevel());
 
         SkilledPlayer skilledPlayer = event.getPlayer();
-        for (int i = 0; i < levelDiff; i++) {
-            int level = event.getOldLevel() + 1 + i;
+        for (int i = 0; i < Math.abs(levelDiff); i++) {
+            int level = event.getOldLevel() + 1 + (levelDown ? -i : i);
             SkillPluginConfig.LevelUp levelUp = config.getLevels().get(level);
             if (levelUp != null) {
                 skillpoints += levelUp.getSkillpoints();
@@ -205,22 +208,40 @@ public final class LevelManager implements Listener {
                     slots += levelUp.getSlots();
                     skillSlots.put(status, slots);
                 }
-                levelUp.getCommands().stream()
-                        .map(s -> s.replace("{player}", skilledPlayer.name()))
-                        .map(s -> s.replace("{player_id}", skilledPlayer.id().toString()))
-                        .forEach(s -> Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), s));
+                if (!levelDown) {
+                    levelUp.getCommands().stream()
+                            .map(s -> s.replace("{player}", skilledPlayer.name()))
+                            .map(s -> s.replace("{player_id}", skilledPlayer.id().toString()))
+                            .forEach(s -> Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), s));
+                }
             }
         }
 
-        skilledPlayer.addSkillPoints(skillpoints);
-        skillSlots.forEach((status, integer) -> skilledPlayer.addSkillSlots(integer, status));
+        if (levelDown) {
+            skilledPlayer.removeSkillPoints(skillpoints);
+            skilledPlayer.resetSkillSlots();
+            int sum = skillSlots.entrySet().stream()
+                    .filter(statusIntegerEntry -> statusIntegerEntry.getKey() == SkillSlot.Status.FREE)
+                    .mapToInt(Map.Entry::getValue).sum();
+            skilledPlayer.setSkillSlots(skilledPlayer.slotCount() - sum, SkillSlot.Status.FREE);
+
+            int removedFreeResets = sum * plugin.getPluginConfig().getSlotConfig().getFreeResetsPerSlot();
+            int freeResets = skilledPlayer.freeResets() - removedFreeResets;
+            if (freeResets < 0) freeResets = 0;
+            freeResets++;
+
+            skilledPlayer.freeResets(freeResets).save();
+        } else {
+            skilledPlayer.addSkillPoints(skillpoints);
+            skillSlots.forEach((status, integer) -> skilledPlayer.addSkillSlots(integer, status));
+        }
 
         int freeResetsPerSlot = plugin.getPluginConfig().getSlotConfig().getFreeResetsPerSlot();
         int freeResets = 0;
 
         int newSkillSlots = skillSlots.values().stream().mapToInt(value -> value).sum();
 
-        if (freeResetsPerSlot > 0 && newSkillSlots > 0) {
+        if (!levelDown && freeResetsPerSlot > 0 && newSkillSlots > 0) {
             freeResets = freeResetsPerSlot * newSkillSlots;
             skilledPlayer.freeResets(freeResets + skilledPlayer.freeResets()).save();
         }
