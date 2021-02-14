@@ -1,6 +1,7 @@
 package de.raidcraft.skills;
 
 import co.aikar.commands.CommandIssuer;
+import com.google.common.base.Strings;
 import de.raidcraft.economy.wrapper.Economy;
 import de.raidcraft.skills.commands.PlayerCommands;
 import de.raidcraft.skills.entities.*;
@@ -259,16 +260,22 @@ public final class Messages {
         return Title.title(headline, subline);
     }
 
-    public static Component addExpSelf(SkilledPlayer player, int exp) {
+    public static Component addExpSelf(SkilledPlayer player, int exp, String reason) {
 
         if (exp == 0) return empty();
 
-        return text().append(text("Du", ACCENT, BOLD)
+        TextComponent.Builder builder = text().append(text("Du", ACCENT, BOLD)
                 .hoverEvent(showText(playerInfo(player))))
                 .append(text(" hast ", SUCCESS))
                 .append(text(exp + " EXP", HIGHLIGHT))
-                .append(text(" erhalten!", SUCCESS))
-                .build();
+                .append(text(" erhalten!", SUCCESS));
+
+        if (!Strings.isNullOrEmpty(reason)) {
+            builder.append(text(" Grund: ", TEXT))
+                    .append(text(reason, NOTE, ITALIC));
+        }
+
+        return builder.build();
     }
 
     public static Component addLevelSelf(SkilledPlayer player, int level) {

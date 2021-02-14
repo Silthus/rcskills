@@ -60,14 +60,14 @@ public class AdminCommands extends BaseCommand {
 
         @Subcommand("exp|xp")
         @CommandAlias("addxp")
-        @CommandCompletion("@players")
+        @CommandCompletion("@players * *")
         @Description("Fügt dem Spieler Erfahrungspunkte hinzu.")
         @CommandPermission("rcskills.admin.add.exp")
-        public void addExp(SkilledPlayer player, int exp) {
+        public void addExp(SkilledPlayer player, int exp, @Optional String reason) {
 
-            player.addExp(exp, "admin:command").save();
+            player.addExp(exp, Strings.isNullOrEmpty(reason) ? "admin:command" : reason).save();
             Messages.send(getCurrentCommandIssuer().getUniqueId(), Messages.addExp(player, exp));
-            Messages.send(player, Messages.addExpSelf(player, exp));
+            Messages.send(player, Messages.addExpSelf(player, exp, reason));
         }
 
         @Subcommand("skillpoints|sp")
