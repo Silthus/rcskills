@@ -1,3 +1,10 @@
+# [2.3.0](https://github.com/raidcraft/rcskills/compare/v2.2.0...v2.3.0) (2021-02-27)
+
+
+### Features
+
+* add new command skill type ([a67affb](https://github.com/raidcraft/rcskills/commit/a67affb3c3ecb0db600d96ea67f549a6a4b4d8aa))
+
 # [2.2.0](https://github.com/raidcraft/rcskills/compare/v2.1.0...v2.2.0) (2021-02-14)
 
 
