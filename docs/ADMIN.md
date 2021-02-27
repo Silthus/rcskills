@@ -4,6 +4,9 @@
 * [Configuration](#configuration)
   * [config.yml](#configyml)
   * [Skills konfigurieren](#skills-konfigurieren)
+* [Skill Types](#skill-types)
+  * [permission](#permission)
+  * [command](#command)
 
 ## Befehle
 
@@ -146,3 +149,26 @@ skills:
       permissions:
         - bar
 ```
+
+## Skill Types
+
+RCSkills comes with two built-in skill types: `permission` and `command`. The first one allows you to give a player a special permission when he has the skill active. The second one can execute commands when the skill is activated, removed or executed.
+
+### permission
+
+Gives the player a permission while he has the skill.
+
+| Option | Default | Beschreibung |
+| ------ | ------- | ----------- |
+| `permissions` | `[]` | A list of permissions the player gets while he has the skill. Use the `command` skill if you are using LuckPerms and want to use context based permissions. |
+
+### command
+
+Executes a command as the player or server when the skill is applied, removed or executed.
+
+| Option | Default | Beschreibung |
+| ------ | ------- | ----------- |
+| `apply` | `[]` | A list of commands that are executed when the skill is applied (e.g. the player joins or activates the skill). Playerholders are supported here. |
+| `remove` | `[]` | A list of commands that are executed when the skill is removed (e.g. the player quits or resets his skills). Playerholders are supported here. |
+| `execute` | `[]` | A list of commands that are executed when the skill is executed. Playerholders are supported here. |
+| `server` | `false` | Set to `true` if the commands should be executed as the console. |

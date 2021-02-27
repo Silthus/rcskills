@@ -5,6 +5,7 @@ import de.raidcraft.skills.entities.ConfiguredSkill;
 import de.raidcraft.skills.entities.PlayerSkill;
 import de.raidcraft.skills.entities.SkilledPlayer;
 import de.raidcraft.skills.requirements.*;
+import de.raidcraft.skills.skills.CommandSkill;
 import de.raidcraft.skills.skills.EmptySkill;
 import de.raidcraft.skills.skills.PermissionSkill;
 import de.raidcraft.skills.util.ConfigUtil;
@@ -71,6 +72,7 @@ public final class SkillManager {
         registerRequirement(SkillPointRequirement.class, SkillPointRequirement::new);
 
         registerSkill(new PermissionSkill.PermissionSkillFactory());
+        registerSkill(new CommandSkill.Factory());
         registerSkill(new EmptySkill.Factory());
     }
 
