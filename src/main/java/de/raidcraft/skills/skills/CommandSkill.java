@@ -47,8 +47,8 @@ public class CommandSkill extends AbstractSkill implements Executable {
         this.removeCommands.clear();
         this.executeCommands.clear();
         this.applyCommands.addAll(config.getStringList("apply"));
-        this.applyCommands.addAll(config.getStringList("remove"));
-        this.applyCommands.addAll(config.getStringList("execute"));
+        this.removeCommands.addAll(config.getStringList("remove"));
+        this.executeCommands.addAll(config.getStringList("execute"));
         this.asServer = config.getBoolean("server", false);
     }
 
@@ -67,7 +67,7 @@ public class CommandSkill extends AbstractSkill implements Executable {
     @Override
     public ExecutionResult execute(ExecutionContext context) throws Exception {
 
-        context().player().ifPresent(player -> executeCommands(context.player(), removeCommands));
+        context().player().ifPresent(player -> executeCommands(context.player(), executeCommands));
 
         return context.success();
     }
