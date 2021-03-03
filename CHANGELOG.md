@@ -1,3 +1,10 @@
+## [2.3.2](https://github.com/raidcraft/rcskills/compare/v2.3.1...v2.3.2) (2021-03-03)
+
+
+### Bug Fixes
+
+* do not make the command skill executable ([276bff6](https://github.com/raidcraft/rcskills/commit/276bff6b392d8c329b9d6300de13d372a6e78707))
+
 ## [2.3.1](https://github.com/raidcraft/rcskills/compare/v2.3.0...v2.3.1) (2021-03-03)
 
 
