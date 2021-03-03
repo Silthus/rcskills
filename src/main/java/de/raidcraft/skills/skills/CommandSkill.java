@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SkillInfo("command")
-public class CommandSkill extends AbstractSkill implements Executable {
+public class CommandSkill extends AbstractSkill {
 
     public static class Factory implements SkillFactory<CommandSkill> {
 
@@ -31,7 +31,6 @@ public class CommandSkill extends AbstractSkill implements Executable {
 
     private final List<String> applyCommands = new ArrayList<>();
     private final List<String> removeCommands = new ArrayList<>();
-    private final List<String> executeCommands = new ArrayList<>();
     private boolean asServer = false;
 
     public CommandSkill(SkillContext context, RCSkills plugin) {
@@ -45,10 +44,8 @@ public class CommandSkill extends AbstractSkill implements Executable {
 
         this.applyCommands.clear();
         this.removeCommands.clear();
-        this.executeCommands.clear();
         this.applyCommands.addAll(config.getStringList("apply"));
         this.removeCommands.addAll(config.getStringList("remove"));
-        this.executeCommands.addAll(config.getStringList("execute"));
         this.asServer = config.getBoolean("server", false);
     }
 
@@ -62,14 +59,6 @@ public class CommandSkill extends AbstractSkill implements Executable {
     public void remove() {
 
         context().player().ifPresent(player -> executeCommands(player, removeCommands));
-    }
-
-    @Override
-    public ExecutionResult execute(ExecutionContext context) throws Exception {
-
-        context().player().ifPresent(player -> executeCommands(context.player(), executeCommands));
-
-        return context.success();
     }
 
     private void executeCommands(Player player, List<String> commands) {
