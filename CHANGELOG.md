@@ -1,3 +1,10 @@
+## [2.3.1](https://github.com/raidcraft/rcskills/compare/v2.3.0...v2.3.1) (2021-03-03)
+
+
+### Bug Fixes
+
+* command skill always executing apply apply commands ([18e0449](https://github.com/raidcraft/rcskills/commit/18e044966b4d083a61885a0bbfcbf70ad72be468))
+
 # [2.3.0](https://github.com/raidcraft/rcskills/compare/v2.2.0...v2.3.0) (2021-02-27)
 
 
