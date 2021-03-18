@@ -1,3 +1,10 @@
+# [2.4.0](https://github.com/raidcraft/rcskills/compare/v2.3.2...v2.4.0) (2021-03-18)
+
+
+### Features
+
+* add player analytics data extension ([30814d1](https://github.com/raidcraft/rcskills/commit/30814d10805930a79cf9d783d94bad0b44d3edab))
+
 ## [2.3.2](https://github.com/raidcraft/rcskills/compare/v2.3.1...v2.3.2) (2021-03-03)
 
 
