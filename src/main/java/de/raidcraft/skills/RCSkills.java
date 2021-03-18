@@ -15,6 +15,7 @@ import de.raidcraft.skills.commands.PlayerCommands;
 import de.raidcraft.skills.entities.*;
 import de.raidcraft.skills.listener.BindingListener;
 import de.raidcraft.skills.listener.PlayerListener;
+import de.raidcraft.skills.plan.PlanHook;
 import de.raidcraft.skills.worldguard.SkillSessionHandler;
 import de.slikey.effectlib.EffectManager;
 import io.artframework.Scope;
@@ -84,6 +85,7 @@ public class RCSkills extends JavaPlugin {
     private PaperCommandManager commandManager;
     @Getter
     private EffectManager effectManager;
+    private PlanHook planHook;
 
     @Getter
     private static boolean testing = false;
@@ -135,6 +137,7 @@ public class RCSkills extends JavaPlugin {
         setupPlaceholder();
         setupListener();
         if (!isTesting()) {
+            setupPlayerAnalytics();
             setupCommands();
             registerPermissions();
             Bukkit.getScheduler().runTaskLater(this, this::registerWorldGuardSessionHandler, 1L);
@@ -197,6 +200,12 @@ public class RCSkills extends JavaPlugin {
         SessionManager sessionManager = WorldGuard.getInstance().getPlatform().getSessionManager();
         sessionManager.registerHandler(SkillSessionHandler.FACTORY, null);
         getLogger().info("registered custom WorldGuard session handler: " + SkillSessionHandler.class.getCanonicalName());
+    }
+
+    private void setupPlayerAnalytics() {
+
+        planHook = new PlanHook();
+        planHook.hookIntoPlan();
     }
 
     private void setupSkillManager() {
