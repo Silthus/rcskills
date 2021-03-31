@@ -1,3 +1,10 @@
+## [2.4.1](https://github.com/raidcraft/rcskills/compare/v2.4.0...v2.4.1) (2021-03-31)
+
+
+### Bug Fixes
+
+* print plan registration stacktrace on error ([6d1d8f0](https://github.com/raidcraft/rcskills/commit/6d1d8f0dc152158709f936b136a68b3c2c408e3d))
+
 # [2.4.0](https://github.com/raidcraft/rcskills/compare/v2.3.2...v2.4.0) (2021-03-18)
 
 
