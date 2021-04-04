@@ -100,7 +100,7 @@ public class RCSkillsDataExtension implements DataExtension {
             iconColor = Color.DEEP_ORANGE,
             showInPlayerTable = true
     )
-    public int level(UUID playerUUID) {
+    public long level(UUID playerUUID) {
 
         return Optional.ofNullable(SkilledPlayer.find.byId(playerUUID))
                 .map(SkilledPlayer::level)
@@ -133,7 +133,7 @@ public class RCSkillsDataExtension implements DataExtension {
             iconFamily = Family.SOLID,
             iconColor = Color.DEEP_ORANGE
     )
-    public int skillpoints(UUID playerUUID) {
+    public long skillpoints(UUID playerUUID) {
 
         return Optional.ofNullable(SkilledPlayer.find.byId(playerUUID))
                 .map(SkilledPlayer::skillPoints)
@@ -148,7 +148,7 @@ public class RCSkillsDataExtension implements DataExtension {
             iconFamily = Family.REGULAR,
             iconColor = Color.GREY
     )
-    public int freeSkillSlots(UUID playerUUID) {
+    public long freeSkillSlots(UUID playerUUID) {
 
         return Optional.ofNullable(SkilledPlayer.find.byId(playerUUID))
                 .map(SkilledPlayer::freeSkillSlots)
@@ -163,7 +163,7 @@ public class RCSkillsDataExtension implements DataExtension {
             iconFamily = Family.REGULAR,
             iconColor = Color.BLACK
     )
-    public int totalSkillSlots(UUID playerUUID) {
+    public long totalSkillSlots(UUID playerUUID) {
 
         return Optional.ofNullable(SkilledPlayer.find.byId(playerUUID))
                 .map(SkilledPlayer::slotCount)
@@ -178,7 +178,7 @@ public class RCSkillsDataExtension implements DataExtension {
             iconFamily = Family.SOLID,
             iconColor = Color.AMBER
     )
-    public int activeSkillsCount(UUID playerUUID) {
+    public long activeSkillsCount(UUID playerUUID) {
 
         return Optional.ofNullable(SkilledPlayer.find.byId(playerUUID))
                 .map(SkilledPlayer::activeSlotCount)
