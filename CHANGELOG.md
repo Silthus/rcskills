@@ -1,3 +1,10 @@
+## [2.4.2](https://github.com/raidcraft/rcskills/compare/v2.4.1...v2.4.2) (2021-04-04)
+
+
+### Bug Fixes
+
+* **plan:** return long for number provider instead of int ([a59b89d](https://github.com/raidcraft/rcskills/commit/a59b89de3486e807fcd2db91bcb4dd19f7777058))
+
 ## [2.4.1](https://github.com/raidcraft/rcskills/compare/v2.4.0...v2.4.1) (2021-03-31)
 
 
